@@ -1,5 +1,6 @@
 import Erdos289.Defs
 import Erdos289.ExternalBridge
+import Erdos289.Lemma5
 
 /-!
 # Signed correction fibers: shared definitions
@@ -62,5 +63,30 @@ structure SignedFiber (ε : ℝ) (q : ℕ) where
   four : ∀ m ∈ I, 4 ∣ slot q m (σ m)
   /-- Slots are distinct within the fiber. -/
   slot_inj : Set.InjOn (fun m => slot q m (σ m)) I
+
+
+/-- Auxiliary family for the signed construction (docs Section 4): as `AuxFamily`, except that the
+auxiliary pairs avoid the enlarged endpoint set `PstarSigned ε L` by distance two, hence are
+separated from every possible signed correction pair. -/
+structure AuxFamilyS (ε : ℝ) (L : ℕ) where
+  /-- Left endpoints of the auxiliary pairs at stage `q`. -/
+  F : ℕ → Finset ℕ
+  card_eq : ∀ q, IsPrimePow q → L < q → (F q).card = s q
+  lower : ∀ q, IsPrimePow q → L < q → ∀ a ∈ F q, (q : ℝ) ^ ((11 : ℝ) / 10) ≤ a
+  upper : ∀ q, IsPrimePow q → L < q → ∀ a ∈ F q, ((a + 1 : ℕ) : ℝ) ≤ 2 * (q : ℝ) ^ ((11 : ℝ) / 10)
+  four_dvd : ∀ q, IsPrimePow q → L < q → ∀ a ∈ F q, 4 ∣ a
+  smooth_lo : ∀ q, IsPrimePow q → L < q → ∀ a ∈ F q, Powersmooth (q / 2) a
+  smooth_hi : ∀ q, IsPrimePow q → L < q → ∀ a ∈ F q, Powersmooth (q / 2) (a + 1)
+  sep_aux : ∀ q q', IsPrimePow q → L < q → IsPrimePow q' → L < q' →
+    ∀ a ∈ F q, ∀ a' ∈ F q', (q, a) ≠ (q', a') → Iv.Sep (Iv.pair a) (Iv.pair a')
+  /-- Every auxiliary endpoint is at distance more than two from the enlarged endpoint set. -/
+  avoid : ∀ q, IsPrimePow q → L < q → ∀ a ∈ F q, ∀ n ∈ PstarSigned ε L, n + 2 < a ∨ a + 2 < n
+  count : ∃ C : ℝ, ∀ X : ℕ, ((Fstar L F ∩ Set.Icc 1 X).ncard : ℝ) ≤ C * (X : ℝ) ^ ((21 : ℝ) / 22)
+
+/-- The protected set `U = P* ∪ F*` for the signed construction. -/
+def USigned (ε : ℝ) (L : ℕ) (A : AuxFamilyS ε L) : Set ℕ := PstarSigned ε L ∪ Fstar L A.F
+
+/-- The signed pair mass `w_σ(q m) = 1/(q m) + 1/(q m + σ)` (docs display (D3)). -/
+def wSigned (q m : ℕ) (σ : ℤ) : ℚ := 1 / (q * m : ℚ) + 1 / ((q * m : ℚ) + σ)
 
 end Erdos289
