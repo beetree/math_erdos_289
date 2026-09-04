@@ -4,6 +4,7 @@ import Erdos289.ExternalAxioms
 import SolveMath.Ported.DivisorBound
 import SolveMath.Ported.MertensSecond
 import SolveMath.Ported.LiuSawhney
+import SolveMath.Ported.ErdosTuranFinite
 
 /-!
 # Bridging the author's audited external axioms to our statements
@@ -363,10 +364,10 @@ alias divisor_bound := Ported.divisor_bound
 
 
 /-- **Erdős–Turán, weak (`N / √H`) form.** This is the only form used downstream
-(`Erdos289.Equidist.equidist_inverse'`, which takes a fixed cutoff). It follows from the audited
-statement since `N / H ≤ N / √H`; it is also provable directly from the ported finite
-Erdős–Turán inequality `QuantitativeErdosTuran.erdosTuran_fract_count`, which is how the
-audited axiom is removed from the dependency chain. -/
+(`Erdos289.Equidist.equidist_inverse'`, which takes a fixed cutoff). It is proved from the ported
+finite Erdős–Turán inequality `QuantitativeErdosTuran.erdosTuran_fract_count` (axiom-clean), so
+the audited axiom `erdos_turan` is not needed downstream. (It also follows from the audited
+statement, since `N / H ≤ N / √H`.) -/
 theorem erdos_turan_weak :
     ∃ C : ℝ, 0 < C ∧ ∀ (U : ℕ), 0 < U → ∀ (N : ℕ) (x : Fin N → ZMod U) (H : ℕ), 0 < H →
       ∀ α ℓ : ℕ, α + ℓ ≤ U →
@@ -375,15 +376,6 @@ theorem erdos_turan_weak :
           ≤ C * ((N : ℝ) / Real.sqrt (H : ℝ)
               + ∑ h ∈ Finset.Icc 1 H, (1 : ℝ) / (h : ℝ) *
                   ‖∑ j, e U (h * ((x j).val : ℤ))‖) := by
-  obtain ⟨C, hC, h⟩ := erdos_turan
-  refine ⟨C, hC, fun U hU N x H hH α ℓ hαℓ => ?_⟩
-  refine (h U hU N x H hH α ℓ hαℓ).trans ?_
-  gcongr
-  have hH' : (1 : ℝ) ≤ H := by exact_mod_cast hH
-  have hs : Real.sqrt (H : ℝ) ≤ H := by
-    calc Real.sqrt (H : ℝ) ≤ Real.sqrt ((H : ℝ) * H) := by
-          apply Real.sqrt_le_sqrt; nlinarith
-      _ = H := by rw [Real.sqrt_mul_self (by positivity)]
-  exact hs
+  simpa [e] using Ported.erdos_turan_weak
 
 end Erdos289
