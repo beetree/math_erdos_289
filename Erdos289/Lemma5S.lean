@@ -398,11 +398,11 @@ theorem stage_existsS (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (hD1 : hD1Type 
           rw [hPstarFinSdef, Set.Finite.mem_toFinset]
           exact ⟨hn, Set.mem_Icc.mpr ⟨hnpos, hcase⟩⟩
         by_contra hcon
-        push_neg at hcon
+        push Not at hcon
         apply hBP
         rw [hBadPstarSdef]
         exact Finset.mem_filter.mpr ⟨haC, n, hnPstarFinS, by omega⟩
-      · push_neg at hcase
+      · push Not at hcase
         right; omega
   · intro q' hq'lt a ha a' ha'
     obtain ⟨haC, _, _, hBR⟩ := hGoodCand_mem a (hTsub ha)

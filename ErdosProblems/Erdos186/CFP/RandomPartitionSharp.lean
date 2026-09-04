@@ -386,8 +386,7 @@ theorem stronglyStableFor_anchoredColorClass_of_robust_obstacles
     · exact b.2
   have hweakPart : WeaklyStableFor part box t maxRank differenceBound := by
     refine ⟨by simp [part, anchoredColorClass], ?_⟩
-    intro B hBpart hlarge hzeroB d hd hdRank P hsteps hvolume
-    intro hcontained
+    intro B hBpart hlarge hzeroB d hd hdRank P hsteps hvolume hcontained
     have hzeroP : integerPoint 0 ∈ P.carrier :=
       hcontained (integerPoint_mem_integerPoints_iff.mpr hzeroB)
     obtain ⟨w, hw⟩ := family.covers hd hdRank P hsteps hvolume hzeroP

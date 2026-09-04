@@ -107,7 +107,8 @@ theorem correctionDataS_exists :
             rw [← Real.rpow_add hqpos]; congr 1; ring
     have hgoal : (q : ℝ) ^ (15 * ε / 16) ≤ (q : ℝ) ^ ε / (8 * (Venv ε q : ℝ)) := by
       rw [le_div_iff₀ hdenpos]; exact hkey
-    have hFeq : F q = (hQ₁ q hpp hq1).choose := dif_pos ⟨hpp, hq1⟩
+    have hFeq : F q = (hQ₁ q hpp hq1).choose :=
+      dite_eq_left_of_eq_true (eq_true ⟨hpp, hq1⟩)
     rw [hFeq]
     exact le_trans hgoal (hQ₁ q hpp hq1).choose_spec
   -- Lemma F2: retained fibers `J q`, pairwise separated.

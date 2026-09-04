@@ -413,7 +413,7 @@ For every `0 < ε < 1` there is a cutoff `L₀` such that, for every `L ≥ L₀
 and every family of signed fibers with `|I_q| ≥ q^{15ε/16}` for the prime powers
 `L < q ≤ H`, one can retain at least a quarter of every fiber so that all the retained
 signed pairs, across all labels, are pairwise separated. -/
-theorem lemmaF2 (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
+theorem lemmaF2 (ε : ℝ) (hε0 : 0 < ε) (_hε1 : ε < 1) :
     ∃ L₀ : ℕ, ∀ L : ℕ, L₀ ≤ L → ∀ H : ℕ, L ≤ H →
       ∀ F : (q : ℕ) → SignedFiber ε q,
         (∀ q, IsPrimePow q → L < q → q ≤ H → (q : ℝ) ^ (15 * ε / 16) ≤ ((F q).I.card : ℝ)) →

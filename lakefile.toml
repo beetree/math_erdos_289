@@ -29,4 +29,4 @@ leanOptions = { linter.deprecated = false, linter.unusedSimpArgs = false, linter
 # see ErdosProblems/PROVENANCE.md.
 [[lean_lib]]
 name = "ErdosProblems"
-leanOptions = { linter.deprecated = false, linter.unusedSimpArgs = false, linter.style.haveILetI = false, linter.unusedVariables = false, linter.defProp = false, linter.unnecessarySimpa = false, linter.unusedTactic = false, linter.unnecessarySeqFocus = false, linter.unusedSectionVars = false, linter.unreachableTactic = false }
+leanOptions = { warn.classDefReducibility = false, linter.deprecated = false, linter.unusedSimpArgs = false, linter.style.haveILetI = false, linter.unusedVariables = false, linter.defProp = false, linter.unnecessarySimpa = false, linter.unusedTactic = false, linter.unnecessarySeqFocus = false, linter.unusedSectionVars = false, linter.unreachableTactic = false }

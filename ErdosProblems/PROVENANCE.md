@@ -78,3 +78,6 @@ and this one line.
   `push_neg` was replaced by its documented replacement `push Not`, to keep the project's build
   warning-free. No other change to any ported file. Linters that would otherwise fire on the
   verbatim code are disabled for this library in `lakefile.toml`.
+- In `ErdosProblems/Erdos186/CFP/RandomPartition.lean` and `ErdosProblems/Erdos186/CFP/RandomPartitionSharp.lean`,
+  merged consecutive `intro` lines into explicit `intro B hBpart hlarge hzeroB d hd hdRank P hsteps hvolume hcontained`
+  to eliminate "Try this" suggestions.
