@@ -228,6 +228,3 @@ models used were GPT 6 Astra (OpenAI), Claude Fable 5.1 (Anthropic) and Gemini 3
 Lean proofs of roughly three million lines. All mathematical content was reviewed by the author,
 who takes sole responsibility for it. The author thanks the reviewers whose comments on earlier
 drafts led to the present formulation.
-
-The modules from that library that this repository uses are vendored under `SolveMath/` and
-`ErdosProblems/`, with their origin and every edit recorded in the `PROVENANCE.md` files there.
