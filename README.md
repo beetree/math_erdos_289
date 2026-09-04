@@ -1,5 +1,12 @@
 # Erdős Problem 289: Lean 4 formalization
 
+**Paper:** [*A solution of Erdős Problem 289 with intervals of length two and three*](erdos_289_full_proof.pdf)
+(Johan Land, 4 September 2026; [LaTeX source](erdos_289_full_proof.tex)). It proves that for every
+sufficiently large $k$ there are $k$ pairwise nonadjacent intervals of positive integers, each of
+length two or three and contained in $[1,20k]$, whose reciprocals sum to $1$. This repository holds
+the Lean 4 formalization of that theorem; the paper's Appendix A gives the certificate metadata
+and the correspondence between the paper and the Lean development.
+
 ## Verification transcript
 
 `lake build` on `main` produces no errors and no warnings; the single info line is the axiom
