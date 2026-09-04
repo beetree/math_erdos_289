@@ -1,3 +1,3 @@
-import SolveMath.Corpus.NumberTheory.DivisorCountSubpolynomialGrowth
-import SolveMath.Corpus.NumberTheory.MeisselMertensConstantAsymptotic
-import SolveMath.Edges.Erdos.P300.Solution
+import SolveMath.Ported.DivisorBound
+import SolveMath.Ported.MertensSecond
+import SolveMath.Ported.LiuSawhney

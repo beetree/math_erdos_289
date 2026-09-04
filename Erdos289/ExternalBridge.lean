@@ -1,7 +1,9 @@
 import Erdos289.External
 import Erdos289.ErdosTuran
 import Erdos289.ExternalAxioms
-import Erdos289.Ported
+import SolveMath.Ported.DivisorBound
+import SolveMath.Ported.MertensSecond
+import SolveMath.Ported.LiuSawhney
 
 /-!
 # Bridging the author's audited external axioms to our statements
