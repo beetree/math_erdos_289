@@ -209,6 +209,10 @@ reference copies outside the repository. No dependency on the `solve-math` repos
 
 ## Layout
 
-- `erdos_289_full_proof.pdf`: the manuscript being formalized.
-- The author's statement of faithfulness is reproduced above; the audited `Intervals.lean` is included unchanged.
-- `Erdos289/`: the Lean sources. `lakefile.toml` pins Mathlib to tag `v4.34.0-rc2`.
+- `erdos_289_full_proof.pdf`, `erdos_289_full_proof.tex`: the manuscript being formalized
+  (`scripts/build_proof_pdf.sh` rebuilds the PDF).
+- `docs/elementary_replacements.md`: the author's replacement argument for Lemma 1, as formalized.
+- `Erdos289/`: the Lean sources; `Erdos289/Main.lean` holds the terminal theorem. The audited
+  files `Intervals.lean` and `ExternalAxioms.lean` are included unchanged.
+- `SolveMath/`, `ErdosProblems/`: vendored proofs of the literature inputs (see "Vendored proofs").
+- `lakefile.toml`, `lake-manifest.json`, `lean-toolchain`: pins to Lean and Mathlib `v4.34.0-rc2`.
