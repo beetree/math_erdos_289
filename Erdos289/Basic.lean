@@ -1,4 +1,4 @@
-import Mathlib
+import Erdos289.Defs
 
 /-!
 # Erdős Problem 289
