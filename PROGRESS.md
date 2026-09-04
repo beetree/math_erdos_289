@@ -59,11 +59,15 @@ shows only the three standard axioms.
 |---|---|---|---|---|
 | `covering` | Opus | `Covering.lean` | docs §1 elementary covering | stopped (port chosen) |
 | `signedF1` | Opus | `SignedF1.lean` | Lemma F1 signed fibers | running |
-| `signedF2` | Opus | `SignedF2.lean` | Lemma F2 orientation | running |
-| `signedD1` | Opus | `SignedD1.lean` | Lemma D1 density zero | running |
-| `signedCancel` | Sonnet (janna) | `SignedCancel.lean` | signed cancellation (D3) | running |
-| `signedTail` | Sonnet (johan) | `SignedTail.lean` | mass tail (D4)–(D5) | running |
-| `lemma5S` | Sonnet (janna) | `Lemma5S.lean` | auxiliary family avoiding `PstarSigned` | running |
+| `signedF1G` + `signedF1G2` | Gemini, then Sonnet (janna) | `SignedF1G.lean` | F1 competitor (three sieve bounds left, being closed) | running |
+| `signedF2` | Opus | `SignedF2.lean` | Lemma F2 orientation | **done, proved** |
+| `signedD1G` | Gemini | `SignedD1.lean` | Lemma D1 density zero | **done, proved** (Opus run stopped) |
+| `signedCancel` | Sonnet (janna) | `SignedCancel.lean` | signed cancellation (D3) | **done, proved** |
+| `signedTail` | Sonnet (johan) | `SignedTail.lean` | mass tail (D4)–(D5) | **done, proved** |
+| `lemma5S` | Sonnet (janna) | `Lemma5S.lean` | auxiliary family avoiding `PstarSigned` | **done, proved** |
+| `lemma3wide` | Opus | `Lemma3*.lean` | covering for multipliers up to `C·q^ε` | **done, proved** |
+| `descentS` + `descentS2` | Sonnet (johan) | `DescentS.lean` | signed correction procedure | round 2 running (compile fixes) |
+| (next) | Sonnet | `CorrDataS.lean`, `AssemblyS.lean` | glue and assembly | prompts ready; launch when F1 and the descent land |
 | `coreS` | Sonnet (johan) | `CoreS.lean` | core with density-zero protected set | done, proved |
 
 ## Agents (earlier, on main)
