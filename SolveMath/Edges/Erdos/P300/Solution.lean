@@ -2026,7 +2026,7 @@ private lemma log_ratio_succ_le_top_rec_sum {a N : ℕ}
     _ = ∑ k ∈ Finset.Ico a N,
         (Real.log (k + 2 : ℕ) - Real.log (k + 1 : ℕ)) := by
       convert (Finset.sum_Ico_sub (fun k : ℕ ↦ Real.log (k + 1)) haN).symm using 1 <;>
-        norm_num <;> ring
+        norm_num <;> ring_nf
     _ ≤ ∑ k ∈ Finset.Ico a N, (((k + 1 : ℕ) : ℝ))⁻¹ := by
       apply Finset.sum_le_sum
       intro k hk
@@ -2353,7 +2353,7 @@ private lemma eventually_low_ppower_reciprocal_small {eta : ℝ}
     apply hdecayPow.congr'
     filter_upwards [hlogPos] with N hlog
     rw [Real.rpow_def_of_pos hlog]
-    ring
+    ring_nf
   have hscaled : Tendsto
       (fun N : ℕ ↦ (32 / eta) *
         Real.exp (-c * Real.log (Real.log (N : ℝ))))
@@ -2541,7 +2541,7 @@ private lemma tendsto_subpower_div_log_rpow (c k : ℝ) (hc : 0 < c) :
   rw [Real.rpow_def_of_pos hNpos, Real.rpow_def_of_pos hlog, Real.exp_sub]
   congr 1
   · field_simp [hllN.ne']
-  · ring
+  · ring_nf
 
 private noncomputable def circleM (eta : ℝ) (N : ℕ) : ℝ :=
   eta * (N : ℝ) / 32
@@ -3076,7 +3076,7 @@ private lemma eventually_scaled_hoeffding_tail {eta : ℝ}
       _ = 2 * Real.exp (C * smoothScale N -
           (m : ℝ) ^ 2 / (2 * (N : ℝ))) := by
         rw [sub_eq_add_neg, Real.exp_add]
-        ring
+        ring_nf
   calc
     _ ≤ 2 * Real.exp (C * smoothScale N -
         (m : ℝ) ^ 2 / (2 * (N : ℝ))) := hscaledTail
