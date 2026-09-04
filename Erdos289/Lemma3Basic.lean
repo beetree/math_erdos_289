@@ -377,7 +377,9 @@ lemma lemma3_structure_apply (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
     (by norm_num) (by norm_num)
   rw [eventually_atTop] at hstruct
   obtain ⟨M₀, hM₀⟩ := hstruct
-  obtain ⟨Q₁, hQ₁⟩ := lemma3_growth_bounds ε hε0 hε1 (c/2) (by positivity)
+  have hlog2 : (0:ℝ) < Real.log 2 := Real.log_pos (by norm_num)
+  have hcl2 : (0:ℝ) < c * Real.log 2 := mul_pos hc hlog2
+  obtain ⟨Q₁, hQ₁⟩ := lemma3_growth_bounds ε hε0 hε1 (c * Real.log 2 / 2) (by positivity)
   have hMtend : Tendsto (fun q : ℕ => (q:ℝ)^(7*ε/8)) atTop atTop :=
     (tendsto_rpow_atTop (by linarith)).comp tendsto_natCast_atTop_atTop
   obtain ⟨Q₂, hQ₂⟩ := Filter.eventually_atTop.mp (hMtend.eventually_ge_atTop (max (M₀:ℝ) 2))
@@ -448,24 +450,31 @@ lemma lemma3_structure_apply (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
   obtain ⟨hq_mB, hm13, hslog⟩ := hbounds m hm7 hm2q
   set s := ⌊(q:ℝ)^(ε/2)⌋₊ with hsdef
   have hlogm_pos : 0 < Real.log (m:ℝ) := Real.log_pos hm1
-  have hslog2 : (s:ℝ) ≤ c * (m:ℝ) / Real.log (m:ℝ) := by
-    have : c/2 * (m:ℝ)/Real.log (m:ℝ) ≤ c * (m:ℝ)/Real.log (m:ℝ) := by
+  have hlogTwo_eq : Erdos289.External.logTwo (m:ℝ) = Real.log m / Real.log 2 := rfl
+  -- `hslog : s ≤ (c * log 2 / 2) * m / log m`; double to reach the `logTwo`-form threshold.
+  have hslog2 : (s:ℝ) ≤ c * (m:ℝ) / Erdos289.External.logTwo m := by
+    have heq : c * (m:ℝ) / Erdos289.External.logTwo m = c * Real.log 2 * (m:ℝ) / Real.log m := by
+      rw [hlogTwo_eq]; field_simp
+    rw [heq]
+    have hmono : c * Real.log 2 / 2 * (m:ℝ) / Real.log m ≤ c * Real.log 2 * (m:ℝ) / Real.log m := by
       gcongr
-      nlinarith
+      linarith
     linarith
   obtain ⟨J, P, J', hJA, hPproper, hPdil, hPne, hPD, hJ'J, hJcard, hJmem, h0mem, hJ'card, x, hxdilate⟩ :=
     hM₀ m hmM0' q hq_mB A hAsub hAcard s hm13 hslog2
-  have hshalf : c⁻¹ * (s:ℝ) * Real.log (m:ℝ) ≤ (m:ℝ)/2 := by
-    have hslm : (s:ℝ) * Real.log (m:ℝ) ≤ c/2 * (m:ℝ) := by
+  have hshalf : c⁻¹ * (s:ℝ) * Erdos289.External.logTwo m ≤ (m:ℝ)/2 := by
+    have hslm : (s:ℝ) * Real.log (m:ℝ) ≤ c * Real.log 2 / 2 * (m:ℝ) := by
       rw [div_mul_eq_mul_div, le_div_iff₀ hlogm_pos] at hslog
       linarith
-    have := mul_le_mul_of_nonneg_left hslm (inv_nonneg.mpr hc.le)
-    have hcancel : c⁻¹ * (c/2 * m) = m/2 := by field_simp
-    calc c⁻¹ * (s:ℝ) * Real.log (m:ℝ) = c⁻¹ * ((s:ℝ) * Real.log (m:ℝ)) := by ring
-      _ ≤ c⁻¹ * (c/2 * (m:ℝ)) := this
-      _ = (m:ℝ)/2 := hcancel
+    have hlhs : c⁻¹ * (s:ℝ) * Erdos289.External.logTwo m
+        = (s:ℝ) * Real.log m / (c * Real.log 2) := by
+      rw [hlogTwo_eq]; field_simp
+    have hrhs : c * Real.log 2 / 2 * (m:ℝ) / (c * Real.log 2) = (m:ℝ)/2 := by
+      field_simp
+    rw [hlhs, ← hrhs]
+    gcongr
   refine ⟨J, J', P, hJA, hPproper, hPdil, hPne, hPD, hJ'J, ?_, hJmem, h0mem, hJ'card, x, hxdilate⟩
-  have : (m:ℝ) - c⁻¹ * (s:ℝ) * Real.log (m:ℝ) ≤ (J.card:ℝ) := hJcard
+  have : (m:ℝ) - c⁻¹ * (s:ℝ) * Erdos289.External.logTwo m ≤ (J.card:ℝ) := hJcard
   linarith
 
 /-- Helper: an arithmetic progression `x + t * δ`, `t = 0, …, n-1`, with `δ` a unit mod `q`

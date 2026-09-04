@@ -1,4 +1,5 @@
 import Erdos289.Defs
+import Erdos289.ExternalAxioms
 
 /-!
 # External inputs from the published literature
@@ -97,23 +98,26 @@ Egyptian fractions* (arXiv:2404.16016), Theorem 3, derived there from Conlon–F
 
 Fix `β > 1` and `0 < η < 1`. There are constants `c > 0` and `d₀ : ℕ` such that, for all
 sufficiently large `m`, for every `n ≤ m ^ β`, every `A ⊆ [1, n]` with `|A| = m`, and
-every integer `s` with `m ^ η ≤ s ≤ c m / log m`, there are `J ⊆ A`, a proper GAP `P` of
-rank at most `d₀`, and `J' ⊆ J` such that `|J| ≥ m - s log m / c`, `J ∪ {0} ⊆ P`,
+every integer `s` with `m ^ η ≤ s ≤ c m / log₂ m`, there are `J ⊆ A`, a proper GAP `P` of
+rank at most `d₀`, and `J' ⊆ J` such that `|J| ≥ m - s log₂ m / c`, `J ∪ {0} ⊆ P`,
 `|J'| ≤ s`, and the subset sums of `J'` contain a translate of the proper dilate `(c s) • P`.
 The dilate `(c s) • P` is itself asserted to be proper and nonempty (the paper's phrases
 "the proper dilate `csP`" and "the supplied proper GAP `csP` is nonempty"; both are needed
-for the face count in the proof of Lemma 3).
+for the face count in the proof of Lemma 3). The logarithm here is the source-native base-two
+`log₂ x = log x / log 2` (`Erdos289.External.logTwo`), matching the audited
+`CFHMPSVStructureStatement` in `ExternalAxioms.lean` on the nose, so that the bridge in
+`ExternalBridge.lean` can use the very same constant `c`.
 
 This is an unproved external input: it is taken as a black box from the published paper. -/
 axiom cfhmpsv_structure (β : ℝ) (hβ : 1 < β) (η : ℝ) (hη0 : 0 < η) (hη1 : η < 1) :
     ∃ c : ℝ, 0 < c ∧ ∃ d₀ : ℕ,
       ∀ᶠ m : ℕ in atTop, ∀ n : ℕ, (n : ℝ) ≤ (m : ℝ) ^ β →
         ∀ A : Finset ℕ, A ⊆ Finset.Icc 1 n → A.card = m →
-        ∀ s : ℕ, (m : ℝ) ^ η ≤ (s : ℝ) → (s : ℝ) ≤ c * (m : ℝ) / Real.log m →
+        ∀ s : ℕ, (m : ℝ) ^ η ≤ (s : ℝ) → (s : ℝ) ≤ c * (m : ℝ) / External.logTwo m →
           ∃ (J : Finset ℕ) (P : GAP) (J' : Finset ℕ),
             J ⊆ A ∧ P.Proper ∧ (GAP.dilate (c * (s : ℝ)) P).Proper ∧
             (GAP.dilate (c * (s : ℝ)) P).set.Nonempty ∧ P.D ≤ d₀ ∧ J' ⊆ J ∧
-            (m : ℝ) - c⁻¹ * s * Real.log m ≤ (J.card : ℝ) ∧
+            (m : ℝ) - c⁻¹ * s * External.logTwo m ≤ (J.card : ℝ) ∧
             (∀ x ∈ J, (x : ℤ) ∈ P.set) ∧ (0 : ℤ) ∈ P.set ∧
             J'.card ≤ s ∧
             ∃ x : ℤ, ∀ y ∈ (GAP.dilate (c * (s : ℝ)) P).set, x + y ∈ subsetSums J'
