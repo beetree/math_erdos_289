@@ -156,8 +156,7 @@ with `CandidateStatement` and `FamilyWitness` exactly as in the audited
 `Erdos289/Intervals.lean`. To verify a completed certificate:
 
 ```sh
-lake build                      # must succeed with no errors
-lake env lean scripts/Axioms.lean   # prints the axioms of the terminal theorem
+lake build   # must succeed with no errors; the axiom report is printed by Erdos289/Main.lean
 ```
 
 For the unconditional certificate described in the statement of faithfulness, the axiom
@@ -213,4 +212,3 @@ reference copies outside the repository. No dependency on the `solve-math` repos
 - `erdos_289_full_proof.pdf`: the manuscript being formalized.
 - The author's statement of faithfulness is reproduced above; the audited `Intervals.lean` is included unchanged.
 - `Erdos289/`: the Lean sources. `lakefile.toml` pins Mathlib to tag `v4.34.0-rc2`.
-- `FORMALIZATION_PLAN.md`: the file map and order of work.
