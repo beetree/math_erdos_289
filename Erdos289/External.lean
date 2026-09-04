@@ -101,6 +101,8 @@ sufficiently large `m`, for every `n ≤ m ^ β`, every `A ⊆ [1, n]` with `|A|
 every integer `s` with `m ^ η ≤ s ≤ c m / log m`, there are `J ⊆ A`, a proper GAP `P` of
 rank at most `d₀`, and `J' ⊆ J` such that `|J| ≥ m - s log m / c`, `J ∪ {0} ⊆ P`,
 `|J'| ≤ s`, and the subset sums of `J'` contain a translate of the proper dilate `(c s) • P`.
+The dilate `(c s) • P` is itself asserted to be proper (the paper's phrase "the proper
+dilate `csP`"; this is needed for the face count in the proof of Lemma 3).
 
 This is an unproved external input: it is taken as a black box from the published paper. -/
 theorem cfhmpsv_structure (β : ℝ) (hβ : 1 < β) (η : ℝ) (hη0 : 0 < η) (hη1 : η < 1) :
@@ -109,7 +111,7 @@ theorem cfhmpsv_structure (β : ℝ) (hβ : 1 < β) (η : ℝ) (hη0 : 0 < η) (
         ∀ A : Finset ℕ, A ⊆ Finset.Icc 1 n → A.card = m →
         ∀ s : ℕ, (m : ℝ) ^ η ≤ (s : ℝ) → (s : ℝ) ≤ c * (m : ℝ) / Real.log m →
           ∃ (J : Finset ℕ) (P : GAP) (J' : Finset ℕ),
-            J ⊆ A ∧ P.Proper ∧ P.D ≤ d₀ ∧ J' ⊆ J ∧
+            J ⊆ A ∧ P.Proper ∧ (GAP.dilate (c * (s : ℝ)) P).Proper ∧ P.D ≤ d₀ ∧ J' ⊆ J ∧
             (m : ℝ) - c⁻¹ * s * Real.log m ≤ (J.card : ℝ) ∧
             (∀ x ∈ J, (x : ℤ) ∈ P.set) ∧ (0 : ℤ) ∈ P.set ∧
             J'.card ≤ s ∧

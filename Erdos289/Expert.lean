@@ -110,7 +110,7 @@ least two, contained in `[1, C*k]`, pairwise separated in the ordered sense for
 restriction of `GoodFamily`/`Statement` and allows an arbitrary bound
 coefficient `C`, matching the general form used to compare against the
 candidate theorem. -/
-structure Problem289Witness (C k : ℕ) where
+structure Problem289WitnessIv (C k : ℕ) where
   intervals : Fin k → Iv
   positive : ∀ i, 1 ≤ (intervals i).lo
   length_at_least_two : ∀ i, (intervals i).lo + 1 ≤ (intervals i).hi
@@ -121,9 +121,9 @@ structure Problem289Witness (C k : ℕ) where
 /-- `Statement k` only asserts separation between *consecutive* indices; here we
 show the left endpoints `a` are forced to be strictly increasing, which upgrades
 the consecutive separation to separation for every pair `i < j`, giving a
-`Problem289Witness 20 k`. -/
-theorem Statement.problem289 {k : ℕ} (h : Statement k) :
-    Nonempty (Problem289Witness 20 k) := by
+`Problem289WitnessIv 20 k`. -/
+theorem Statement.problem289Iv {k : ℕ} (h : Statement k) :
+    Nonempty (Problem289WitnessIv 20 k) := by
   obtain ⟨a, b, h1, hab, hbound, hlen, hstep, hsum⟩ := h
   have main : ∀ n, ∀ i : Fin k, i.val < n → ∀ hn : n < k, b i + 1 < a ⟨n, hn⟩ := by
     intro n
