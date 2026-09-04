@@ -1,4 +1,4 @@
-import Erdos289.Assembly
+import Erdos289.AssemblyS2
 import Erdos289.Target
 
 /-!
@@ -11,9 +11,9 @@ audited file `Erdos289/Intervals.lean`. Run `scripts/Axioms.lean` to see its axi
 namespace Erdos289
 
 /-- **Erdős Problem 289**, nonadjacent strengthened form (the audited `CandidateStatement`),
-conditional on the external inputs recorded as axioms. -/
+proved via the signed-fiber construction (`AssemblyS2`), with no literature axiom. -/
 theorem candidateStatement : CandidateStatement :=
-  candidateStatement_of erdos289
+  candidateStatement_of erdos289S2
 
 end Erdos289
 

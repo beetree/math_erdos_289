@@ -4,12 +4,14 @@ This repository formalizes, in Lean 4 with Mathlib, the candidate proof in
 `erdos_289_full_proof.pdf` (revised nonadjacent version, 4 September 2026) of a
 strengthened form of Erdős Problem 289.
 
-**Status: conditional certificate achieved, modulo two audited axioms.** The terminal theorem
-builds with no `sorry` and no warnings; every build prints its axiom report, which is exactly the
-three standard axioms plus `Erdos289.External.Assumed.bourgain_garaev` and
-`Erdos289.External.Assumed.cfhmpsv_structure`. The other four audited inputs (Liu–Sawhney,
-Mertens, the divisor bound, and the Erdős–Turán inequality in the form used) are proved by
-vendored, axiom-clean ports (see "Vendored proofs" below). See "Current status" for details.
+**Status: unconditional certificate.** The terminal theorem `Erdos289.candidateStatement`
+builds with no `sorry` and no warnings, and every build prints its axiom report, which is exactly
+`propext`, `Classical.choice`, `Quot.sound`. No literature result is assumed. Three of the audited
+inputs (Liu–Sawhney, Mertens, the divisor bound) and the Conlon–Fox–Pham structure theorem are
+proved by vendored, axiom-clean ports (see "Vendored proofs" below); Bourgain–Garaev and
+Erdős–Turán are not used, because Lemma 1 of the manuscript is replaced by the author's
+elementary signed-fiber construction (`docs/elementary_replacements.md`). The six axioms
+declared in the audited module `ExternalAxioms.lean` remain declared and unused.
 
 ## How to read this repository
 
@@ -577,12 +579,14 @@ faithfulness, citing them is not enough: they must be supplied as checked Lean p
 
 ## Vendored proofs
 
-The `SolveMath` library holds 42 modules (about 31,700 lines) copied verbatim from Boris
+The `SolveMath` library holds 41 modules (about 30,700 lines) copied verbatim from Boris
 Alexeev's `plby/lean-proofs` corpus via the `solve-math` repository, each set minimized by
 walking the proof terms of the main theorem: 1 module for the divisor bound, 3 for Mertens,
-37 for Liu–Sawhney, 1 for the finite Erdős–Turán inequality. The only entry points are the four
-bridge files `SolveMath/Ported/*.lean`, and the only `Erdos289` file importing them is
-`Erdos289/ExternalBridge.lean`. Provenance, upstream authorship (Codex / GPT-5.6, no LICENSE
+37 for Liu–Sawhney. The only entry points are the three bridge files `SolveMath/Ported/*.lean`,
+and the only `Erdos289` file importing them is `Erdos289/ExternalBridge.lean`.
+The `ErdosProblems` library holds the 258 modules (about 90,000 lines, Apache-2.0) of the
+Conlon–Fox–Pham structure theorem from the same corpus's Erdős 186 development, bridged to the
+audited statement in `Erdos289/CFPBridge.lean`; see `ErdosProblems/PROVENANCE.md`. Provenance, upstream authorship (Codex / GPT-5.6, no LICENSE
 file upstream) and every edit are recorded per port in `PROVENANCE.md` files kept with the
 reference copies outside the repository. No dependency on the `solve-math` repository exists.
 

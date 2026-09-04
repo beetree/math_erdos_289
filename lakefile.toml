@@ -23,4 +23,10 @@ name = "Erdos289"
 [[lean_lib]]
 name = "SolveMath"
 # Verbatim third-party ports: do not report deprecations/lints we will not fix in place.
-leanOptions = { linter.deprecated = false, linter.unusedSimpArgs = false, linter.style.haveILetI = false, linter.unusedVariables = false, linter.defProp = false, linter.unnecessarySimpa = false, linter.unusedTactic = false, linter.unnecessarySeqFocus = false }
+leanOptions = { linter.deprecated = false, linter.unusedSimpArgs = false, linter.style.haveILetI = false, linter.unusedVariables = false, linter.defProp = false, linter.unnecessarySimpa = false, linter.unusedTactic = false, linter.unnecessarySeqFocus = false, linter.unusedSectionVars = false, linter.unreachableTactic = false }
+
+# Verbatim port of the Conlon–Fox–Pham structure theorem from plby/lean-proofs (Apache-2.0);
+# see ErdosProblems/PROVENANCE.md.
+[[lean_lib]]
+name = "ErdosProblems"
+leanOptions = { warn.classDefReducibility = false, linter.deprecated = false, linter.unusedSimpArgs = false, linter.style.haveILetI = false, linter.unusedVariables = false, linter.defProp = false, linter.unnecessarySimpa = false, linter.unusedTactic = false, linter.unnecessarySeqFocus = false, linter.unusedSectionVars = false, linter.unreachableTactic = false }

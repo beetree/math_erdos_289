@@ -1,19 +1,18 @@
 import Erdos289.External
-import Erdos289.ErdosTuran
 import Erdos289.ExternalAxioms
 import SolveMath.Ported.DivisorBound
 import SolveMath.Ported.MertensSecond
 import SolveMath.Ported.LiuSawhney
-import SolveMath.Ported.ErdosTuranFinite
+import Erdos289.CFPBridge
 
 /-!
 # Bridging the author's audited external axioms to our statements
 
-This file proves our six external axioms (`Erdos289.liu_sawhney`, `Erdos289.cfhmpsv_structure`,
-`Erdos289.bourgain_garaev`, `Erdos289.erdos_turan`, `Erdos289.mertens_second`,
-`Erdos289.divisor_bound`) as theorems from the author's independently-audited axiom module
-`Erdos289.External.Assumed`, so that `#print axioms` on downstream results shows only the
-audited `Erdos289.External.Assumed.*` axioms.
+This file proves our five external axioms (`Erdos289.liu_sawhney`, `Erdos289.cfhmpsv_structure`,
+`Erdos289.bourgain_garaev`, `Erdos289.mertens_second`, `Erdos289.divisor_bound`) as theorems from
+the author's independently-audited axiom module `Erdos289.External.Assumed`, so that
+`#print axioms` on downstream results shows only the audited `Erdos289.External.Assumed.*`
+axioms.
 -/
 
 namespace Erdos289
@@ -91,36 +90,6 @@ private theorem expPhase_eq_e {U : ℕ} (hU : 0 < U) (h : ℕ) (z : ZMod U) :
   push_cast
   convert exp_div_U_eq U hU (((h : ZMod U) * z).val : ℤ) ((h : ℤ) * (z.val : ℤ)) hvalZ using 2 <;>
     push_cast <;> ring
-
-theorem bridge_erdos_turan :
-    ∃ C : ℝ, 0 < C ∧ ∀ (U : ℕ), 0 < U → ∀ (N : ℕ) (x : Fin N → ZMod U) (H : ℕ), 0 < H →
-      ∀ α ℓ : ℕ, α + ℓ ≤ U →
-        |((univ.filter (fun j => (x j).val ∈ Finset.Ico α (α + ℓ))).card : ℝ)
-              - (N : ℝ) * (ℓ : ℝ) / (U : ℝ)|
-          ≤ C * ((N : ℝ) / (H : ℝ)
-              + ∑ h ∈ Finset.Icc 1 H, (1 : ℝ) / (h : ℝ) *
-                  ‖∑ j, e U (h * ((x j).val : ℤ))‖) := by
-  obtain ⟨C, hC, h⟩ := Erdos289.External.Assumed.erdos_turan
-  refine ⟨C, hC, fun U hU N x H hH α ℓ hαℓ => ?_⟩
-  have h1U : 1 ≤ U := hU
-  have h1H : 1 ≤ H := hH
-  have hres : Erdos289.External.residueIntervalCount x α ℓ
-      = (univ.filter (fun j => (x j).val ∈ Finset.Ico α (α + ℓ))).card := by
-    unfold Erdos289.External.residueIntervalCount
-    congr 1
-    apply Finset.filter_congr
-    intro j _
-    rw [Finset.mem_Ico]
-  have hfour : ∀ hh : ℕ, Erdos289.External.fourierSum x hh = ∑ j, e U (hh * ((x j).val : ℤ)) := by
-    intro hh
-    unfold Erdos289.External.fourierSum
-    apply Finset.sum_congr rfl
-    intro j _
-    exact expPhase_eq_e hU hh (x j)
-  have hkey := h U h1U N x H h1H α ℓ hαℓ
-  rw [hres] at hkey
-  simp only [hfour] at hkey
-  exact hkey
 
 theorem bridge_bourgain_garaev :
     ∃ c₀ : ℝ, 0 < c₀ ∧ ∀ c : ℝ, 0 < c → c < c₀ → ∀ ε : ℝ, 0 < ε →
@@ -225,7 +194,7 @@ theorem bridge_cfhmpsv_structure (β : ℝ) (hβ : 1 < β) (η : ℝ) (hη0 : 0 
             (∀ x ∈ J, (x : ℤ) ∈ P.set) ∧ (0 : ℤ) ∈ P.set ∧
             J'.card ≤ s ∧
             ∃ x : ℤ, ∀ y ∈ (GAP.dilate (c * (s : ℝ)) P).set, x + y ∈ subsetSums J' := by
-  obtain ⟨c, hc, d₀, m₀, hm₀, h⟩ := Erdos289.External.Assumed.cfhmpsv_structure β η hβ hη0 hη1
+  obtain ⟨c, hc, d₀, m₀, hm₀, h⟩ := Erdos289.Ported.cfhmpsv_structure_audited β η hβ hη0 hη1
   refine ⟨c, hc, d₀, ?_⟩
   rw [Filter.eventually_atTop]
   refine ⟨m₀, fun m hm n hn A hAsub hAcard s hsη hsc => ?_⟩
@@ -324,7 +293,7 @@ for the face count in the proof of Lemma 3). The logarithm here is the source-na
 `CFHMPSVStructureStatement` in `ExternalAxioms.lean` on the nose, so that the bridge in
 `ExternalBridge.lean` can use the very same constant `c`.
 
-Derived from the audited axiom `Erdos289.External.Assumed.cfhmpsv_structure` via the bridge above. -/
+Derived from the ported theorem `Erdos289.Ported.cfhmpsv_structure_audited` (Conlon–Fox–Pham, vendored in `ErdosProblems/`) via the bridge above. -/
 alias cfhmpsv_structure := bridge_cfhmpsv_structure
 
 /-- **Bourgain–Garaev**, *Kloosterman sums in residue rings*, Theorem 5.
@@ -336,21 +305,6 @@ For every sufficiently small fixed `c > 0`, the short Kloosterman-type sum
 Derived from the audited axiom `Erdos289.External.Assumed.bourgain_garaev` via the bridge above. -/
 alias bourgain_garaev := bridge_bourgain_garaev
 
-/-- **Erdős–Turán discrepancy inequality**, discrete finite form modulo `U`.
-
-Let `x : Fin N → ZMod U` be a finite sequence of residues modulo `U`. For every `H ≥ 1` and
-every "genuine" (non-wrapping) residue interval `[α, α + ℓ)` with `α + ℓ ≤ U`, the number of
-indices `j` with `x j` in that interval deviates from the expected count `N * ℓ / U` by at most
-
-`C * (N / H + ∑_{h=1}^{H} (1/h) * |∑_j e_U(h * (x j).val)|)`
-
-for an absolute constant `C` (Montgomery, *Ten Lectures*, Ch. 1, Cor. 1.1). This is the form of
-the inequality applied, with `x j` the modular inverses `t⁻¹ mod U`, to derive the equidistribution
-statement `Erdos289.equidist_inverse`.
-
-Derived from the audited axiom `Erdos289.External.Assumed.erdos_turan` via the bridge above. -/
-alias erdos_turan := bridge_erdos_turan
-
 /-- **Mertens' second theorem**: `∑_{p ≤ x} 1/p = log log x + B₁ + o(1)` for a constant
 `B₁`. Mathlib does not currently contain this asymptotic (checked: no lemma involving
 `Mertens`, and `Nat.primeCounting`/Chebyshev files only give prime-counting bounds, not
@@ -361,21 +315,5 @@ alias mertens_second := Ported.mertens_second
 (checked: only the trivial bound `Nat.card_divisors_le_self : n.divisors.card ≤ n`, no
 `n^ε`-type divisor bound). Taken as an unproved classical input. -/
 alias divisor_bound := Ported.divisor_bound
-
-
-/-- **Erdős–Turán, weak (`N / √H`) form.** This is the only form used downstream
-(`Erdos289.Equidist.equidist_inverse'`, which takes a fixed cutoff). It is proved from the ported
-finite Erdős–Turán inequality `QuantitativeErdosTuran.erdosTuran_fract_count` (axiom-clean), so
-the audited axiom `erdos_turan` is not needed downstream. (It also follows from the audited
-statement, since `N / H ≤ N / √H`.) -/
-theorem erdos_turan_weak :
-    ∃ C : ℝ, 0 < C ∧ ∀ (U : ℕ), 0 < U → ∀ (N : ℕ) (x : Fin N → ZMod U) (H : ℕ), 0 < H →
-      ∀ α ℓ : ℕ, α + ℓ ≤ U →
-        |((Finset.univ.filter (fun j => (x j).val ∈ Finset.Ico α (α + ℓ))).card : ℝ)
-              - (N : ℝ) * (ℓ : ℝ) / (U : ℝ)|
-          ≤ C * ((N : ℝ) / Real.sqrt (H : ℝ)
-              + ∑ h ∈ Finset.Icc 1 H, (1 : ℝ) / (h : ℝ) *
-                  ‖∑ j, e U (h * ((x j).val : ℤ))‖) := by
-  simpa [e] using Ported.erdos_turan_weak
 
 end Erdos289

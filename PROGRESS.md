@@ -4,15 +4,12 @@ Last updated: 2026-09-03 23:20 PDT. Live view: `scripts/status.sh`.
 
 ## One-line status
 
-**Two audited axioms remain, by decision.** `Erdos289.candidateStatement : CandidateStatement`
-builds with no `sorry` anywhere in its dependency chain, with zero warnings, and its axiom
-report (printed by every build, from `Erdos289/Main.lean`) is exactly `propext`,
-`Classical.choice`, `Quot.sound`, `Erdos289.External.Assumed.bourgain_garaev`,
-`Erdos289.External.Assumed.cfhmpsv_structure`. These two are to be left as axioms. The divisor bound, Mertens' second
-theorem, and Liu–Sawhney are proved via verbatim ports from the `plby/lean-proofs` corpus
-(`SolveMath/`, 41 modules, ≈ 30,700 lines; `Erdos289/Ported.lean`). Removing the remaining
-three gives the **unconditional certificate**. `Erdos289/Compat.lean` also derives the
-corpus/FormalConjectures-style statement `erdos_289_statement` from ours.
+**Unconditional certificate on this branch.** `Erdos289.candidateStatement : CandidateStatement`
+builds with no `sorry`, and the axiom report printed by every build is exactly
+`propext, Classical.choice, Quot.sound`. No literature result is assumed: the structure theorem is
+proved by the vendored Conlon–Fox–Pham port, and Bourgain–Garaev is no longer used because Lemma 1
+is replaced by the author's signed-fiber construction. Remaining work is cosmetic (a few warnings)
+and cleanup of the now-unused old path (old Lemma 1, old assembly, Erdős–Turán port).
 
 ## What has to be removed
 
@@ -41,8 +38,8 @@ the axiom report names exactly `Erdos289.External.Assumed.*`.
 | # | Axiom | Source | Used by | Prospects for removal |
 |---|---|---|---|---|
 | A1 | `liu_sawhney` | Liu–Sawhney, Thm 1.3 | Lemma 6 → core | A port from the same corpus is in progress in `expert_input/ported/LiuSawhney/` (run `port_ls`, launched outside this session). |
-| A2 | `cfhmpsv_structure` | Conlon–Fox–Pham Thm 1.5 via CFHMPSV Thm 3 | Lemma 3 | **Kept as an axiom by decision.** |
-| A3 | `bourgain_garaev` | Bourgain–Garaev, Thm 5 | Lemma 1 (S1) | **Kept as an axiom by decision.** |
+| ~~A2~~ | `cfhmpsv_structure` | Conlon–Fox–Pham Thm 1.5 via CFHMPSV Thm 3 | Lemma 3 | **DISCHARGED** on this branch by the verbatim port of the CFP structure theorem from `plby/lean-proofs` (Erdős 186 development; 258 modules, ≈90k lines, Apache-2.0; `ErdosProblems/`), bridged to the audited statement in `Erdos289/CFPBridge.lean`. Decision: use the port rather than the elementary covering (docs Section 1). |
+| ~~A3~~ | `bourgain_garaev` | Bourgain–Garaev, Thm 5 | (old Lemma 1 only) | **REMOVED FROM THE CHAIN** on this branch: Lemma 1 replaced by the signed-fiber construction (docs Sections 2–4); all pieces proved, axiom-clean. |
 | A4 | `erdos_turan` | discrete Erdős–Turán inequality | Lemma 1 (S1) | Moderate. Classical; a self-contained Fourier-analytic proof is feasible. |
 | ~~A5~~ | `mertens_second` | Mertens' second theorem | Lemma 1 (sieve), Lemma 4 | **DISCHARGED**: ported proof (4 modules, 1,591 lines) from `plby/lean-proofs`; axiom-clean. |
 | ~~A6~~ | `divisor_bound` | Hardy–Wright Thm 315 | Lemma 1, Lemma 3 | **DISCHARGED**: ported proof (342 lines) from `plby/lean-proofs`; axiom-clean. |
@@ -53,7 +50,26 @@ State the main theorem as `ExternalInputs → CandidateStatement`, per Appendix 
 six-axiom audit, so the six inputs are visible in the theorem's type and the axiom report
 shows only the three standard axioms.
 
-## Agents
+## Agents (branch `elementary-replacements`, worktree `~/math_erdos_289_pr`)
+
+| Run | Model | File | Task | Status |
+|---|---|---|---|---|
+| `covering` | Opus | `Covering.lean` | docs §1 elementary covering | stopped (port chosen) |
+| `signedF1` | Opus | `SignedF1.lean` | Lemma F1 signed fibers | **done, proved** |
+| `signedF1G`, `signedF1G2`, `signedF1H` | Gemini, Sonnet, Gemini | (removed) | F1 competitors | stopped (Opus won) |
+| `signedF2` | Opus | `SignedF2.lean` | Lemma F2 orientation | **done, proved** |
+| `signedD1G` | Gemini | `SignedD1.lean` | Lemma D1 density zero | **done, proved** (Opus run stopped) |
+| `signedCancel` | Sonnet (janna) | `SignedCancel.lean` | signed cancellation (D3) | **done, proved** |
+| `signedTail` | Sonnet (johan) | `SignedTail.lean` | mass tail (D4)–(D5) | **done, proved** |
+| `lemma5S` | Sonnet (janna) | `Lemma5S.lean` | auxiliary family avoiding `PstarSigned` | **done, proved** |
+| `lemma3wide` | Opus | `Lemma3*.lean` | covering for multipliers up to `C·q^ε` | **done, proved** |
+| `descentS` + `descentS2` | Sonnet (johan) | `DescentS.lean` | signed correction procedure | **done, proved** |
+| `glueS` | Sonnet (johan) | `CorrDataS.lean` | correction data existence | **done, proved** |
+| `assemblyS2` | Gemini | `AssemblyS2.lean` | Section 7 with the signed pieces | **done, proved** (Sonnet and second Gemini attempts stopped) |
+
+| `coreS` | Sonnet (johan) | `CoreS.lean` | core with density-zero protected set | done, proved |
+
+## Agents (earlier, on main)
 
 | Run name | CLI / model | File(s) owned | Task | Status |
 |---|---|---|---|---|
