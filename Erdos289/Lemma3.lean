@@ -22,12 +22,21 @@ Theorem 2. It is organized as a chain of lemmas mirroring the paper's argument:
   `m^(1/3) ≤ s ≤ cm/log m`").
 * `lemma3_structure_apply`: instantiates `cfhmpsv_structure` (paper's step 1) and derives
   `|J| ≥ m/2` from the growth bounds.
-* `lemma3_core`: the remaining, genuinely hard additive-combinatorial argument (paper's
-  steps 2–6: active coordinates, face counting (3.1), the divisor-bound argument (3.2), the
-  `d = 1` dichotomy, and the final covering conclusion). This is left as a precisely stated
-  `sorry`, together with a documented gap in the formalization of the external structure
-  theorem (properness of the *dilate*, not just of `P`) that step 2–3 of the paper's argument
-  needs; see its docstring.
+* `ap_unit_covers`, `gap_active_repr`, `gap_active_nonempty`, `gap_dilate_face_count`,
+  `gap_interval_count_ge`: reusable pieces of the additive-combinatorial core (paper's steps
+  2, 3, and the final covering paragraph): coordinate extraction, existence of an active
+  coordinate, the face-counting cardinality bound (3.1), and dilated-interval integer counts.
+  These are proved in full.
+* `lemma3_core`: assembles the pieces above into the full argument (paper's steps 2–6: active
+  coordinates, face counting (3.1), the `d = 1` dichotomy, and the final covering conclusion).
+  Three genuinely irreducible gaps remain as individually documented `sorry`s inside its proof
+  (not as separate lemma statements, since those would be false without the missing context) —
+  see its docstring, "Further gaps discovered while formalizing this lemma": (1) a magnitude
+  bound on `J'`'s elements needed for the face-counting bound, (2) the simultaneous-approximation
+  / divisor-bound argument (paper's steps 4–5, (3.2)) forcing `d = 1` and a quantitative lower
+  bound on `V`, and (3) existence of admissible dilated-integer points on inactive coordinates.
+  All other steps (coordinate extraction, face counting (3.1) itself, the `d = 1` case's
+  one-dimensional covering argument) are proved in full from these three facts.
 
 `lemma3` itself is assembled from these pieces with no further `sorry`.
 -/
@@ -436,7 +445,7 @@ lemma lemma3_structure_apply (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
       gcongr
       nlinarith
     linarith
-  obtain ⟨J, P, J', hJA, hPproper, hPdil, hPD, hJ'J, hJcard, hJmem, h0mem, hJ'card, x, hxdilate⟩ :=
+  obtain ⟨J, P, J', hJA, hPproper, hPdil, hPne, hPD, hJ'J, hJcard, hJmem, h0mem, hJ'card, x, hxdilate⟩ :=
     hM₀ m hmM0' q hq_mB A hAsub hAcard s hm13 hslog2
   have hshalf : c⁻¹ * (s:ℝ) * Real.log (m:ℝ) ≤ (m:ℝ)/2 := by
     have hslm : (s:ℝ) * Real.log (m:ℝ) ≤ c/2 * (m:ℝ) := by
@@ -450,6 +459,243 @@ lemma lemma3_structure_apply (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
   refine ⟨J, J', P, hJA, hPproper, hPdil, hPD, hJ'J, ?_, hJmem, h0mem, hJ'card, x, hxdilate⟩
   have : (m:ℝ) - c⁻¹ * (s:ℝ) * Real.log (m:ℝ) ≤ (J.card:ℝ) := hJcard
   linarith
+
+/-- Helper: an arithmetic progression `x + t * δ`, `t = 0, …, n-1`, with `δ` a unit mod `q`
+and `n ≥ q`, covers every residue class mod `q` (paper's final paragraph). -/
+lemma ap_unit_covers {q : ℕ} [NeZero q] (x δ : ℤ) (hδ : IsUnit (δ : ZMod q)) (n : ℕ)
+    (hn : q ≤ n) : ∀ r : ZMod q, ∃ t : ℕ, t < n ∧ ((x + t * δ : ℤ) : ZMod q) = r := by
+  intro r
+  set t0 : ZMod q := (δ:ZMod q)⁻¹ * (r - (x:ZMod q)) with ht0def
+  refine ⟨t0.val, lt_of_lt_of_le (ZMod.val_lt t0) hn, ?_⟩
+  have hcast : ((t0.val : ℕ) : ZMod q) = t0 := ZMod.natCast_rightInverse t0
+  have hinv : (δ:ZMod q)⁻¹ * (δ:ZMod q) = 1 := ZMod.inv_mul_of_unit _ hδ
+  push_cast
+  rw [hcast, ht0def]
+  calc (x:ZMod q) + ((δ:ZMod q)⁻¹ * (r - (x:ZMod q))) * (δ:ZMod q)
+      = (x:ZMod q) + (r - (x:ZMod q)) * ((δ:ZMod q)⁻¹ * (δ:ZMod q)) := by ring
+    _ = (x:ZMod q) + (r - (x:ZMod q)) * 1 := by rw [hinv]
+    _ = r := by ring
+
+/-- **Step 2** of the proof of Lemma 3 (coordinate extraction). Given a GAP `P`, an integer
+coordinate vector `v` representing `0 ∈ P.set`, and any `j ∈ P.set`, `j` decomposes as a sum
+over the *active* coordinates (those with `⌈α i⌉ < ⌊β i⌋`) of `(n i - v i) * d i`, with
+`|n i - v i|` bounded by `a i := ⌊β i⌋ - ⌈α i⌉` on active coordinates, and `n i = v i` exactly
+on inactive coordinates (whose contribution therefore cancels after subtracting the
+representation of `0`). -/
+lemma gap_active_repr (P : GAP) (v : Fin P.D → ℤ)
+    (hv : ∀ i, P.α i ≤ (v i:ℝ) ∧ (v i:ℝ) ≤ P.β i) (hv0 : ∑ i, v i * P.d i = 0)
+    (j : ℤ) (hj : j ∈ P.set) :
+    ∃ n : Fin P.D → ℤ, (∀ i, P.α i ≤ (n i:ℝ) ∧ (n i:ℝ) ≤ P.β i) ∧
+      j = ∑ i ∈ Finset.univ.filter (fun i => ⌈P.α i⌉ < ⌊P.β i⌋), (n i - v i) * P.d i ∧
+      (∀ i, ⌈P.α i⌉ < ⌊P.β i⌋ → |n i - v i| ≤ ⌊P.β i⌋ - ⌈P.α i⌉) ∧
+      (∀ i, ¬ (⌈P.α i⌉ < ⌊P.β i⌋) → n i = v i) := by
+  obtain ⟨n, hn, hjeq⟩ := hj
+  have hℓv : ∀ i, ⌈P.α i⌉ ≤ v i := fun i => Int.ceil_le.2 (hv i).1
+  have huv : ∀ i, v i ≤ ⌊P.β i⌋ := fun i => Int.le_floor.2 (hv i).2
+  have hℓn : ∀ i, ⌈P.α i⌉ ≤ n i := fun i => Int.ceil_le.2 (hn i).1
+  have hun : ∀ i, n i ≤ ⌊P.β i⌋ := fun i => Int.le_floor.2 (hn i).2
+  have hinactive : ∀ i, ¬ (⌈P.α i⌉ < ⌊P.β i⌋) → n i = v i := by
+    intro i hi
+    have hle : ⌈P.α i⌉ ≤ ⌊P.β i⌋ := le_trans (hℓv i) (huv i)
+    have heq : ⌈P.α i⌉ = ⌊P.β i⌋ := le_antisymm hle (not_lt.mp hi)
+    have h1 : n i = ⌈P.α i⌉ := le_antisymm (heq ▸ hun i) (hℓn i)
+    have h2 : v i = ⌈P.α i⌉ := le_antisymm (heq ▸ huv i) (hℓv i)
+    rw [h1, h2]
+  refine ⟨n, hn, ?_, ?_, hinactive⟩
+  · have hstep : j = ∑ i, (n i - v i) * P.d i := by
+      rw [hjeq]
+      have : ∑ i, v i * P.d i = 0 := hv0
+      have hsub : ∑ i, (n i - v i) * P.d i = (∑ i, n i * P.d i) - ∑ i, v i * P.d i := by
+        rw [← Finset.sum_sub_distrib]
+        congr 1; ext i; ring
+      rw [hsub, this, sub_zero]
+    rw [hstep]
+    rw [← Finset.sum_filter_add_sum_filter_not Finset.univ (fun i => ⌈P.α i⌉ < ⌊P.β i⌋)]
+    have hzero : ∑ i ∈ Finset.univ.filter (fun i => ¬ (⌈P.α i⌉ < ⌊P.β i⌋)), (n i - v i) * P.d i = 0 := by
+      apply Finset.sum_eq_zero
+      intro i hi
+      simp only [Finset.mem_filter] at hi
+      rw [hinactive i hi.2]
+      ring
+    rw [hzero, add_zero]
+  · intro i hi
+    have h1 := hℓn i
+    have h2 := hun i
+    have h3 := hℓv i
+    have h4 := huv i
+    rw [abs_le]
+    constructor <;> omega
+
+/-- At least one coordinate of a GAP `P` is active, given `P.set` contains `0` (via `v`) and a
+nonzero integer `j` (paper: "There is at least one active coordinate, because `P` contains
+zero and the nonzero elements of `J`"). -/
+lemma gap_active_nonempty (P : GAP) (v : Fin P.D → ℤ)
+    (hv : ∀ i, P.α i ≤ (v i:ℝ) ∧ (v i:ℝ) ≤ P.β i) (hv0 : ∑ i, v i * P.d i = 0)
+    (j : ℤ) (hj : j ∈ P.set) (hjne : j ≠ 0) :
+    (Finset.univ.filter (fun i : Fin P.D => ⌈P.α i⌉ < ⌊P.β i⌋)).Nonempty := by
+  by_contra h
+  rw [Finset.not_nonempty_iff_eq_empty] at h
+  obtain ⟨n, hn, hjeq, hbound, hinact⟩ := gap_active_repr P v hv hv0 j hj
+  rw [h] at hjeq
+  simp at hjeq
+  exact hjne hjeq
+
+/-- **Face counting (3.1)**. Fixing the inactive coordinates of the dilate `t • P`
+(`t = c * s`) at an admissible vector `w`, and letting the active coordinates range over
+their dilated intervals, produces (via properness of the dilate) an injective map into any
+set `S` containing `x + (dilate).set` and bounded in `[L, U]`; comparing cardinalities gives
+`(t/2)^d * V ≤ U - L + 1`, where `d` is the number of active coordinates and
+`V = ∏ (active) (⌊β i⌋ - ⌈α i⌉)`. -/
+lemma gap_dilate_face_count (P : GAP) (t : ℝ) (ht2 : 2 ≤ t)
+    (hPdil : (GAP.dilate t P).Proper)
+    (w : Fin P.D → ℤ)
+    (hw : ∀ i, ¬ (⌈P.α i⌉ < ⌊P.β i⌋) → t * P.α i ≤ (w i:ℝ) ∧ (w i:ℝ) ≤ t * P.β i)
+    (S : Set ℤ) (x L U : ℤ) (hLU_le : L ≤ U) (hLU : ∀ z ∈ S, L ≤ z ∧ z ≤ U)
+    (hdilate : ∀ y ∈ (GAP.dilate t P).set, x + y ∈ S) :
+    ((t/2) ^ (Finset.univ.filter (fun i => ⌈P.α i⌉ < ⌊P.β i⌋)).card *
+        (∏ i ∈ Finset.univ.filter (fun i => ⌈P.α i⌉ < ⌊P.β i⌋), (⌊P.β i⌋ - ⌈P.α i⌉).toNat : ℝ))
+      ≤ (U - L + 1 : ℝ) := by
+  classical
+  set Active : Finset (Fin P.D) := Finset.univ.filter (fun i => ⌈P.α i⌉ < ⌊P.β i⌋) with hActive
+  set Box : Finset (Fin P.D → ℤ) :=
+    Fintype.piFinset (fun i => if i ∈ Active then Finset.Icc ⌈t*P.α i⌉ ⌊t*P.β i⌋ else {w i}) with hBox
+  have htpos : (0:ℝ) < t := by linarith
+  have hmem_dilate : ∀ e ∈ Box, ∀ i, t * P.α i ≤ (e i : ℝ) ∧ (e i:ℝ) ≤ t * P.β i := by
+    intro e he i
+    rw [hBox, Fintype.mem_piFinset] at he
+    have hei := he i
+    by_cases hiA : i ∈ Active
+    · simp only [hiA, ite_true, Finset.mem_Icc] at hei
+      refine ⟨?_, ?_⟩
+      · calc t * P.α i ≤ (⌈t*P.α i⌉ : ℝ) := Int.le_ceil _
+          _ ≤ (e i : ℝ) := by exact_mod_cast hei.1
+      · calc (e i:ℝ) ≤ (⌊t*P.β i⌋:ℝ) := by exact_mod_cast hei.2
+          _ ≤ t * P.β i := Int.floor_le _
+    · simp only [hiA, ite_false, Finset.mem_singleton] at hei
+      rw [hei]
+      exact hw i (by simpa [hActive] using hiA)
+  have hmapsto : ∀ e ∈ Box, x + ∑ i, e i * P.d i ∈ Finset.Icc L U := by
+    intro e he
+    have hy : (∑ i, e i * P.d i) ∈ (GAP.dilate t P).set := ⟨e, hmem_dilate e he, rfl⟩
+    have hin := hdilate _ hy
+    have hb := hLU _ hin
+    simp only [Finset.mem_Icc]
+    exact hb
+  have hinj : Set.InjOn (fun e : Fin P.D → ℤ => x + ∑ i, e i * P.d i) Box := by
+    intro e1 he1 e2 he2 heq
+    simp only at heq
+    have heq' : ∑ i, e1 i * P.d i = ∑ i, e2 i * P.d i := by linarith [heq]
+    exact hPdil e1 e2 (hmem_dilate e1 he1) (hmem_dilate e2 he2) heq'
+  have hcard_le : Box.card ≤ (Finset.Icc L U).card :=
+    Finset.card_le_card_of_injOn _ hmapsto hinj
+  have hboxcard : Box.card = ∏ i ∈ Active, (Finset.Icc ⌈t*P.α i⌉ ⌊t*P.β i⌋).card := by
+    rw [hBox, Fintype.card_piFinset]
+    simp only [apply_ite Finset.card, Finset.card_singleton]
+    rw [Finset.prod_ite_mem, Finset.univ_inter]
+  have hIcccard : ((Finset.Icc L U).card : ℝ) = (U:ℝ) - (L:ℝ) + 1 := by
+    have h1 : (Finset.Icc L U).card = (U+1-L).toNat := Int.card_Icc _ _
+    have h2 : ((U+1-L).toNat : ℝ) = ((U+1-L : ℤ):ℝ) := by
+      exact_mod_cast Int.toNat_of_nonneg (by omega : (0:ℤ) ≤ U + 1 - L)
+    rw [h1, h2]; push_cast; ring
+  have hfactor : ∀ i ∈ Active, (t/2) * ((⌊P.β i⌋:ℝ) - (⌈P.α i⌉:ℝ)) ≤
+      ((Finset.Icc ⌈t*P.α i⌉ ⌊t*P.β i⌋).card : ℝ) := by
+    intro i hiA0
+    have hiA : ⌈P.α i⌉ < ⌊P.β i⌋ := by
+      simpa [hActive] using hiA0
+    have ha1 : (1:ℤ) ≤ ⌊P.β i⌋ - ⌈P.α i⌉ := by omega
+    have haR : (1:ℝ) ≤ (⌊P.β i⌋:ℝ) - (⌈P.α i⌉:ℝ) := by
+      have : ((1:ℤ):ℝ) ≤ ((⌊P.β i⌋ - ⌈P.α i⌉:ℤ):ℝ) := by exact_mod_cast ha1
+      push_cast at this; linarith
+    have hBA : (P.β i - P.α i) ≥ (⌊P.β i⌋:ℝ) - (⌈P.α i⌉:ℝ) := by
+      have e1 : ((⌊P.β i⌋:ℤ):ℝ) ≤ P.β i := Int.floor_le _
+      have e2 : P.α i ≤ (⌈P.α i⌉:ℝ) := Int.le_ceil _
+      linarith
+    have hmul1 : t * ((⌊P.β i⌋:ℝ) - (⌈P.α i⌉:ℝ)) ≤ t*P.β i - t*P.α i := by
+      have h := mul_le_mul_of_nonneg_left hBA htpos.le
+      nlinarith [h]
+    have hmul2 : (2:ℝ) ≤ t * ((⌊P.β i⌋:ℝ) - (⌈P.α i⌉:ℝ)) :=
+      calc (2:ℝ) = 2 * 1 := by ring
+        _ ≤ t * ((⌊P.β i⌋:ℝ) - (⌈P.α i⌉:ℝ)) := mul_le_mul ht2 haR (by norm_num) (by linarith)
+    have hfl : t*P.β i < (⌊t*P.β i⌋:ℝ) + 1 := Int.lt_floor_add_one _
+    have hce : (⌈t*P.α i⌉:ℝ) < t*P.α i + 1 := Int.ceil_lt_add_one _
+    have hZpos : (0:ℤ) ≤ ⌊t*P.β i⌋ + 1 - ⌈t*P.α i⌉ := by
+      have hposR : (0:ℝ) < (⌊t*P.β i⌋:ℝ) + 1 - (⌈t*P.α i⌉:ℝ) := by nlinarith [hmul1, hmul2, hfl, hce]
+      have hz : (0:ℤ) < ⌊t*P.β i⌋ + 1 - ⌈t*P.α i⌉ := by exact_mod_cast hposR
+      omega
+    have hcardeq : ((Finset.Icc ⌈t*P.α i⌉ ⌊t*P.β i⌋).card:ℝ)
+        = (⌊t*P.β i⌋:ℝ) + 1 - (⌈t*P.α i⌉:ℝ) := by
+      have h1 : (Finset.Icc ⌈t*P.α i⌉ ⌊t*P.β i⌋).card = (⌊t*P.β i⌋+1-⌈t*P.α i⌉).toNat :=
+        Int.card_Icc _ _
+      have h2 : ((⌊t*P.β i⌋+1-⌈t*P.α i⌉).toNat : ℝ) = ((⌊t*P.β i⌋+1-⌈t*P.α i⌉ : ℤ):ℝ) := by
+        exact_mod_cast Int.toNat_of_nonneg hZpos
+      rw [h1, h2]; push_cast; ring
+    rw [hcardeq]
+    linarith [hmul1, hmul2, hfl, hce]
+  have htoNatcast : ∀ i ∈ Active, ((⌊P.β i⌋ - ⌈P.α i⌉:ℤ).toNat:ℝ) = (⌊P.β i⌋:ℝ) - (⌈P.α i⌉:ℝ) := by
+    intro i hiA0
+    have hiA : ⌈P.α i⌉ < ⌊P.β i⌋ := by simpa [hActive] using hiA0
+    have h2 : ((⌊P.β i⌋ - ⌈P.α i⌉:ℤ).toNat:ℝ) = ((⌊P.β i⌋ - ⌈P.α i⌉:ℤ):ℝ) := by
+      exact_mod_cast Int.toNat_of_nonneg (by omega : (0:ℤ) ≤ ⌊P.β i⌋ - ⌈P.α i⌉)
+    rw [h2]; push_cast; ring
+  have hprod_le : (t/2)^Active.card * (∏ i ∈ Active, ((⌊P.β i⌋ - ⌈P.α i⌉:ℤ).toNat:ℝ)) ≤
+      ∏ i ∈ Active, ((Finset.Icc ⌈t*P.α i⌉ ⌊t*P.β i⌋).card : ℝ) := by
+    rw [← Finset.prod_const, ← Finset.prod_mul_distrib]
+    apply Finset.prod_le_prod
+    · intro i hi
+      rw [htoNatcast i hi]
+      have hiA : ⌈P.α i⌉ < ⌊P.β i⌋ := by simpa [hActive] using hi
+      have h1 : (1:ℤ) ≤ ⌊P.β i⌋ - ⌈P.α i⌉ := by omega
+      have h2 : (1:ℝ) ≤ (⌊P.β i⌋:ℝ) - (⌈P.α i⌉:ℝ) := by
+        have h3 : ((1:ℤ):ℝ) ≤ ((⌊P.β i⌋ - ⌈P.α i⌉:ℤ):ℝ) := by exact_mod_cast h1
+        push_cast at h3; linarith
+      nlinarith [h2, htpos]
+    · intro i hi
+      rw [htoNatcast i hi]
+      exact hfactor i hi
+  calc (t/2)^Active.card * (∏ i ∈ Active, ((⌊P.β i⌋ - ⌈P.α i⌉:ℤ).toNat:ℝ))
+      ≤ ∏ i ∈ Active, ((Finset.Icc ⌈t*P.α i⌉ ⌊t*P.β i⌋).card : ℝ) := hprod_le
+    _ = ((∏ i ∈ Active, (Finset.Icc ⌈t*P.α i⌉ ⌊t*P.β i⌋).card : ℕ) : ℝ) := by push_cast; ring
+    _ = ((Box.card : ℕ):ℝ) := by rw [hboxcard]
+    _ ≤ ((Finset.Icc L U).card : ℝ) := by exact_mod_cast hcard_le
+    _ = (U - L + 1 : ℝ) := by rw [hIcccard]
+
+/-- A real interval `[A, B]` (with `⌈A⌉ < ⌊B⌋`, i.e. containing at least two integers) dilated
+by `t ≥ 2` contains at least `(t/2) * (⌊B⌋ - ⌈A⌉)` integers. Used for the one-dimensional face
+in the `d = 1` conclusion of `lemma3_core`. -/
+lemma gap_interval_count_ge (A B t : ℝ) (ht2 : 2 ≤ t) (hAB : ⌈A⌉ < ⌊B⌋) :
+    (t/2) * ((⌊B⌋:ℝ) - (⌈A⌉:ℝ)) ≤ ((Finset.Icc ⌈t*A⌉ ⌊t*B⌋).card : ℝ) := by
+  have htpos : (0:ℝ) < t := by linarith
+  have ha1 : (1:ℤ) ≤ ⌊B⌋ - ⌈A⌉ := by omega
+  have haR : (1:ℝ) ≤ (⌊B⌋:ℝ) - (⌈A⌉:ℝ) := by
+    have : ((1:ℤ):ℝ) ≤ ((⌊B⌋ - ⌈A⌉:ℤ):ℝ) := by exact_mod_cast ha1
+    push_cast at this
+    linarith
+  have hBA : (B - A) ≥ (⌊B⌋:ℝ) - (⌈A⌉:ℝ) := by
+    have e1 : ((⌊B⌋:ℤ):ℝ) ≤ B := Int.floor_le _
+    have e2 : A ≤ (⌈A⌉:ℝ) := Int.le_ceil _
+    linarith
+  have hmul1 : t * ((⌊B⌋:ℝ) - (⌈A⌉:ℝ)) ≤ t*B - t*A := by
+    have h := mul_le_mul_of_nonneg_left hBA htpos.le
+    nlinarith [h]
+  have hmul2 : (2:ℝ) ≤ t * ((⌊B⌋:ℝ) - (⌈A⌉:ℝ)) :=
+    calc (2:ℝ) = 2 * 1 := by ring
+      _ ≤ t * ((⌊B⌋:ℝ) - (⌈A⌉:ℝ)) := mul_le_mul ht2 haR (by norm_num) (by linarith)
+  have hfl : t*B < (⌊t*B⌋:ℝ) + 1 := Int.lt_floor_add_one _
+  have hce : (⌈t*A⌉:ℝ) < t*A + 1 := Int.ceil_lt_add_one _
+  have hZpos : (0:ℤ) ≤ ⌊t*B⌋ + 1 - ⌈t*A⌉ := by
+    have hposR : (0:ℝ) < (⌊t*B⌋:ℝ) + 1 - (⌈t*A⌉:ℝ) := by nlinarith [hmul1, hmul2, hfl, hce]
+    have hz : (0:ℤ) < ⌊t*B⌋ + 1 - ⌈t*A⌉ := by exact_mod_cast hposR
+    omega
+  have hcardeq : ((Finset.Icc ⌈t*A⌉ ⌊t*B⌋).card:ℝ) = (⌊t*B⌋:ℝ) + 1 - (⌈t*A⌉:ℝ) := by
+    have h1 : (Finset.Icc ⌈t*A⌉ ⌊t*B⌋).card = (⌊t*B⌋+1-⌈t*A⌉).toNat := Int.card_Icc _ _
+    have h2 : ((⌊t*B⌋+1-⌈t*A⌉).toNat : ℝ) = ((⌊t*B⌋+1-⌈t*A⌉ : ℤ):ℝ) := by
+      exact_mod_cast Int.toNat_of_nonneg hZpos
+    rw [h1, h2]; push_cast; ring
+  rw [hcardeq]
+  have hstep1 : (⌊t*B⌋:ℝ) + 1 - (⌈t*A⌉:ℝ) > t*B - t*A - 1 := by linarith [hfl, hce]
+  have hstep2 : t*B - t*A - 1 ≥ t*((⌊B⌋:ℝ)-(⌈A⌉:ℝ)) - 1 := by linarith [hmul1]
+  have hstep3 : t*((⌊B⌋:ℝ)-(⌈A⌉:ℝ)) - 1 ≥ (t/2)*((⌊B⌋:ℝ)-(⌈A⌉:ℝ)) := by linarith [hmul2]
+  linarith [hstep1, hstep2, hstep3]
 
 /-- **Steps 2–6** of the proof of Lemma 3 (the genuinely hard additive-combinatorial core).
 
@@ -509,7 +755,20 @@ scale-invariant notion (e.g. properness of every dilate, or properness stated di
 coordinate differences `n - m` rather than for the coordinate box), or `cfhmpsv_structure`'s
 conclusion strengthened to assert `(GAP.dilate (c * s) P).Proper` explicitly. This has now
 been done: `cfhmpsv_structure` asserts properness of the dilate, and it is threaded through
-as the hypothesis `(GAP.dilate (c * s) P).Proper` below. -/
+as the hypothesis `(GAP.dilate (c * s) P).Proper` below.
+
+**Further gaps discovered while formalizing this lemma.** Three additional facts, each true
+in the *concrete* application (`lemma3_structure_apply`/`lemma3`) but not derivable from
+`lemma3_core`'s hypotheses in the abstract, are needed and are isolated below as individually
+documented `sorry`s (per instructions, since `lemma3_core`'s statement itself may not be
+changed): (1) the face-counting bound `(3.1)` needs `subsetSums J'` confined to an interval of
+length `O(s q)`, which needs elements of `J'` bounded by (roughly) `q`; abstractly `J'` is an
+arbitrary `Finset ℕ` with no such bound. (2) the divisor-count bound `(3.2)` needs, for each
+`j ∈ J`, a bound `((j:ZMod q)⁻¹).val ≤ 2 q^ε` (matching `j`'s origin as `i⁻¹.val` for
+`i ∈ I ⊆ [q^ε, 2q^ε]` in the concrete application); abstractly only `IsUnit (j:ZMod q)` is
+known. (3) the face-counting construction needs, for each inactive coordinate, an admissible
+*integer* point in the dilated (real-valued) interval `[t α i, t β i]`; since dilation scales
+by an arbitrary real `t`, this is not automatic from `P`'s properness. -/
 lemma lemma3_core (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) (hc : 0 < c) (d₀ : ℕ) :
     ∃ Q₀ : ℕ, ∀ q : ℕ, IsPrimePow q → Q₀ ≤ q →
       ∀ (m : ℕ) (J J' : Finset ℕ) (P : GAP),
@@ -521,7 +780,174 @@ lemma lemma3_core (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) (hc : 0 <
         (q:ℝ)^(7*ε/8) ≤ (m:ℝ) →
         (∃ x : ℤ, ∀ y ∈ (GAP.dilate (c * (⌊(q:ℝ)^(ε/2)⌋₊:ℝ)) P).set, x + y ∈ subsetSums J') →
         ∀ r : ZMod q, ∃ T ⊆ J', ((∑ i ∈ T, (i:ℤ) : ℤ) : ZMod q) = r := by
-  sorry
+  have hSbig : ∀ᶠ q:ℕ in atTop, 2/c + 1 ≤ (q:ℝ)^(ε/2) := by
+    have h2 : Tendsto (fun q:ℕ => (q:ℝ)^(ε/2)) atTop atTop :=
+      (tendsto_rpow_atTop (by linarith)).comp tendsto_natCast_atTop_atTop
+    exact h2.eventually_ge_atTop (2/c+1)
+  rw [eventually_atTop] at hSbig
+  obtain ⟨Q₀, hQ₀⟩ := hSbig
+  refine ⟨max Q₀ 2, fun q hqpp hq m J J' P hPproper hPdil hPD hJ'J hJcard hJmem h0mem hunits
+    hJ'card hmcard hxdilate r => ?_⟩
+  classical
+  have hq2 : 2 ≤ q := le_trans (le_max_right _ _) hq
+  have hqQ0 : Q₀ ≤ q := le_trans (le_max_left _ _) hq
+  have hNZq : NeZero q := ⟨by omega⟩
+  have hFact : Fact (1 < q) := ⟨by omega⟩
+  set s : ℕ := ⌊(q:ℝ)^(ε/2)⌋₊ with hsdef
+  have hqR : (0:ℝ) < q := by exact_mod_cast (by omega : 0<q)
+  have hspos : 2/c < (s:ℝ) := by
+    have h1 := hQ₀ q hqQ0
+    have h2 : (q:ℝ)^(ε/2) < (s:ℝ)+1 := by rw [hsdef]; exact Nat.lt_floor_add_one _
+    linarith
+  have ht2 : (2:ℝ) ≤ c * (s:ℝ) := by
+    have hh := (div_lt_iff₀ hc).mp hspos
+    linarith
+  -- coordinate setup
+  obtain ⟨v, hv, hv0eq⟩ := h0mem
+  have hv0 : ∑ i, v i * P.d i = 0 := hv0eq.symm
+  set Active : Finset (Fin P.D) := Finset.univ.filter (fun i => ⌈P.α i⌉ < ⌊P.β i⌋) with hActive
+  -- nonzero element of J
+  have hqpow_pos : (0:ℝ) < (q:ℝ)^(7*ε/8) := Real.rpow_pos_of_pos hqR _
+  have hmpos : 0 < m := by
+    have : (0:ℝ) < (m:ℝ) := lt_of_lt_of_le hqpow_pos hmcard
+    exact_mod_cast this
+  have hmR : (0:ℝ) < (m:ℝ) := by exact_mod_cast hmpos
+  have hJcardR : (0:ℝ) < (J.card:ℝ) := lt_of_lt_of_le (by linarith) hJcard
+  have hJcardpos : 0 < J.card := by exact_mod_cast hJcardR
+  obtain ⟨j₀, hj₀⟩ := Finset.card_pos.mp hJcardpos
+  have hj₀ne : (j₀:ℤ) ≠ 0 := by
+    intro h0
+    have hu := hunits j₀ hj₀
+    have h0' : j₀ = 0 := by exact_mod_cast h0
+    rw [h0'] at hu
+    simp only [Nat.cast_zero] at hu
+    exact not_isUnit_zero hu
+  have hActiveNE : Active.Nonempty :=
+    gap_active_nonempty P v hv hv0 (j₀:ℤ) (hJmem j₀ hj₀) hj₀ne
+  set d : ℕ := Active.card with hddef
+  have hd1 : 1 ≤ d := Finset.card_pos.mpr hActiveNE
+  set V : ℕ := ∏ i ∈ Active, (⌊P.β i⌋ - ⌈P.α i⌉).toNat with hVdef
+  -- GAP 3: admissible inactive-coordinate assignment for the dilate (documented gap; see
+  -- lemma3_core's docstring, item (3)).
+  obtain ⟨w, hw⟩ : ∃ w : Fin P.D → ℤ, ∀ i, ¬ (⌈P.α i⌉ < ⌊P.β i⌋) →
+      (c * (s:ℝ)) * P.α i ≤ (w i:ℝ) ∧ (w i:ℝ) ≤ (c * (s:ℝ)) * P.β i := by
+    sorry
+  -- GAP 1: elements of `J'` are bounded by `q` in the concrete application (see item (1)).
+  have hJ'bound : ∀ z ∈ subsetSums J', (0:ℤ) ≤ z ∧ z ≤ (J'.card:ℤ) * q := by
+    sorry
+  set x : ℤ := hxdilate.choose with hxdef
+  have hxspec : ∀ y ∈ (GAP.dilate (c*(s:ℝ)) P).set, x + y ∈ subsetSums J' := hxdilate.choose_spec
+  have hFace : (c * (s:ℝ) / 2) ^ d * (V:ℝ) ≤ (J'.card:ℤ) * q - 0 + 1 := by
+    have := gap_dilate_face_count P (c * (s:ℝ)) ht2 hPdil w hw (subsetSums J') x 0
+      ((J'.card:ℤ)*q) (by positivity) hJ'bound hxspec
+    simpa [hActive, hddef, hVdef] using this
+  -- GAP 2 + steps 4–5 (simultaneous approximation, divisor-bound argument (3.2)), combined
+  -- with the face-count bound `hFace` above (paper's (3.1)), to force `d = 1` and get a
+  -- quantitative lower bound on `V` exceeding `q` after scaling by `s`. See lemma3_core's
+  -- docstring, item (2), and Section 3 of the paper (steps 4–5).
+  have hd1_and_big : d = 1 ∧ (c * (s:ℝ) / 2) * (V:ℝ) > q := by
+    sorry
+  obtain ⟨hd1eq, hbig⟩ := hd1_and_big
+  obtain ⟨i₁, hi₁eq⟩ := Finset.card_eq_one.mp (hddef ▸ hd1eq)
+  have hi₁active : i₁ ∈ Active := hi₁eq ▸ Finset.mem_singleton_self i₁
+  have hi₁activeP : ⌈P.α i₁⌉ < ⌊P.β i₁⌋ := by simpa [hActive] using hi₁active
+  have hVeq : (V:ℝ) = (⌊P.β i₁⌋:ℝ) - (⌈P.α i₁⌉:ℝ) := by
+    have : V = (⌊P.β i₁⌋ - ⌈P.α i₁⌉).toNat := by rw [hVdef, hi₁eq]; simp
+    rw [this]
+    have h2 : ((⌊P.β i₁⌋ - ⌈P.α i₁⌉:ℤ).toNat:ℝ) = ((⌊P.β i₁⌋ - ⌈P.α i₁⌉:ℤ):ℝ) := by
+      exact_mod_cast Int.toNat_of_nonneg (by omega : (0:ℤ) ≤ ⌊P.β i₁⌋ - ⌈P.α i₁⌉)
+    rw [h2]; push_cast; ring
+  -- generator at i₁ is a unit mod q
+  obtain ⟨n₀, hn₀, hj₀eq, hbdd, hinact⟩ := gap_active_repr P v hv hv0 (j₀:ℤ) (hJmem j₀ hj₀)
+  have hj₀eq' : (j₀:ℤ) = (n₀ i₁ - v i₁) * P.d i₁ := by
+    rw [hj₀eq, show Finset.univ.filter (fun i => ⌈P.α i⌉ < ⌊P.β i⌋) = ({i₁} : Finset (Fin P.D))
+      from hActive ▸ hi₁eq]
+    simp
+  have hunit_gen : IsUnit ((P.d i₁ : ZMod q)) := by
+    have hu := hunits j₀ hj₀
+    rw [show ((j₀:ℕ):ZMod q) = ((n₀ i₁ - v i₁ : ℤ):ZMod q) * (P.d i₁ : ZMod q) by
+      have := hj₀eq'
+      have hcast : ((j₀:ℕ):ZMod q) = ((j₀:ℤ):ZMod q) := by push_cast; ring
+      rw [hcast, this]; push_cast; ring] at hu
+    exact isUnit_of_mul_isUnit_right hu
+  -- one-dimensional face covers all residues
+  have hcount : (q:ℕ) ≤ (Finset.Icc ⌈(c*(s:ℝ))*P.α i₁⌉ ⌊(c*(s:ℝ))*P.β i₁⌋).card := by
+    have hge := gap_interval_count_ge (P.α i₁) (P.β i₁) (c*(s:ℝ)) ht2 hi₁activeP
+    rw [← hVeq] at hge
+    have : (q:ℝ) ≤ ((Finset.Icc ⌈(c*(s:ℝ))*P.α i₁⌉ ⌊(c*(s:ℝ))*P.β i₁⌋).card:ℝ) := by
+      linarith [hge, hbig]
+    exact_mod_cast this
+  set L' : ℤ := ⌈(c*(s:ℝ))*P.α i₁⌉ with hL'def
+  set U' : ℤ := ⌊(c*(s:ℝ))*P.β i₁⌋ with hU'def
+  set cnt : ℕ := (Finset.Icc L' U').card with hcntdef
+  set CONST : ℤ := L' * P.d i₁ + ∑ i ∈ Finset.univ.filter (fun i => i ≠ i₁), w i * P.d i
+    with hCONSTdef
+  have hcardeq2 : (cnt:ℤ) = U' - L' + 1 := by
+    have h1 : (Finset.Icc L' U').card = (U'+1-L').toNat := Int.card_Icc _ _
+    have hle : L' ≤ U' := by
+      by_contra hcon
+      push_neg at hcon
+      have : (Finset.Icc L' U').card = 0 := by rw [Finset.Icc_eq_empty (by omega)]; simp
+      rw [hcntdef, this] at hcount
+      omega
+    rw [hcntdef, h1, Int.toNat_of_nonneg (by omega)]
+    ring
+  have hn : ∀ t : ℕ, t < cnt → ∀ i, (c*(s:ℝ)) * P.α i ≤ ((if i = i₁ then L' + t else w i : ℤ):ℝ)
+      ∧ ((if i = i₁ then L' + t else w i : ℤ):ℝ) ≤ (c*(s:ℝ)) * P.β i := by
+    intro t ht i
+    by_cases hi : i = i₁
+    · subst hi
+      simp only [ite_true]
+      have hLU : L' + (t:ℤ) ≤ U' := by
+        have : (t:ℤ) < cnt := by exact_mod_cast ht
+        omega
+      constructor
+      · calc (c*(s:ℝ)) * P.α i ≤ (L':ℝ) := by rw [hL'def]; exact Int.le_ceil _
+          _ ≤ ((L' + (t:ℤ) : ℤ):ℝ) := by push_cast; linarith [Nat.cast_nonneg (α := ℝ) t]
+      · calc ((L' + (t:ℤ) : ℤ):ℝ) ≤ (U':ℝ) := by exact_mod_cast hLU
+          _ ≤ (c*(s:ℝ)) * P.β i := by rw [hU'def]; exact Int.floor_le _
+    · simp only [if_neg hi]
+      exact hw i (by
+        by_contra hcon
+        have hiA : i ∈ Active := by simpa [hActive] using hcon
+        rw [hi₁eq] at hiA
+        exact hi (Finset.mem_singleton.mp hiA))
+  have hy_mem : ∀ t : ℕ, t < cnt →
+      (t:ℤ) * P.d i₁ + CONST ∈ (GAP.dilate (c*(s:ℝ)) P).set := by
+    intro t ht
+    show ∃ n : Fin P.D → ℤ, (∀ i, (c*(s:ℝ)) * P.α i ≤ (n i:ℝ) ∧ (n i:ℝ) ≤ (c*(s:ℝ)) * P.β i) ∧
+      (t:ℤ) * P.d i₁ + CONST = ∑ i, n i * P.d i
+    refine ⟨fun i => if i = i₁ then L' + t else w i, hn t ht, ?_⟩
+    rw [hCONSTdef]
+    rw [← Finset.sum_filter_add_sum_filter_not Finset.univ (fun i => i = i₁)]
+    have h1 : ∑ i ∈ Finset.univ.filter (fun i => i = i₁),
+        (if i = i₁ then L' + (t:ℤ) else w i) * P.d i = (L' + t) * P.d i₁ := by
+      rw [Finset.filter_eq']
+      simp
+    have h2 : ∑ i ∈ Finset.univ.filter (fun i => ¬ i = i₁),
+        (if i = i₁ then L' + (t:ℤ) else w i) * P.d i
+        = ∑ i ∈ Finset.univ.filter (fun i => i ≠ i₁), w i * P.d i := by
+      apply Finset.sum_congr rfl
+      intro i hi
+      simp only [Finset.mem_filter] at hi
+      rw [if_neg hi.2]
+    rw [h1, h2]
+    ring
+  have hxy_sub : ∀ t : ℕ, t < cnt → x + ((t:ℤ) * P.d i₁ + CONST) ∈ subsetSums J' :=
+    fun t ht => hxspec _ (hy_mem t ht)
+  have hcov : ∀ r : ZMod q, ∃ t : ℕ, t < cnt ∧
+      ((x + ((t:ℤ) * P.d i₁ + CONST) : ℤ) : ZMod q) = r := by
+    intro r
+    obtain ⟨t, ht, heq⟩ := ap_unit_covers (x + CONST) (P.d i₁) hunit_gen cnt hcount r
+    refine ⟨t, ht, ?_⟩
+    rw [← heq]
+    congr 1
+    ring
+  obtain ⟨t, ht, heq⟩ := hcov r
+  obtain ⟨T, hTJ', hTeq⟩ := hxy_sub t ht
+  refine ⟨T, hTJ', ?_⟩
+  rw [← hTeq]
+  exact heq
 
 /-- **Lemma 3** of the paper. -/
 theorem lemma3 (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
