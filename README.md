@@ -178,7 +178,7 @@ is replaced by the author's elementary signed-fiber construction, recorded in
 |---|---|---|
 | Audited target (`FamilyWitness`, `CandidateStatement`) | `Intervals.lean` | audited, unchanged |
 | Working definitions and `Statement k` | `Defs.lean` | proved |
-| Bridge `Statement k → FamilyWitness k`; FormalConjectures-style statement | `Target.lean`, `Compat.lean` | proved |
+| Bridge `Statement k → FamilyWitness k`; corrected nonadjacent `Fin k → ℕ × ℕ` formulation (`erdos_289_nonadjacent_statement`, adapted from Formal Conjectures) | `Target.lean`, `Compat.lean` | proved |
 | Separated family → ordered statement | `Sorting.lean` | proved |
 | Literature inputs used (Liu–Sawhney; Conlon–Fox–Pham structure theorem; Mertens; divisor bound) | `ExternalBridge.lean`, `CFPBridge.lean`, vendored libraries | proved (vendored, kernel-checked) |
 | Signed correction fibers (replaces §2 Lemma 1): F1, F2, D1 | `SignedDefs.lean`, `SignedF1.lean`, `SignedF2.lean`, `SignedD1.lean`, `Sieve.lean` | proved |
