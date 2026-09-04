@@ -3,15 +3,15 @@ import Erdos289.Defs
 /-!
 # External inputs from the published literature
 
-This file collects, as `theorem ... := by sorry` statements (never `axiom`, so that the
-project's sorry-tracking stays honest), the results from published papers that
+This file collects, as named `axiom`s, the results from published papers that
 `erdos_289_full_proof.pdf` uses as black boxes, together with the classical analytic
 number theory estimates it invokes. See Section 1, "The external theorem inputs", of the
 proof text.
 
-None of the statements in this file are proved here (except where Mathlib already
-supplies the classical estimate, in which case we derive it). They are meant to be cited
-by name from the rest of the formalization.
+The literature inputs are declared as named axioms so that `#print axioms` on the
+terminal theorem lists exactly which external results are being trusted. Everything else
+in this file is proved. The statements are translations of the papers' theorems and must
+be audited against the papers; see the README.
 -/
 
 namespace Erdos289
@@ -28,11 +28,10 @@ For every fixed `0 < ζ < 1/2`, for all sufficiently large `N`, every subset `A`
 to exactly `1`.
 
 This is an unproved external input: it is taken as a black box from the published paper. -/
-theorem liu_sawhney (ζ : ℝ) (hζ0 : 0 < ζ) (hζ1 : ζ < 1 / 2) :
+axiom liu_sawhney (ζ : ℝ) (hζ0 : 0 < ζ) (hζ1 : ζ < 1 / 2) :
     ∀ᶠ N : ℕ in atTop, ∀ A ⊆ Finset.Icc 1 N,
       (1 - 1 / Real.exp 1 + ζ) * (N : ℝ) ≤ (A.card : ℝ) →
-      ∃ D ⊆ A, ∑ d ∈ D, (1 : ℚ) / d = 1 := by
-  sorry
+      ∃ D ⊆ A, ∑ d ∈ D, (1 : ℚ) / d = 1
 
 /-! ## 2. Conlon–Fox–He–Mubayi–Pham–Suk–Verstraëte: structure in bounded subset sums.
 
@@ -105,7 +104,7 @@ The dilate `(c s) • P` is itself asserted to be proper (the paper's phrase "th
 dilate `csP`"; this is needed for the face count in the proof of Lemma 3).
 
 This is an unproved external input: it is taken as a black box from the published paper. -/
-theorem cfhmpsv_structure (β : ℝ) (hβ : 1 < β) (η : ℝ) (hη0 : 0 < η) (hη1 : η < 1) :
+axiom cfhmpsv_structure (β : ℝ) (hβ : 1 < β) (η : ℝ) (hη0 : 0 < η) (hη1 : η < 1) :
     ∃ c : ℝ, 0 < c ∧ ∃ d₀ : ℕ,
       ∀ᶠ m : ℕ in atTop, ∀ n : ℕ, (n : ℝ) ≤ (m : ℝ) ^ β →
         ∀ A : Finset ℕ, A ⊆ Finset.Icc 1 n → A.card = m →
@@ -115,8 +114,7 @@ theorem cfhmpsv_structure (β : ℝ) (hβ : 1 < β) (η : ℝ) (hη0 : 0 < η) (
             (m : ℝ) - c⁻¹ * s * Real.log m ≤ (J.card : ℝ) ∧
             (∀ x ∈ J, (x : ℤ) ∈ P.set) ∧ (0 : ℤ) ∈ P.set ∧
             J'.card ≤ s ∧
-            ∃ x : ℤ, ∀ y ∈ (GAP.dilate (c * (s : ℝ)) P).set, x + y ∈ subsetSums J' := by
-  sorry
+            ∃ x : ℤ, ∀ y ∈ (GAP.dilate (c * (s : ℝ)) P).set, x + y ∈ subsetSums J'
 
 /-! ## 3. Bourgain–Garaev: short sums of modular inverses. -/
 
@@ -130,13 +128,12 @@ For every sufficiently small fixed `c > 0`, the short Kloosterman-type sum
 `m^c < N < m` and in coefficients `a` coprime to `m`.
 
 This is an unproved external input: it is taken as a black box from the published paper. -/
-theorem bourgain_garaev :
+axiom bourgain_garaev :
     ∃ c₀ : ℝ, 0 < c₀ ∧ ∀ c : ℝ, 0 < c → c < c₀ → ∀ ε : ℝ, 0 < ε →
       ∀ᶠ m : ℕ in atTop, ∀ N : ℕ, (m : ℝ) ^ c < (N : ℝ) → (N : ℝ) < (m : ℝ) →
         ∀ a : ℕ, Nat.Coprime a m →
           ‖∑ n ∈ (Finset.Icc 1 N).filter (fun n => Nat.Coprime n m),
-              e m (a * ((n : ZMod m)⁻¹).val)‖ ≤ ε * (N : ℝ) := by
-  sorry
+              e m (a * ((n : ZMod m)⁻¹).val)‖ ≤ ε * (N : ℝ)
 
 /-! ## 4. Classical estimates.
 
@@ -192,18 +189,16 @@ theorem primeCounting_le :
 `B₁`. Mathlib does not currently contain this asymptotic (checked: no lemma involving
 `Mertens`, and `Nat.primeCounting`/Chebyshev files only give prime-counting bounds, not
 the reciprocal-prime sum). Taken as an unproved classical input. -/
-theorem mertens_second :
+axiom mertens_second :
     ∃ B₁ : ℝ, Tendsto
       (fun x : ℕ => (∑ p ∈ (Finset.range (x + 1)).filter Nat.Prime, (1 : ℝ) / p)
-        - Real.log (Real.log x)) atTop (nhds B₁) := by
-  sorry
+        - Real.log (Real.log x)) atTop (nhds B₁)
 
 /-- The uniform divisor bound `τ(n) = n^{o(1)}`. Mathlib does not currently contain this
 (checked: only the trivial bound `Nat.card_divisors_le_self : n.divisors.card ≤ n`, no
 `n^ε`-type divisor bound). Taken as an unproved classical input. -/
-theorem divisor_bound (ε : ℝ) (hε : 0 < ε) :
-    ∀ᶠ n : ℕ in atTop, (n.divisors.card : ℝ) ≤ (n : ℝ) ^ ε := by
-  sorry
+axiom divisor_bound (ε : ℝ) (hε : 0 < ε) :
+    ∀ᶠ n : ℕ in atTop, (n.divisors.card : ℝ) ≤ (n : ℝ) ^ ε
 
 /-- The count of prime powers up to `Y` is `O(Y / log Y)`, uniformly in `Y`. This is a
 routine consequence of `primeCounting_le` (a prime power `p^k ≤ Y` has `p ≤ Y`, and for

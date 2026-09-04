@@ -33,14 +33,13 @@ the inequality applied, with `x j` the modular inverses `t⁻¹ mod U`, to deriv
 statement `Erdos289.equidist_inverse`.
 
 This is an unproved external input: it is taken as a black box from the published literature. -/
-theorem erdos_turan :
+axiom erdos_turan :
     ∃ C : ℝ, 0 < C ∧ ∀ (U : ℕ), 0 < U → ∀ (N : ℕ) (x : Fin N → ZMod U) (H : ℕ), 0 < H →
       ∀ α ℓ : ℕ, α + ℓ ≤ U →
         |((univ.filter (fun j => (x j).val ∈ Finset.Ico α (α + ℓ))).card : ℝ)
               - (N : ℝ) * (ℓ : ℝ) / (U : ℝ)|
           ≤ C * ((N : ℝ) / (H : ℝ)
               + ∑ h ∈ Finset.Icc 1 H, (1 : ℝ) / (h : ℝ) *
-                  ‖∑ j, e U (h * ((x j).val : ℤ))‖) := by
-  sorry
+                  ‖∑ j, e U (h * ((x j).val : ℤ))‖)
 
 end Erdos289

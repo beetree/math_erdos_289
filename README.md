@@ -144,8 +144,16 @@ lake build                      # must succeed with no errors
 lake env lean scripts/Axioms.lean   # prints the axioms of the terminal theorem
 ```
 
-The axiom report must list only `propext`, `Classical.choice`, and `Quot.sound`. If
-`sorryAx` appears, some dependency is unproved and the certificate is void.
+For the unconditional certificate described in the statement of faithfulness, the axiom
+report must list only `propext`, `Classical.choice`, and `Quot.sound`.
+
+**Conditional form.** At present the six literature inputs (see the table in "Current
+status") are declared as named `axiom`s in `Erdos289/External.lean` and
+`Erdos289/ErdosTuran.lean`. A build of the terminal theorem whose axiom report lists exactly
+the three standard axioms plus those six names certifies the implication "the six cited
+results imply `CandidateStatement`". If `sorryAx` appears, some other dependency is
+unproved. The six axiom statements are translations of the papers' theorems and require
+their own human audit against the papers.
 
 ## Current status
 
@@ -155,25 +163,25 @@ The formalization is organized as follows (paper section → Lean file).
 |---|---|---|
 | Audited target (`FamilyWitness`, `CandidateStatement`) | `Intervals.lean` | audited, unchanged |
 | Working definitions and `Statement k` | `Defs.lean` | done |
-| Bridge `Statement k → FamilyWitness k` | `Target.lean` | in progress |
+| Bridge `Statement k → FamilyWitness k` | `Target.lean` | proved |
 | Separated family → ordered statement | `Sorting.lean` | proved |
-| §1 literature inputs (Liu–Sawhney; Conlon–Fox–He–Mubayi–Pham–Suk–Verstraëte Thm 3; Bourgain–Garaev; Mertens; divisor bound) | `External.lean` | **stated with `sorry`** (Chebyshev's bound and the prime-power count are proved) |
+| §1 literature inputs (Liu–Sawhney; Conlon–Fox–He–Mubayi–Pham–Suk–Verstraëte Thm 3; Bourgain–Garaev; Mertens; divisor bound; Erdős–Turán) | `External.lean`, `ErdosTuran.lean` | **named axioms** (Chebyshev's bound and the prime-power count are proved) |
 | §2 Lemma 1 (powersmooth fibers) | `Lemma1.lean`, `ErdosTuran.lean` | in progress |
 | §2 Lemma 2 (separation of correction pairs) | `Lemma2.lean` | proved |
 | §3 Lemma 3 (sparse inverse covering) | `Lemma3.lean` | in progress |
 | §4 Lemma 4 (powersmooth supply) | `Lemma4.lean` | in progress |
 | §4 cancellation identity (4.6) | `Cancel.lean`, `DenBound.lean` | proved |
 | §4 Lemma 5 (auxiliary pairs), (4.2), (4.5) | `Lemma5.lean` | (4.2) proved; rest in progress |
-| §4 correction procedure, (4.8), (4.9) | `Descent.lean`, `CorrData.lean`, `Tail.lean` | tail sums proved; rest in progress |
-| §5 Lemma 6 and the core | `Lemma6.lean`, `Core.lean`, `Harmonic.lean` | proved (Lemma 6 from the Liu–Sawhney input) |
+| §4 correction procedure, (4.8), (4.9) | `Descent.lean`, `CorrData.lean`, `Tail.lean` | proved |
+| §5 Lemma 6 and the core | `Lemma6.lean`, `Core.lean`, `Harmonic.lean` | proved (Lemma 6 from the Liu–Sawhney axiom) |
 | §6 main pairs | `MainPairs.lean`, `Greedy.lean` | greedy lemma proved; rest in progress |
 | §7 assembly | `Assembly.lean` | in progress |
 | Ported elementary lemmas from the author's starter | `Expert.lean` | proved |
 
 "Proved" means the file compiles with no `sorry`; its dependency chain may still pass
-through sorried inputs in `External.lean` or through lemmas still in progress. Until
-every row is proved and `External.lean` contains no `sorry`, the terminal theorem
-depends on `sorryAx` and the certificate described above does not exist.
+through the six axioms or through lemmas still in progress. Until every row is proved, the
+terminal theorem depends on `sorryAx` and not even the conditional certificate exists; until
+the six axioms are replaced by proofs, the unconditional certificate does not exist.
 
 The literature inputs are the largest remaining obligation. Under the statement of
 faithfulness, citing them is not enough: they must be supplied as checked Lean proofs.
