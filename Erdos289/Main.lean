@@ -16,3 +16,6 @@ theorem candidateStatement : CandidateStatement :=
   candidateStatement_of erdos289
 
 end Erdos289
+
+-- The axiom report of the terminal theorem is printed on every build.
+#print axioms Erdos289.candidateStatement

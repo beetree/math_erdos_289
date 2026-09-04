@@ -9,7 +9,7 @@ set_option maxHeartbeats 1000000
 
 This file proves `equidist_inverse'`, the "uniform discrepancy justification" paragraph of
 Section 2 of `erdos_289_full_proof.pdf` (lines 135-148), from the two external inputs
-`Erdos289.bourgain_garaev` and `Erdos289.erdos_turan`.
+`Erdos289.bourgain_garaev` and `Erdos289.erdos_turan_weak`.
 
 The definitions `rOf'` / `invCand'` are verbatim copies of `Erdos289.rOf` / `Erdos289.invCand`
 (now in `Erdos289/Lemma1Basic.lean`); those files are not imported here, to keep the two
@@ -588,7 +588,7 @@ open EquidistAux
 `q = p ^ a`, a modulus `U ∈ {q, 2q, 4q, 4pq}`, an interval `(T₁, T₂]` with `T₂ ≤ 5 q^ε`, and a
 residue interval `[α, α+ℓ) ⊆ [0, U)`, the number of `t ∈ (T₁, T₂]` coprime to `U` whose inverse
 mod `U` lies in `[α, α+ℓ)` matches the expected count `φ(U)/U · (T₂-T₁) · ℓ/U` up to `o(q^ε)`,
-uniformly in all of the data.  Proved from `bourgain_garaev` and `erdos_turan`. -/
+uniformly in all of the data.  Proved from `bourgain_garaev` and `erdos_turan_weak`. -/
 theorem equidist_inverse' (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
     ∀ κ : ℝ, 0 < κ → ∀ᶠ q : ℕ in atTop, ∀ p a : ℕ, p.Prime → 0 < a → q = p ^ a →
       ∀ U : ℕ, U = q ∨ U = 2 * q ∨ U = 4 * q ∨ U = 4 * p * q →
@@ -597,7 +597,7 @@ theorem equidist_inverse' (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
             |((invCand' U T₁ T₂ α ℓ).card : ℝ)
                 - (Nat.totient U : ℝ) / (U : ℝ) * (((T₂ - T₁ : ℕ) : ℝ)) * (ℓ : ℝ) / (U : ℝ)|
               ≤ κ * (q : ℝ) ^ ε := by
-  obtain ⟨C, hCpos, hET⟩ := erdos_turan
+  obtain ⟨C, hCpos, hET⟩ := erdos_turan_weak
   obtain ⟨c₀, hc₀pos, hBG0⟩ := bourgain_garaev
   intro κ hκ
   have hCne : C ≠ 0 := hCpos.ne'
@@ -607,14 +607,19 @@ theorem equidist_inverse' (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
   have hclt : c < c₀ := lt_of_le_of_lt (min_le_left _ _) (by linarith)
   have hcle : c ≤ ε / 8 := min_le_right _ _
   -- the (fixed) Erdos-Turan cutoff
-  set H : ℕ := ⌈30 * C / κ⌉₊ + 1 with hHdef
-  have hHpos : 0 < H := Nat.succ_pos _
+  set H : ℕ := (⌈30 * C / κ⌉₊ + 1) ^ 2 with hHdef
+  have hHpos : 0 < H := pow_pos (Nat.succ_pos _) 2
   have hHR : (0 : ℝ) < (H : ℝ) := by exact_mod_cast hHpos
   have hHne : (H : ℝ) ≠ 0 := hHR.ne'
-  have hH30 : 30 * C ≤ κ * (H : ℝ) := by
+  -- `H` is a perfect square, so its square root is the integer `⌈30 C / κ⌉₊ + 1`
+  have hsqrtH : Real.sqrt (H : ℝ) = (⌈30 * C / κ⌉₊ : ℝ) + 1 := by
+    have h2 : ((H : ℕ) : ℝ) = ((⌈30 * C / κ⌉₊ : ℝ) + 1) ^ 2 := by
+      rw [hHdef]; push_cast; ring
+    rw [h2, Real.sqrt_sq (by positivity)]
+  have hsqrtHpos : (0 : ℝ) < Real.sqrt (H : ℝ) := by rw [hsqrtH]; positivity
+  have hH30 : 30 * C ≤ κ * Real.sqrt (H : ℝ) := by
     have h1 : 30 * C / κ ≤ (⌈30 * C / κ⌉₊ : ℝ) := Nat.le_ceil _
-    have h2 : ((⌈30 * C / κ⌉₊ : ℕ) : ℝ) + 1 = (H : ℝ) := by rw [hHdef]; push_cast; ring
-    have h3 : 30 * C / κ ≤ (H : ℝ) := by linarith
+    have h3 : 30 * C / κ ≤ Real.sqrt (H : ℝ) := by rw [hsqrtH]; linarith
     rw [div_le_iff₀ hκ] at h3
     linarith
   -- the Bourgain-Garaev tolerance
@@ -814,10 +819,10 @@ theorem equidist_inverse' (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
         ≤ 3 * 1 := mul_le_mul hccN hℓU hℓUnn (by norm_num)
       _ = 3 := by norm_num
   -- final bookkeeping
-  have hterm1 : C * ((N : ℝ) / (H : ℝ)) ≤ κ / 6 * (q : ℝ) ^ ε := by
-    rw [← mul_div_assoc, div_le_iff₀ hHR]
+  have hterm1 : C * ((N : ℝ) / Real.sqrt (H : ℝ)) ≤ κ / 6 * (q : ℝ) ^ ε := by
+    rw [← mul_div_assoc, div_le_iff₀ hsqrtHpos]
     have h1 : C * (N : ℝ) ≤ C * (5 * (q : ℝ) ^ ε) := mul_le_mul_of_nonneg_left hNle hCpos.le
-    have h2 : 5 * C ≤ κ * (H : ℝ) / 6 := by linarith
+    have h2 : 5 * C ≤ κ * Real.sqrt (H : ℝ) / 6 := by linarith
     have h3 := mul_le_mul_of_nonneg_right h2 hqeps.le
     linarith
   have hCH : C * ((H : ℝ) * (20 * δ)) = κ / 6 := by
@@ -837,10 +842,10 @@ theorem equidist_inverse' (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
           - (Nat.totient U : ℝ) / (U : ℝ) * ((T₂ - T₁ : ℕ) : ℝ) * (ℓ : ℝ) / (U : ℝ)| :=
         abs_sub_le _ _ _
     _ ≤ κ * (q : ℝ) ^ ε := by
-        have hsplit : C * ((N : ℝ) / (H : ℝ)
+        have hsplit : C * ((N : ℝ) / Real.sqrt (H : ℝ)
             + ∑ h ∈ Finset.Icc 1 H, (1 : ℝ) / (h : ℝ) *
               ‖∑ j : Fin N, e U ((h : ℤ) * (((x j).val : ℕ) : ℤ))‖)
-            = C * ((N : ℝ) / (H : ℝ))
+            = C * ((N : ℝ) / Real.sqrt (H : ℝ))
               + C * (∑ h ∈ Finset.Icc 1 H, (1 : ℝ) / (h : ℝ) *
                 ‖∑ j : Fin N, e U ((h : ℤ) * (((x j).val : ℕ) : ℤ))‖) := by ring
         rw [hsplit] at hETq

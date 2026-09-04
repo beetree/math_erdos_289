@@ -4,10 +4,11 @@ Last updated: 2026-09-03 23:20 PDT. Live view: `scripts/status.sh`.
 
 ## One-line status
 
-**Three audited axioms remain.** `Erdos289.candidateStatement : CandidateStatement` builds
-with no `sorry` anywhere in its dependency chain, and `scripts/Axioms.lean` reports exactly
-`propext`, `Classical.choice`, `Quot.sound`, and **three** audited axioms:
-`cfhmpsv_structure`, `bourgain_garaev`, `erdos_turan`. The divisor bound, Mertens' second
+**Two audited axioms remain, by decision.** `Erdos289.candidateStatement : CandidateStatement`
+builds with no `sorry` anywhere in its dependency chain, with zero warnings, and its axiom
+report (printed by every build, from `Erdos289/Main.lean`) is exactly `propext`,
+`Classical.choice`, `Quot.sound`, `Erdos289.External.Assumed.bourgain_garaev`,
+`Erdos289.External.Assumed.cfhmpsv_structure`. These two are to be left as axioms. The divisor bound, Mertens' second
 theorem, and Liu–Sawhney are proved via verbatim ports from the `plby/lean-proofs` corpus
 (`SolveMath/`, 41 modules, ≈ 30,700 lines; `Erdos289/Ported.lean`). Removing the remaining
 three gives the **unconditional certificate**. `Erdos289/Compat.lean` also derives the
@@ -40,8 +41,8 @@ the axiom report names exactly `Erdos289.External.Assumed.*`.
 | # | Axiom | Source | Used by | Prospects for removal |
 |---|---|---|---|---|
 | A1 | `liu_sawhney` | Liu–Sawhney, Thm 1.3 | Lemma 6 → core | A port from the same corpus is in progress in `expert_input/ported/LiuSawhney/` (run `port_ls`, launched outside this session). |
-| A2 | `cfhmpsv_structure` | Conlon–Fox–Pham Thm 1.5 via CFHMPSV Thm 3 | Lemma 3 | Hard. No known formalization. |
-| A3 | `bourgain_garaev` | Bourgain–Garaev, Thm 5 | Lemma 1 (S1) | Hard. No known formalization. |
+| A2 | `cfhmpsv_structure` | Conlon–Fox–Pham Thm 1.5 via CFHMPSV Thm 3 | Lemma 3 | **Kept as an axiom by decision.** |
+| A3 | `bourgain_garaev` | Bourgain–Garaev, Thm 5 | Lemma 1 (S1) | **Kept as an axiom by decision.** |
 | A4 | `erdos_turan` | discrete Erdős–Turán inequality | Lemma 1 (S1) | Moderate. Classical; a self-contained Fourier-analytic proof is feasible. |
 | ~~A5~~ | `mertens_second` | Mertens' second theorem | Lemma 1 (sieve), Lemma 4 | **DISCHARGED**: ported proof (4 modules, 1,591 lines) from `plby/lean-proofs`; axiom-clean. |
 | ~~A6~~ | `divisor_bound` | Hardy–Wright Thm 315 | Lemma 1, Lemma 3 | **DISCHARGED**: ported proof (342 lines) from `plby/lean-proofs`; axiom-clean. |
@@ -89,3 +90,4 @@ Basic (setup, pigeonhole, face count, endgame), core assembly.
 7. S1 (Opus), S2 (Sonnet), S3 (Opus and Gemini independently) closed; competitor files removed; axioms routed through the bridge. Conditional certificate achieved at commit `38b270a`.
 8. Ported axiom-clean proofs of the divisor bound and Mertens (from `plby/lean-proofs` via `solve-math`) integrated; four audited axioms remain.
 9. Liu–Sawhney port integrated; three audited axioms remain (commit `80ec5f7`).
+10. Finite Erdős–Turán port integrated and Lemma 1 adapted to its `N/√H` form; two audited axioms remain. Warning cleanup complete (zero warnings).
