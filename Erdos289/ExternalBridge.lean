@@ -303,7 +303,7 @@ For every fixed `0 < ζ < 1/2`, for all sufficiently large `N`, every subset `A`
 to exactly `1`.
 
 Derived from the audited axiom `Erdos289.External.Assumed.liu_sawhney` via the bridge above. -/
-alias liu_sawhney := bridge_liu_sawhney
+alias liu_sawhney := Ported.liu_sawhney
 
 /-- **Conlon–Fox–He–Mubayi–Pham–Suk–Verstraëte**, *A question of Erdős and Graham on
 Egyptian fractions* (arXiv:2404.16016), Theorem 3, derived there from Conlon–Fox–Pham,

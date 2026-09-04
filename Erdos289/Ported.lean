@@ -1,10 +1,12 @@
 import SolveMath.Corpus.NumberTheory.DivisorCountSubpolynomialGrowth
 import SolveMath.Corpus.NumberTheory.MeisselMertensConstantAsymptotic
+import SolveMath.Edges.Erdos.P300.Solution
 
 /-!
 # Ported proofs of classical inputs
 
-Axiom-clean proofs of the divisor bound and Mertens' second theorem, ported verbatim from
+Axiom-clean proofs of the divisor bound, Mertens' second theorem, and Liu–Sawhney's
+Theorem 1.3 (`Erdos300.dense_contains_one`), ported from
 Boris Alexeev's `plby/lean-proofs` corpus (via the `solve-math` repository, commit
 `8f953ab3`; formal authors Codex / GPT-5.6 Sol). The modules live in the `SolveMath`
 library of this project. The bridges below restate their conclusions in the exact form of our
@@ -82,3 +84,34 @@ theorem mertens_second :
   exact hcomp
 
 end Erdos289.Ported
+
+namespace Erdos289.Ported
+
+theorem liu_sawhney (ζ : ℝ) (hζ0 : 0 < ζ) (hζ1 : ζ < 1 / 2) :
+    ∀ᶠ N : ℕ in Filter.atTop, ∀ A ⊆ Finset.Icc 1 N,
+      (1 - 1 / Real.exp 1 + ζ) * (N : ℝ) ≤ (A.card : ℝ) →
+      ∃ D ⊆ A, ∑ d ∈ D, (1 : ℚ) / d = 1 := by
+  have h := Erdos300.dense_contains_one ζ hζ0 hζ1
+  filter_upwards [h] with N hN A hA hcard
+  obtain ⟨B, hBA, hBsum⟩ := hN A hA hcard
+  exact ⟨B, hBA, by simpa [UnitFractions.rec_sum] using hBsum⟩
+
+theorem liu_sawhney_audited :
+    ∀ ζ : ℝ, 0 < ζ → ζ < (1 : ℝ) / 2 →
+      ∃ N₀ : ℕ, 1 ≤ N₀ ∧
+        ∀ N : ℕ, N₀ ≤ N →
+          ∀ A : Finset ℕ, A ⊆ Finset.Icc 1 N →
+            (1 - Real.exp (-1) + ζ) * (N : ℝ) ≤ (A.card : ℝ) →
+            ∃ D : Finset ℕ, D ⊆ A ∧ (∑ d ∈ D, (1 : ℚ) / (d : ℚ)) = 1 := by
+  intro ζ hζ0 hζ1
+  have h := Erdos300.dense_contains_one ζ hζ0 hζ1
+  obtain ⟨N₀, hN₀⟩ := Filter.eventually_atTop.mp h
+  refine ⟨max N₀ 1, le_max_right _ _, fun N hN A hA hcard => ?_⟩
+  have hN' : N₀ ≤ N := le_trans (le_max_left _ _) hN
+  have hcard' : (1 - 1 / Real.exp 1 + ζ) * (N : ℝ) ≤ (A.card : ℝ) := by
+    simpa [Real.exp_neg, one_div] using hcard
+  obtain ⟨B, hBA, hBsum⟩ := hN₀ N hN' A hA hcard'
+  exact ⟨B, hBA, by simpa [UnitFractions.rec_sum] using hBsum⟩
+
+end Erdos289.Ported
+

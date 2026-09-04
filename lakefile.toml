@@ -7,8 +7,8 @@ pp.unicode.fun = true
 autoImplicit = false
 # The two audited files (Erdos289/Intervals.lean, Erdos289/ExternalAxioms.lean) are immutable
 # and trip these two cosmetic linters; they are disabled package-wide for that reason.
-"linter.unusedSimpArgs" = false
-"linter.defProp" = false
+linter.unusedSimpArgs = false
+linter.defProp = false
 
 [[require]]
 name = "mathlib"
@@ -23,4 +23,4 @@ name = "Erdos289"
 [[lean_lib]]
 name = "SolveMath"
 # Verbatim third-party ports: do not report deprecations/lints we will not fix in place.
-leanOptions = { "linter.deprecated" = false, "linter.unusedSimpArgs" = false, "linter.style.haveILetI" = false, "linter.unusedVariables" = false, "linter.defProp" = false }
+leanOptions = { linter.deprecated = false, linter.unusedSimpArgs = false, linter.style.haveILetI = false, linter.unusedVariables = false, linter.defProp = false }
