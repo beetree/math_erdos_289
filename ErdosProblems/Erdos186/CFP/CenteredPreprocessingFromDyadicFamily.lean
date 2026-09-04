@@ -127,7 +127,7 @@ theorem retainedDyadicPreprocessingHApproximationArgument_of_dyadicSourceFamily
     have hsmall : W.card ≤ 1 +
         (stableBudget / C0) * (D * Nat.log 2 indexBound + 1) := by
       simp only [AccessibleNontrivial] at haccessible
-      push_neg at haccessible
+      push Not at haccessible
       obtain ⟨B, hBW, hcard, hzeroB, hB⟩ := haccessible
       have hBcard : B.card = 1 := by rw [hB]; simp
       omega

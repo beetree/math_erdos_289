@@ -894,7 +894,7 @@ theorem exists_tubeCubeWitness {r : ℕ} (hr : 0 < r)
                 3 * (centralPart S center L).card < S.card := by omega
             have houtside : ∃ x ∈ S, x - center ∉ L := by
               by_contra hnone
-              push_neg at hnone
+              push Not at hnone
               have hcentralEq : centralPart S center L = S := by
                 ext x
                 constructor

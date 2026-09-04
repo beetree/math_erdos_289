@@ -58,7 +58,7 @@ theorem activeRank_pos {A : Finset ℤ} {d : ℕ}
     0 < P.progression.activeRank := by
   have hex : ∃ z ∈ A, z ≠ 0 := by
     by_contra hnot
-    push_neg at hnot
+    push Not at hnot
     apply hne
     ext z
     constructor

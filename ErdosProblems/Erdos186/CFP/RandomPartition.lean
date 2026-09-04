@@ -369,7 +369,7 @@ theorem exists_coloring_hits_every_chunk {q t r : ℕ}
   have hex : ∃ c : X → Fin (q + 1),
       c ∉ badColorings (q := q) chunks := by
     by_contra h
-    push_neg at h
+    push Not at h
     have hsub : (Finset.univ : Finset (X → Fin (q + 1))) ⊆
         badColorings (q := q) chunks := by
       intro c hc

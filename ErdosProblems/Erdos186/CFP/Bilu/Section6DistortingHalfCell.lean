@@ -616,7 +616,7 @@ theorem exists_lowerHalf_of_cosSum
       (1 + delta) / 2 * Fintype.card ι <
         (lowerHalfIndices y b).card := by
   by_contra hnone
-  push_neg at hnone
+  push Not at hnone
   have hintegral := lowerHalfIntegral_ge_of_card_upper y delta hnone
   have hdistIntegral := distributionIntegral_eq_neg_lowerHalfIntegral y
   have hcos := cosSum_eq_distributionIntegral y

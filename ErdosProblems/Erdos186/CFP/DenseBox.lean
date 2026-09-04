@@ -637,7 +637,7 @@ theorem exists_primitiveNormalization (S : Finset ℤ) (hcard : 2 ≤ S.card) :
   let g : ℤ := S.gcd fun x ↦ x - a
   have hxne : ∃ x ∈ S, x - a ≠ 0 := by
     by_contra h
-    push_neg at h
+    push Not at h
     have hsub : S ⊆ {a} := by
       intro x hx
       have := h x hx

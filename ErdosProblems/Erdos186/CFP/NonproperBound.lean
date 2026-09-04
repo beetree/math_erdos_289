@@ -176,11 +176,11 @@ theorem card_dilate_two_add_volume_le_box_of_not_proper
     (P.dilate 2).carrier.card + P.volume ≤
       ∏ i, (2 * P.widths i - 1) := by
   rw [Erdos186.GAP.Proper, Function.Injective] at hP
-  push_neg at hP
+  push Not at hP
   obtain ⟨a, b, hab, hne⟩ := hP
   have hdiff : ∃ i, a i ≠ b i := by
     by_contra h
-    push_neg at h
+    push Not at h
     exact hne (funext h)
   obtain ⟨i, hi⟩ := hdiff
   by_cases hablt : (a i : ℕ) < (b i : ℕ)
@@ -217,17 +217,17 @@ theorem card_dilate_two_lt_pow_sub_one_mul_volume_of_not_proper
     (P : Erdos186.GAP d r) (hP : ¬ P.Proper) :
     (P.dilate 2).carrier.card < (2 ^ r - 1) * P.volume := by
   rw [Erdos186.GAP.Proper, Function.Injective] at hP
-  push_neg at hP
+  push Not at hP
   obtain ⟨a, b, _hab, hne⟩ := hP
   have hdiff : ∃ i, a i ≠ b i := by
     by_contra h
-    push_neg at h
+    push Not at h
     exact hne (funext h)
   obtain ⟨i, _hi⟩ := hdiff
   have hsum : (P.dilate 2).carrier.card + P.volume < 2 ^ r * P.volume :=
     lt_of_le_of_lt (P.card_dilate_two_add_volume_le_box_of_not_proper (by
       rw [Erdos186.GAP.Proper, Function.Injective]
-      push_neg
+      push Not
       exact ⟨a, b, _hab, hne⟩))
       (P.prod_two_width_sub_one_lt_pow_two_mul_volume i)
   have hpow : 1 ≤ 2 ^ r := by simpa using Nat.one_le_pow' r 1

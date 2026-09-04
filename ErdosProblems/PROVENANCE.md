@@ -71,3 +71,10 @@ and this one line.
 ## Building
 
 `expert_input/ported/build.sh -j 8 expert_input/ported/CFP` (from the project root).
+
+## Deviations in this repository's copy (added on integration, 2026-09-04)
+
+- At 13 sites (listed by `git log -p` of this file's integration commit), the deprecated tactic
+  `push_neg` was replaced by its documented replacement `push Not`, to keep the project's build
+  warning-free. No other change to any ported file. Linters that would otherwise fire on the
+  verbatim code are disabled for this library in `lakefile.toml`.

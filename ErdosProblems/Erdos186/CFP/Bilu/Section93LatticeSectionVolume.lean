@@ -110,7 +110,7 @@ theorem one_le_covolume_integralPoints
     P.exists_integral_normal_abs_le_integralPoints_covolume hSat
   obtain ⟨j, hxj⟩ : ∃ j, x j ≠ 0 := by
     by_contra h
-    push_neg at h
+    push Not at h
     exact hx0 (funext h)
   have habsInt : (1 : ℤ) ≤ |x j| := by
     have : (0 : ℤ) < |x j| := abs_pos.mpr hxj
