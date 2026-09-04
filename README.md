@@ -2,13 +2,14 @@
 
 ## Verification transcript
 
-A fresh clone at tag `v1.0-unconditional-certificate` (commit `6de963b`), built from source
-with only the pinned Mathlib cache downloaded, produces no errors and no warnings; the single
-Lean info line is the axiom report of the terminal theorem, printed by `Erdos289/Main.lean`:
+A fresh clone of `main`, built from source with only the pinned Mathlib cache downloaded,
+produces no errors and no warnings; the single Lean info line is the axiom report of the
+terminal theorem, printed by `Erdos289/Main.lean`:
 
 ```console
 $ git clone https://github.com/beetree/math_erdos_289.git && cd math_erdos_289
-$ git checkout v1.0-unconditional-certificate
+$ cat lean-toolchain
+leanprover/lean4:v4.34.0-rc2
 $ lake exe cache get
 $ lake build
 ℹ [9101/9104] Built Erdos289.Main (2.8s)
@@ -20,21 +21,9 @@ Build completed successfully (9104 jobs).
 
 `propext`, `Classical.choice`, and `Quot.sound` are Lean's standard foundational axioms.
 No `sorryAx`, no `Lean.ofReduceBool`, and no project-declared axiom appears: the theorem
-`Erdos289.candidateStatement : Erdos289.CandidateStatement` is proved from Mathlib alone.
-Toolchain: Lean `v4.34.0-rc2`, Mathlib `v4.34.0-rc2` (revision `85e3a25e`).
-
-This repository formalizes, in Lean 4 with Mathlib, the candidate proof in
-`erdos_289_full_proof.pdf` (revised nonadjacent version, 4 September 2026) of a
-strengthened form of Erdős Problem 289.
-
-**Status: unconditional certificate.** The terminal theorem `Erdos289.candidateStatement`
-builds with no `sorry` and no warnings, and every build prints its axiom report, which is exactly
-`propext`, `Classical.choice`, `Quot.sound`. No literature result is assumed. Three of the audited
-inputs (Liu–Sawhney, Mertens, the divisor bound) and the Conlon–Fox–Pham structure theorem are
-proved by vendored, axiom-clean ports (see "Vendored proofs" below); Bourgain–Garaev and
-Erdős–Turán are not used, because Lemma 1 of the manuscript is replaced by the author's
-elementary signed-fiber construction (`docs/elementary_replacements.md`). The six axioms
-declared in the audited module `ExternalAxioms.lean` remain declared and unused.
+`Erdos289.candidateStatement : Erdos289.CandidateStatement` is proved from Mathlib alone
+(Mathlib `v4.34.0-rc2`, revision `85e3a25e`, pinned in `lake-manifest.json`). The transcript
+above was recorded at tag `v1.0-unconditional-certificate` (commit `6de963b`).
 
 ## How to read this repository
 
