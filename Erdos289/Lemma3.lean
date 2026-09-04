@@ -360,7 +360,8 @@ lemma lemma3_structure_apply (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
         (q : ℝ) ^ (7 * ε / 8) ≤ I.card →
         ∃ (J J' : Finset ℕ) (P : GAP),
           J ⊆ I.image (fun i : ℕ => ((i:ZMod q)⁻¹).val) ∧ P.Proper ∧
-          (GAP.dilate (c * (⌊(q:ℝ)^(ε/2)⌋₊ : ℝ)) P).Proper ∧ P.D ≤ d₀ ∧ J' ⊆ J ∧
+          (GAP.dilate (c * (⌊(q:ℝ)^(ε/2)⌋₊ : ℝ)) P).Proper ∧
+          (GAP.dilate (c * (⌊(q:ℝ)^(ε/2)⌋₊ : ℝ)) P).set.Nonempty ∧ P.D ≤ d₀ ∧ J' ⊆ J ∧
           ((I.card : ℝ)) / 2 ≤ (J.card : ℝ) ∧
           (∀ x ∈ J, (x : ℤ) ∈ P.set) ∧ (0:ℤ) ∈ P.set ∧
           J'.card ≤ ⌊(q:ℝ)^(ε/2)⌋₊ ∧
@@ -456,7 +457,7 @@ lemma lemma3_structure_apply (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
     calc c⁻¹ * (s:ℝ) * Real.log (m:ℝ) = c⁻¹ * ((s:ℝ) * Real.log (m:ℝ)) := by ring
       _ ≤ c⁻¹ * (c/2 * (m:ℝ)) := this
       _ = (m:ℝ)/2 := hcancel
-  refine ⟨J, J', P, hJA, hPproper, hPdil, hPD, hJ'J, ?_, hJmem, h0mem, hJ'card, x, hxdilate⟩
+  refine ⟨J, J', P, hJA, hPproper, hPdil, hPne, hPD, hJ'J, ?_, hJmem, h0mem, hJ'card, x, hxdilate⟩
   have : (m:ℝ) - c⁻¹ * (s:ℝ) * Real.log (m:ℝ) ≤ (J.card:ℝ) := hJcard
   linarith
 
@@ -697,6 +698,79 @@ lemma gap_interval_count_ge (A B t : ℝ) (ht2 : 2 ≤ t) (hAB : ⌈A⌉ < ⌊B�
   have hstep3 : t*((⌊B⌋:ℝ)-(⌈A⌉:ℝ)) - 1 ≥ (t/2)*((⌊B⌋:ℝ)-(⌈A⌉:ℝ)) := by linarith [hmul2]
   linarith [hstep1, hstep2, hstep3]
 
+/-- **Divisor-counting step** (paper's step 5). If every `j ∈ J` (naturals `< q`) has a witness
+integer `h j`, of absolute value at most `R`, congruent to `T * j` mod `q` (`T` a fixed integer
+with `1 ≤ T < q`), and a positive integer `i0 j ≤ Imax` inverse to `j` mod `q`, then `J` is
+small: writing `N w := q * w + T`, the pair `(z j, i0 j)` — where `z j` is the (bounded)
+integer with `i0 j * h j = N (z j)` — is injective in `j` (since `i0 j` alone already
+determines `j`, via `i0 j`'s role as an inverse of `j` and `j < q`), and for each of the
+`O(Imax * R / q)` values `z j` can take, `i0 j` must be one of the (boundedly many, via `D`)
+divisors of `|N (z j)|`. -/
+lemma divisor_count_bound {q : ℕ} (hq2 : 2 ≤ q) (T : ℤ) (hT1 : 1 ≤ T) (hTq : T < q)
+    (R Imax : ℝ) (hR : 0 ≤ R) (hImax : 0 ≤ Imax)
+    (J : Finset ℕ) (hJlt : ∀ j ∈ J, j < q)
+    (h : ℕ → ℤ) (hh : ∀ j ∈ J, |(h j : ℝ)| ≤ R ∧ ((h j : ZMod q) = (T : ZMod q) * (j : ZMod q)))
+    (i0 : ℕ → ℕ) (hi0pos : ∀ j ∈ J, 0 < i0 j) (hi0le : ∀ j ∈ J, (i0 j : ℝ) ≤ Imax)
+    (hi0inv : ∀ j ∈ J, (i0 j : ZMod q) * (j : ZMod q) = 1)
+    (D : ℝ → ℝ) (hDmono : ∀ x y : ℝ, 0 ≤ x → x ≤ y → D x ≤ D y)
+    (hDdiv : ∀ n : ℕ, 1 ≤ n → (n.divisors.card : ℝ) ≤ D n) :
+    (J.card : ℝ) ≤ (2 * (⌈Imax * R / q + 1⌉₊ : ℝ) + 1) *
+      D ((q:ℝ) * ((⌈Imax * R / q + 1⌉₊ : ℝ) + 1)) := by
+  haveI : NeZero q := ⟨by omega⟩
+  have hqR : (0:ℝ) < q := by exact_mod_cast (by omega : 0 < q)
+  set Z : ℕ := ⌈Imax * R / q + 1⌉₊ with hZdef
+  have hZR : Imax * R / q + 1 ≤ (Z:ℝ) := Nat.le_ceil _
+  have hcong : ∀ j ∈ J, ((i0 j : ℤ) * h j - T : ZMod q) = 0 := by
+    intro j hj
+    have h1 : (h j : ZMod q) = (T:ZMod q) * (j:ZMod q) := (hh j hj).2
+    have h2 : (((i0 j:ℕ):ℤ)*(h j) : ZMod q) = (T:ZMod q) := by
+      push_cast
+      rw [h1]
+      rw [show ((i0 j:ℕ):ZMod q) * ((T:ZMod q)*(j:ZMod q))
+        = (T:ZMod q)*((i0 j:ZMod q)*(j:ZMod q)) by ring]
+      rw [hi0inv j hj]; ring
+    push_cast
+    rw [h2]; ring
+  have hex : ∀ j, j ∈ J → ∃ zz : ℤ, (i0 j:ℤ) * h j - T = q * zz := by
+    intro j hj
+    have hd : (q:ℤ) ∣ ((i0 j:ℤ) * h j - T) :=
+      (ZMod.intCast_zmod_eq_zero_iff_dvd _ q).mp (hcong j hj)
+    obtain ⟨zz, hzz⟩ := hd
+    exact ⟨zz, hzz⟩
+  set z : ℕ → ℤ := fun j => if hj : j ∈ J then (hex j hj).choose else 0 with hzdef
+  have hzspec : ∀ j ∈ J, (i0 j:ℤ) * h j - T = q * z j := by
+    intro j hj
+    simp only [hzdef, dif_pos hj]
+    exact (hex j hj).choose_spec
+  have hzbound : ∀ j ∈ J, |(z j : ℝ)| ≤ (Z:ℝ) := by
+    intro j hj
+    have heq := hzspec j hj
+    have heqR : (q:ℝ) * (z j : ℝ) = (i0 j:ℝ) * (h j : ℝ) - (T:ℝ) := by exact_mod_cast heq
+    have h2 : |(i0 j:ℝ) * (h j:ℝ)| = (i0 j:ℝ) * |(h j:ℝ)| := by
+      rw [abs_mul, abs_of_nonneg (by exact_mod_cast (hi0pos j hj).le)]
+    have h3 : |(T:ℝ)| = (T:ℝ) := abs_of_pos (by exact_mod_cast hT1 : (0:ℝ) < T)
+    have hb1 : |(i0 j:ℝ) * (h j:ℝ) - (T:ℝ)| ≤ (i0 j:ℝ) * |(h j:ℝ)| + (T:ℝ) := by
+      calc |(i0 j:ℝ) * (h j:ℝ) - (T:ℝ)| = |(i0 j:ℝ)*(h j:ℝ) + (-(T:ℝ))| := by ring_nf
+        _ ≤ |(i0 j:ℝ)*(h j:ℝ)| + |(-(T:ℝ))| := abs_add _ _
+        _ = (i0 j:ℝ)*|(h j:ℝ)| + (T:ℝ) := by rw [h2, abs_neg, h3]
+    have hqz_abs : |(q:ℝ) * (z j:ℝ)| ≤ (i0 j:ℝ) * |(h j:ℝ)| + (T:ℝ) := heqR ▸ hb1
+    have hle1 : (i0 j:ℝ) * |(h j:ℝ)| + (T:ℝ) < Imax * R + q := by
+      have hi0 := hi0le j hj
+      have hhR := (hh j hj).1
+      have hi0pos' : (0:ℝ) ≤ (i0 j:ℝ) := by exact_mod_cast (hi0pos j hj).le
+      have : (i0 j:ℝ) * |(h j:ℝ)| ≤ Imax * R := by
+        calc (i0 j:ℝ) * |(h j:ℝ)| ≤ Imax * |(h j:ℝ)| := by
+              apply mul_le_mul_of_nonneg_right hi0 (abs_nonneg _)
+          _ ≤ Imax * R := by apply mul_le_mul_of_nonneg_left hhR hImax
+      linarith [hTq]
+    have hqz_lt : |(q:ℝ) * (z j:ℝ)| < Imax * R + q := lt_of_le_of_lt hqz_abs hle1
+    have hqz_abs2 : (q:ℝ) * |(z j:ℝ)| < Imax * R + q := by
+      rwa [abs_mul, abs_of_nonneg hqR.le] at hqz_lt
+    have hdiv : |(z j:ℝ)| < (Imax*R+(q:ℝ))/q := by
+      rw [lt_div_iff₀ hqR]; linarith [hqz_abs2]
+    have heqdiv : (Imax*R+(q:ℝ))/q = Imax*R/q + 1 := by field_simp
+    linarith [hdiv, heqdiv, hZR]
+
 /-- **Steps 2–6** of the proof of Lemma 3 (the genuinely hard additive-combinatorial core).
 
 Given the data supplied by `lemma3_structure_apply` for a large prime power `q` — a proper
@@ -772,10 +846,13 @@ by an arbitrary real `t`, this is not automatic from `P`'s properness. -/
 lemma lemma3_core (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) (hc : 0 < c) (d₀ : ℕ) :
     ∃ Q₀ : ℕ, ∀ q : ℕ, IsPrimePow q → Q₀ ≤ q →
       ∀ (m : ℕ) (J J' : Finset ℕ) (P : GAP),
-        P.Proper → (GAP.dilate (c * (⌊(q:ℝ)^(ε/2)⌋₊:ℝ)) P).Proper → P.D ≤ d₀ → J' ⊆ J →
+        P.Proper → (GAP.dilate (c * (⌊(q:ℝ)^(ε/2)⌋₊:ℝ)) P).Proper →
+        (GAP.dilate (c * (⌊(q:ℝ)^(ε/2)⌋₊:ℝ)) P).set.Nonempty → P.D ≤ d₀ → J' ⊆ J →
         (m:ℝ)/2 ≤ (J.card:ℝ) →
         (∀ x ∈ J, (x:ℤ) ∈ P.set) → (0:ℤ) ∈ P.set →
         (∀ j ∈ J, IsUnit ((j:ℕ):ZMod q)) →
+        (∀ j ∈ J, j < q) →
+        (∀ j ∈ J, ∃ i : ℕ, 0 < i ∧ (i:ℝ) ≤ 2 * (q:ℝ)^ε ∧ (i:ZMod q) * (j:ZMod q) = 1) →
         J'.card ≤ ⌊(q:ℝ)^(ε/2)⌋₊ →
         (q:ℝ)^(7*ε/8) ≤ (m:ℝ) →
         (∃ x : ℤ, ∀ y ∈ (GAP.dilate (c * (⌊(q:ℝ)^(ε/2)⌋₊:ℝ)) P).set, x + y ∈ subsetSums J') →
@@ -786,8 +863,8 @@ lemma lemma3_core (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) (hc : 0 <
     exact h2.eventually_ge_atTop (2/c+1)
   rw [eventually_atTop] at hSbig
   obtain ⟨Q₀, hQ₀⟩ := hSbig
-  refine ⟨max Q₀ 2, fun q hqpp hq m J J' P hPproper hPdil hPD hJ'J hJcard hJmem h0mem hunits
-    hJ'card hmcard hxdilate r => ?_⟩
+  refine ⟨max Q₀ 2, fun q hqpp hq m J J' P hPproper hPdil hPne hPD hJ'J hJcard hJmem h0mem hunits
+    hJlt hJsmall hJ'card hmcard hxdilate r => ?_⟩
   classical
   have hq2 : 2 ≤ q := le_trans (le_max_right _ _) hq
   have hqQ0 : Q₀ ≤ q := le_trans (le_max_left _ _) hq
@@ -831,10 +908,28 @@ lemma lemma3_core (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) (hc : 0 <
   -- lemma3_core's docstring, item (3)).
   obtain ⟨w, hw⟩ : ∃ w : Fin P.D → ℤ, ∀ i, ¬ (⌈P.α i⌉ < ⌊P.β i⌋) →
       (c * (s:ℝ)) * P.α i ≤ (w i:ℝ) ∧ (w i:ℝ) ≤ (c * (s:ℝ)) * P.β i := by
-    sorry
+    obtain ⟨y, n, hn, _⟩ := hPne
+    exact ⟨n, fun i _ => hn i⟩
   -- GAP 1: elements of `J'` are bounded by `q` in the concrete application (see item (1)).
   have hJ'bound : ∀ z ∈ subsetSums J', (0:ℤ) ≤ z ∧ z ≤ (J'.card:ℤ) * q := by
-    sorry
+    intro z hz
+    obtain ⟨T, hTJ', hzeq⟩ := hz
+    have hTJ : T ⊆ J := hTJ'.trans hJ'J
+    have hnn : (0:ℤ) ≤ z := by
+      rw [hzeq]
+      exact Finset.sum_nonneg (fun i _ => by positivity)
+    have hub : z ≤ (T.card:ℤ) * q := by
+      rw [hzeq]
+      calc ∑ i ∈ T, (i:ℤ) ≤ ∑ i ∈ T, (q:ℤ) := by
+            apply Finset.sum_le_sum
+            intro i hi
+            have hiq : i < q := hJlt i (hTJ hi)
+            exact_mod_cast hiq.le
+        _ = (T.card:ℤ) * q := by rw [Finset.sum_const]; ring
+    refine ⟨hnn, le_trans hub ?_⟩
+    have : T.card ≤ J'.card := Finset.card_le_card hTJ'
+    have hqnn : (0:ℤ) ≤ (q:ℤ) := by positivity
+    exact mul_le_mul_of_nonneg_right (by exact_mod_cast this) hqnn
   set x : ℤ := hxdilate.choose with hxdef
   have hxspec : ∀ y ∈ (GAP.dilate (c*(s:ℝ)) P).set, x + y ∈ subsetSums J' := hxdilate.choose_spec
   have hFace : (c * (s:ℝ) / 2) ^ d * (V:ℝ) ≤ (J'.card:ℤ) * q - 0 + 1 := by
@@ -968,7 +1063,7 @@ theorem lemma3 (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
   have hq2 : 2 ≤ q := hqpp.two_le
   have hq0 : q ≠ 0 := by omega
   have : NeZero q := ⟨hq0⟩
-  obtain ⟨J, J', P, hJA, hPproper, hPdil, hPD, hJ'J, hJcard, hJmem, h0mem, hJ'card, x, hxdilate⟩ :=
+  obtain ⟨J, J', P, hJA, hPproper, hPdil, hPne, hPD, hJ'J, hJcard, hJmem, h0mem, hJ'card, x, hxdilate⟩ :=
     hQ₁ q hqpp hqQ1 I hI1 hI2 hI3
   have hunits : ∀ j ∈ J, IsUnit ((j:ℕ):ZMod q) := by
     intro j hj
@@ -978,8 +1073,27 @@ theorem lemma3 (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
     have hcast : (((i:ZMod q)⁻¹).val : ZMod q) = (i:ZMod q)⁻¹ := ZMod.natCast_rightInverse _
     rw [hcast]
     exact ⟨⟨(i:ZMod q)⁻¹, i, ZMod.inv_mul_of_unit _ hui, ZMod.mul_inv_of_unit _ hui⟩, rfl⟩
-  have hcover := hQ₂ q hqpp hqQ2 I.card J J' P hPproper hPdil hPD hJ'J hJcard hJmem h0mem hunits
-    hJ'card hI3 ⟨x, hxdilate⟩
+  have hJlt : ∀ j ∈ J, j < q := by
+    intro j hj
+    obtain ⟨i, hi, rfl⟩ := Finset.mem_image.mp (hJA hj)
+    exact ZMod.val_lt _
+  have hJsmall : ∀ j ∈ J, ∃ i : ℕ, 0 < i ∧ (i:ℝ) ≤ 2 * (q:ℝ)^ε ∧ (i:ZMod q) * (j:ZMod q) = 1 := by
+    intro j hj
+    obtain ⟨i, hi, rfl⟩ := Finset.mem_image.mp (hJA hj)
+    have hcop := hI2 i hi
+    have hui : IsUnit (i:ZMod q) := (ZMod.isUnit_iff_coprime i q).2 hcop
+    have hipos : 0 < i := by
+      have h1 := (hI1 i hi).1
+      have hqεpos : (0:ℝ) < (q:ℝ)^ε :=
+        Real.rpow_pos_of_pos (by exact_mod_cast (by omega : 0 < q)) ε
+      have : (0:ℝ) < (i:ℝ) := lt_of_lt_of_le hqεpos h1
+      exact_mod_cast this
+    refine ⟨i, hipos, (hI1 i hi).2, ?_⟩
+    have hcast : (((i:ZMod q)⁻¹).val : ZMod q) = (i:ZMod q)⁻¹ := ZMod.natCast_rightInverse _
+    rw [hcast]
+    exact ZMod.mul_inv_of_unit _ hui
+  have hcover := hQ₂ q hqpp hqQ2 I.card J J' P hPproper hPdil hPne hPD hJ'J hJcard hJmem h0mem
+    hunits hJlt hJsmall hJ'card hI3 ⟨x, hxdilate⟩
   have hA_qlt : 2 * (q:ℝ) ^ ε < q := (hQ₃ q hqQ3).1
   have hlt : ∀ i ∈ I, i < q := by
     intro i hi

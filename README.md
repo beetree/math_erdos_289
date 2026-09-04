@@ -549,16 +549,19 @@ The formalization is organized as follows (paper section → Lean file).
 | Bridge `Statement k → FamilyWitness k` | `Target.lean` | proved |
 | Separated family → ordered statement | `Sorting.lean` | proved |
 | §1 literature inputs (Liu–Sawhney; Conlon–Fox–He–Mubayi–Pham–Suk–Verstraëte Thm 3; Bourgain–Garaev; Mertens; divisor bound; Erdős–Turán) | `External.lean`, `ErdosTuran.lean` | **named axioms** (Chebyshev's bound and the prime-power count are proved) |
-| §2 Lemma 1 (powersmooth fibers) | `Lemma1.lean`, `ErdosTuran.lean` | in progress |
+| §2 Lemma 1 (powersmooth fibers) | `Lemma1.lean` | arithmetic core and assembly proved; analytic sub-lemmas (equidistribution via Bourgain–Garaev and Erdős–Turán, case counts, sieve) in progress |
 | §2 Lemma 2 (separation of correction pairs) | `Lemma2.lean` | proved |
-| §3 Lemma 3 (sparse inverse covering) | `Lemma3.lean` | in progress |
-| §4 Lemma 4 (powersmooth supply) | `Lemma4.lean` | in progress |
+| §3 Lemma 3 (sparse inverse covering) | `Lemma3.lean` | setup, face count (3.1), and endgame proved; steps 4–5 (approximation and divisor bound) in progress |
+| §4 Lemma 4 (powersmooth supply) | `Lemma4.lean` | proved |
 | §4 cancellation identity (4.6) | `Cancel.lean`, `DenBound.lean` | proved |
-| §4 Lemma 5 (auxiliary pairs), (4.2), (4.5) | `Lemma5.lean` | (4.2) proved; rest in progress |
+| §4 Lemma 5 (auxiliary pairs), (4.2), (4.5) | `Lemma5.lean` | proved |
 | §4 correction procedure, (4.8), (4.9) | `Descent.lean`, `CorrData.lean`, `Tail.lean` | proved |
 | §5 Lemma 6 and the core | `Lemma6.lean`, `Core.lean`, `Harmonic.lean` | proved (Lemma 6 from the Liu–Sawhney axiom) |
-| §6 main pairs | `MainPairs.lean`, `Greedy.lean` | greedy lemma proved; rest in progress |
-| §7 assembly | `Assembly.lean` | in progress |
+| §6 main pairs | `MainPairs.lean`, `Greedy.lean` | proved |
+| §7 assembly | `Assembly.lean` | proved |
+| Terminal theorem `candidateStatement` | `Main.lean` | compiles; axiom report currently includes `sorryAx` from Lemmas 1 and 3 |
+| Audited six-axiom module | `ExternalAxioms.lean` | audited, unchanged |
+| Bridge from our input statements to the audited axioms | `ExternalBridge.lean` | in progress |
 | Ported elementary lemmas from the author's starter | `Expert.lean` | proved |
 
 "Proved" means the file compiles with no `sorry`; its dependency chain may still pass
