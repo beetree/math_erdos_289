@@ -216,3 +216,16 @@ reference copies outside the repository. No dependency on the `solve-math` repos
   files `Intervals.lean` and `ExternalAxioms.lean` are included unchanged.
 - `SolveMath/`, `ErdosProblems/`: vendored proofs of the literature inputs (see "Vendored proofs").
 - `lakefile.toml`, `lake-manifest.json`, `lean-toolchain`: pins to Lean and Mathlib `v4.34.0-rc2`.
+
+## Authorship and use of AI
+
+Author: Johan Land, 4 September 2026.
+
+Large language models were used extensively in this work: in developing and checking the
+argument, in drafting the manuscript, and in writing the Lean formalization in this repository.
+The models used were GPT 6 Astra (OpenAI), Claude Fable 5.1 (Anthropic) and Gemini 3.8 Flash
+(Google). The Lean formalization builds on Mathlib and, in addition, on Boris Alexeev's
+`plby/lean-proofs` library of machine-generated Lean proofs, from which the modules under
+`SolveMath/` and `ErdosProblems/` are vendored with their provenance recorded. All mathematical
+content was reviewed by the author, who takes sole responsibility for it. The author thanks the
+reviewers whose comments on earlier drafts led to the present formulation.
