@@ -9,6 +9,8 @@
 \usepackage{tikz}
 \usepackage{fancyhdr}
 \usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
 \usepackage[colorlinks=true,linkcolor=blue!60!black,citecolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
 \usepackage{bookmark}
 
@@ -42,9 +44,12 @@
 \newcommand{\cA}{\mathcal A}
 \newcommand{\cC}{\mathcal C}
 \newcommand{\cM}{\mathcal M}
+\newcommand{\cT}{\mathcal T}
 \newcommand{\lcm}{\operatorname{lcm}}
 \newcommand{\core}{\mathrm{core}}
 \newcommand{\main}{\mathrm{main}}
+\newcommand{\Vgap}{V_{\mathrm{GAP}}}
+\newcommand{\E}{\operatorname{E}}
 
 \hypersetup{pdftitle={A solution of Erdős Problem 289 with intervals of length two and three},
   pdfauthor={Johan Land}}
@@ -57,7 +62,7 @@
 \maketitle
 
 \begin{abstract}
-Erd\H{o}s and Graham asked whether, for every sufficiently large integer $k$, there exist $k$ finite intervals of positive integers, each containing at least two integers and no two of them overlapping or adjacent, such that the reciprocals of all integers in the intervals sum to $1$. We prove a stronger statement: for every sufficiently large $k$ the intervals can be chosen to have length two or three and to lie in $[1,20k]$. The proof combines the Bourgain--Garaev bound for short sums of modular inverses, the structure theorem of Conlon, Fox, He, Mubayi, Pham, Suk and Verstra\"ete for subset sums, and the Liu--Sawhney density theorem for unit fractions, with a descent through the prime powers of a denominator that cancels one prime power at a time using pairs of consecutive integers while adding a predetermined number of intervals at every stage.
+Erd\H{o}s and Graham asked whether, for every sufficiently large integer $k$, there exist $k$ finite intervals of positive integers, each containing at least two integers and no two of them overlapping or adjacent, such that the reciprocals of all integers in the intervals sum to $1$. We prove a stronger statement: for every sufficiently large $k$ the intervals can be chosen to have length two or three and to lie in $[1,20k]$. The proof adapts prime-power absorption to signed pairs of consecutive integers. Complementary modular inverses and an elementary sieve provide large correction fibers, and a finite orientation argument makes these fibers simultaneously nonadjacent. A sparse inverse-covering lemma, obtained from the Conlon--Fox--Pham structure theorem and a divisor-count argument, enables a descending denominator correction with a predetermined interval count. A protected core is completed using the Liu--Sawhney theorem. The accompanying Lean formalization proves the stated target with no custom axioms in its dependency chain.
 \end{abstract}
 
 \section{Introduction}\label{sec:intro}
@@ -94,9 +99,13 @@ Take $I_i=[a_i,b_i]$ from Theorem~\ref{thm:main}. For $i<j$ the inequalities $b_
 
 The separation requirement is the substance of the problem. If adjacent intervals were permitted, any interval of length at least four could be cut into adjacent pieces of lengths two and three, so the number $k$ of intervals would carry no information; and as observed in the discussion of \cite{EP289}, without the restrictions the question is easy. Theorem~\ref{thm:main} says more than the problem asks: the intervals have length two or three, and all of them lie in $[1,20k]$. The constant $20$ is not optimized; it arises from the far band $[4k,20k]$ used in Section~\ref{sec:main}, where the only requirement is the inequality $16\gamma>1$ in \eqref{eq:gammabounds}.
 
+\begin{remark}\label{rem:two}
+The condition $a_i\ge2$ in \eqref{eq:main} is automatic once the other conditions hold. If some interval began at $1$, its length condition would make it contain both $1$ and $2$, so its reciprocal mass alone would be at least $1+\tfrac12>1$, while every other interval has positive mass; this contradicts total mass one. The formal target in Appendix~\ref{app:cert} requires only $a_i\ge1$, and this observation bridges the two formulations. The construction below also gives $a_i\ge2$ directly.
+\end{remark}
+
 \subsection{Outline of the proof}\label{sec:outline}
 
-The proof adapts the absorption argument in Section~4 of Conlon, Fox, He, Mubayi, Pham, Suk and Verstra\"ete \cite{CFHMPSV}. Its descending cancellation of denominator prime powers, its small reciprocal budget, and its terminal reservoir form the starting architecture. Lemma~\ref{lem:cover} below is a sparse version of that paper's inverse-covering theorem, proved by the same bounded-rank progression and divisor-count method. The new ingredients are powersmooth consecutive-pair fibers, the separation of those pairs, a fixed number of pairs at each correction stage, and a core completed by extending pairs to triples.
+The proof adapts the absorption argument in Section~4 of Conlon, Fox, He, Mubayi, Pham, Suk and Verstra\"ete \cite{CFHMPSV}. Its descending cancellation of denominator prime powers, its small reciprocal budget, and its terminal reservoir form the starting architecture, and Lemma~\ref{lem:cover} below is a sparse version of that paper's inverse-covering theorem, proved by the same bounded-rank progression and divisor-count method. The new correction mechanism uses pairs of consecutive integers with complementary signs, a finite orientation selection that makes them simultaneously nonadjacent, a fixed number of pairs at each correction stage, and a core completed by extending pairs to triples.
 
 The final family consists of intervals of three kinds, living at three different scales (Figure~\ref{fig:line}).
 
@@ -107,20 +116,24 @@ The final family consists of intervals of three kinds, living at three different
 r_0=1-(\text{mass of core})-(\text{mass of main pairs})
 \]
 is a rational number of size about $\delta/2$, with $\delta=1/1000$, whose denominator has all prime-power divisors at most $H=O(k^{4/5})$.
-\item \textbf{Correction and auxiliary pairs} at scale between $L^{11/10}$ and $O(k^{22/25})$, added by a descent (Section~\ref{sec:descent}) which cancels the prime powers of the denominator of $r_0$ one at a time, in decreasing order.
+\item \textbf{Correction and auxiliary pairs}, with endpoints between $L$ and $8H^{11/10}+1=O(k^{22/25})$, added by a descent (Section~\ref{sec:descent}) which cancels the prime powers of the denominator of $r_0$ one at a time, in decreasing order.
 \end{enumerate}
 
-The descent works as follows. Let $q=p^a$ be the largest prime power in the current denominator. Lemma~\ref{lem:fiber} supplies a \emph{fiber} $I_q$ of about $q^{\varepsilon}$ integers $m$ such that $qm+1$ has only prime-power divisors below $q/2$. The mass of the pair $[qm,qm+1]$ is
+The descent works as follows. Let $q=p^a$ be the largest prime power in the current denominator. A \emph{signed correction pair} at $q$ is a pair $\{qm,qm+\sigma\}$ of consecutive integers, with a multiplier $m$ coprime to $p$ and a sign $\sigma\in\{-1,+1\}$, such that the neighbour $qm+\sigma$ has all its prime-power divisors below $q$. Its mass is
 \[
-w(qm)=\frac1{qm}+\frac1{qm+1},
+w_\sigma(qm)=\frac1{qm}+\frac1{qm+\sigma},
 \]
-and modulo $q$ the first term behaves like $m^{-1}/q$ while the second is a junk term whose denominator involves only smaller prime powers. Lemma~\ref{lem:cover} shows that the inverses of a sparse set of size $q^{7\varepsilon/8}$ already cover every residue modulo $q$ using at most $q^{\varepsilon/2}$ summands. Subtracting the corresponding pair masses therefore removes the factor $p^a$ from the denominator while introducing only smaller prime powers. This is the obstacle peculiar to pairs, as opposed to single unit fractions: the junk term $1/(qm+1)$ must not reintroduce large prime powers, which is exactly what powersmoothness of $qm+1$ guarantees.
+and modulo $q$ the first term behaves like $m^{-1}/q$ while the second is a junk term whose denominator involves only smaller prime powers. Lemma~\ref{lem:fiber} produces, by an elementary construction, a fiber of about $q^{\varepsilon}$ such multipliers: for each auxiliary parameter $t$ the two complementary multipliers $m_1$ and $m_2$ with $m_1+m_2=t$ (or $4t$) satisfy $qm_1\pm1=rt$ and $qm_2\mp1=(q-r)t$ for a modular inverse $r$, so one of them is coprime to $p$, and a sieve on $t$ together with the divisor bound makes the neighbour smooth. No equidistribution of modular inverses is needed. Lemma~\ref{lem:cover} shows that the inverses of a sparse set of size $q^{7\varepsilon/8}$ already cover every residue modulo $q$ using at most $q^{\varepsilon/2}$ summands. Subtracting the corresponding pair masses therefore removes the factor $p^a$ from the denominator while introducing only smaller prime powers. This is the obstacle peculiar to pairs, as opposed to single unit fractions: the junk term $1/(qm+\sigma)$ must not reintroduce large prime powers.
+
+Signed pairs at different labels could overlap or touch. Each pair has one endpoint that is a multiple of four, its \emph{position}, and is either the left pair $[y-1,y]$ or the right pair $[y,y+1]$ at that position $y$. Lemma~\ref{lem:orient} chooses, for all the finitely many prime powers $q\le H$ at once, one orientation per position by a finite counting argument, and keeps at least a quarter of every fiber; the retained pairs are then pairwise separated across all labels. This choice is finite and is made after $H$ is known.
 
 To make the total number of intervals predetermined, Lemma~\ref{lem:aux} reserves, for each prime power $q$, a family $\cF_q$ of exactly $s(q)=\lfloor q^{1/20}\rfloor$ \emph{auxiliary} pairs whose endpoints are $(q/2)$-powersmooth. If the cancellation at $q$ uses $c\le s(q)$ correction pairs, $s(q)-c$ auxiliary pairs are added as well. Every stage then adds exactly $s(q)$ intervals, and the whole descent adds exactly $C_H=\sum_{L<q\le H}s(q)$ intervals. No interval is ever split or merged.
 
 After the descent the residual deficit is $j/K$ for some integer $1\le j\le j_0$, with $j_0$ fixed. It is absorbed by extending core pairs to triples: extending $[Kd+1,Kd+2]$ to $[Kd,Kd+2]$ adds $1/(Kd)$, and the Liu--Sawhney theorem (through Lemma~\ref{lem:dense}) supplies, inside each of $j$ disjoint bands of parameters, a set $D$ with $\sum_{d\in D}1/d=1$. This adds exactly $j/K$ without changing the number of intervals.
 
-Separation is arranged by construction at each scale: correction pairs start at multiples of four (Lemma~\ref{lem:sep}), auxiliary pairs are chosen at distance at least two from every possible correction endpoint (Lemma~\ref{lem:aux}), core parameters $d$ are only used when the neighbourhood $[Kd-1,Kd+3]$ avoids every correction and auxiliary endpoint, and main pairs lie on a grid of spacing three, far beyond every other endpoint. The final assembly in Section~\ref{sec:proof} only verifies the count, the mass and the conditions in \eqref{eq:main}. Figure~\ref{fig:deps} shows how the ingredients depend on one another.
+Separation is arranged at each scale: retained correction pairs are separated by Lemma~\ref{lem:orient}, auxiliary pairs are chosen at distance at least two from every possible signed correction endpoint (Lemma~\ref{lem:aux}), core parameters $d$ are only used when the neighbourhood $[Kd-1,Kd+3]$ avoids every possible correction and auxiliary endpoint, and main pairs lie on a grid of spacing three, far beyond every other endpoint. The auxiliary families and the core are protected against a deterministic superset $\cP^*_L$ of all possible signed correction endpoints, which has density zero (Proposition~\ref{prop:density}), so they do not depend on the finite orientation choice. The final assembly in Section~\ref{sec:proof} verifies the count, the mass and the conditions in \eqref{eq:main}. Figure~\ref{fig:deps} shows how the ingredients depend on one another.
+
+An earlier draft of this paper obtained the correction fibers from the Bourgain--Garaev bound for short sums of modular inverses \cite{BG} and the Erd\H{o}s--Tur\'an inequality. The signed construction of Section~\ref{sec:fibers} removes that input entirely; the structure theorem of Section~\ref{sec:CF} is still used.
 
 \begin{figure}[ht]
 \centering
@@ -128,12 +141,12 @@ Separation is arranged by construction at each scale: correction pairs start at 
 \draw[->] (0,0) -- (12.6,0) node[right] {$n$};
 \node[below,font=\scriptsize] at (12.3,-0.35) {(log scale)};
 \newcommand{\tick}[2]{\draw (#1,-0.08) -- (#1,0.08); \node[below] at (#1,-0.1) {#2};}
-\tick{0.6}{$L^{11/10}$} \tick{4.2}{$KQ$} \tick{5.2}{$KBQ$} \tick{6.4}{$2H^{11/10}$}
+\tick{0.6}{$L$} \tick{4.2}{$KQ$} \tick{5.2}{$KBQ$} \tick{6.8}{$8H^{11/10}{+}1$}
 \tick{8.0}{$k/1024$} \tick{9.6}{$k$} \tick{10.4}{$4k$} \tick{12.0}{$20k$}
-\draw[thick] (0.6,1.5) -- (6.4,1.5);
+\draw[thick] (0.6,1.5) -- (6.8,1.5);
 \draw[thick] (0.6,1.38) -- (0.6,1.62);
-\draw[thick] (6.4,1.38) -- (6.4,1.62);
-\node[above] at (3.5,1.55) {correction and auxiliary pairs (Section~\ref{sec:descent}), $O(k^{22/25})$};
+\draw[thick] (6.8,1.38) -- (6.8,1.62);
+\node[above] at (3.7,1.55) {correction and auxiliary pairs (Section~\ref{sec:descent}), $O(k^{22/25})$};
 \draw[thick] (4.2,0.7) -- (5.2,0.7);
 \draw[thick] (4.2,0.58) -- (4.2,0.82);
 \draw[thick] (5.2,0.58) -- (5.2,0.82);
@@ -151,79 +164,78 @@ Separation is arranged by construction at each scale: correction pairs start at 
 
 \begin{figure}[ht]
 \centering
-\begin{tikzpicture}[font=\footnotesize, every node/.style={draw, rounded corners, inner sep=3pt, align=center}, >=stealth]
-\node (BG) at (0,3.2) {Bourgain--Garaev \cite{BG}\\ short inverse sums};
-\node (CF) at (4.4,3.2) {CFHMPSV \cite{CFHMPSV}\\ subset-sum structure};
-\node (LS) at (8.6,3.2) {Liu--Sawhney \cite{LS}\\ dense unit fractions};
-\node (EL) at (12.2,3.2) {Mertens, divisor\\ bound};
-\node (P1) at (0,1.7) {Prop.~\ref{prop:equi}\\ equidistribution};
-\node (L3) at (4.4,1.7) {Lemma~\ref{lem:cover}\\ sparse covering};
-\node (L6) at (8.6,1.7) {Lemma~\ref{lem:dense}\\ dense bands};
-\node (L4) at (12.2,1.7) {Lemma~\ref{lem:supply}\\ powersmooth supply};
-\node (L1) at (0,0.2) {Lemmas~\ref{lem:fiber}--\ref{lem:sep}\\ correction fibers};
-\node (L5) at (12.2,0.2) {Lemma~\ref{lem:aux}\\ auxiliary pairs};
-\node (P3) at (3.0,-1.4) {Prop.~\ref{prop:descent}\\ descent};
-\node (P4) at (8.6,-1.4) {Prop.~\ref{prop:core}\\ core};
-\node (P5) at (12.2,-1.4) {Prop.~\ref{prop:main}\\ main pairs};
-\node (T) at (7.0,-3.0) {Theorem~\ref{thm:main}};
-\draw[->] (BG) -- (P1); \draw[->] (P1) -- (L1); \draw[->] (CF) -- (L3); \draw[->] (LS) -- (L6);
-\draw[->] (EL) -- (L4); \draw[->] (L4) -- (L5); \draw[->] (L6) -- (P4); \draw[->] (L4.east) .. controls (13.9,1.7) and (13.9,-1.4) .. (P5.east);
-\draw[->] (L1) -- (P3); \draw[->] (L3) -- (P3); \draw[->] (L5) -- (P3); \draw[->] (L5) -- (P4);
-\draw[->] (P3) -- (T); \draw[->] (P4) -- (T); \draw[->] (P5) -- (T);
+\begin{tikzpicture}[xscale=0.97, font=\scriptsize, every node/.style={draw, rounded corners, inner sep=2.5pt, align=center}, >=stealth]
+\node (EL) at (3.1,3.4) {Mertens, divisor bound,\\ Chebyshev, coprime counts};
+\node (CF) at (7.75,3.4) {structure theorem \cite{CFP,CFHMPSV}\\ (Theorem~\ref{thm:CF})};
+\node (LS) at (12.4,3.4) {Liu--Sawhney \cite{LS}\\ (Theorem~\ref{thm:LS})};
+\node (L1) at (0,1.9) {Lemma~\ref{lem:fiber}\\ signed fibers};
+\node (L3) at (4.65,1.9) {Prop.~\ref{prop:pigeon}, Lemma~\ref{lem:cover}\\ sparse covering};
+\node (P3) at (7.75,1.9) {Prop.~\ref{prop:density}\\ endpoint density};
+\node (L6) at (10.85,1.9) {Lemma~\ref{lem:dense}\\ dense bands};
+\node (L4) at (13.95,1.9) {Lemma~\ref{lem:supply}\\ powersmooth supply};
+\node (L2) at (0,0.4) {Lemma~\ref{lem:orient}\\ compatible fibers};
+\node (L5) at (9.0,0.4) {Lemma~\ref{lem:aux}\\ auxiliary pairs};
+\node (P5) at (12.4,0.4) {Prop.~\ref{prop:core}\\ core};
+\node (P4) at (3.1,-1.1) {Prop.~\ref{prop:descent}\\ signed descent};
+\node (P6) at (13.95,-1.1) {Prop.~\ref{prop:main}\\ main pairs};
+\node (T) at (7.75,-2.6) {Theorem~\ref{thm:main}};
+\draw[->] (EL) -- (L1); \draw[->] (EL) -- (L3); \draw[->] (CF) -- (L3); \draw[->] (EL) -- (P3);
+\draw[->] (EL) -- (L4); \draw[->] (LS) -- (L6);
+\draw[->] (L1) -- node[draw=none,right,inner sep=1pt] {finite bit counting} (L2);
+\draw[->] (P3) -- (L5); \draw[->] (L4) -- (L5); \draw[->] (L6) -- (P5); \draw[->] (L5) -- (P5); \draw[->] (P3) -- (P5);
+\draw[->] (L4) -- (P6);
+\draw[->] (L2) -- (P4); \draw[->] (L3) -- (P4); \draw[->] (L5) -- (P4);
+\draw[->] (P4) -- (T); \draw[->] (P5) -- (T); \draw[->] (P6) -- (T);
 \end{tikzpicture}
 \caption{Dependencies among the main statements.}\label{fig:deps}
 \end{figure}
 
 \subsection{Notation and conventions}\label{sec:notation}
 
-An integer is \emph{$y$-powersmooth} if every prime-power divisor of it is at most $y$. The largest prime-power divisor of an integer always refers to numerical size. For a positive integer $a$ and a modulus $m$ write
+An integer is \emph{$y$-powersmooth} if every prime-power divisor of it is at most $y$, and \emph{strictly $q$-powersmooth} if every prime-power divisor of it is less than $q$; for integral $q$ the latter is $(q-1)$-powersmoothness. The largest prime-power divisor of an integer always refers to numerical size. For a positive integer $a$ write
 \[
-w(a)=\frac1a+\frac1{a+1},\qquad e_m(x)=\exp(2\pi ix/m).
+w(a)=\frac1a+\frac1{a+1},
 \]
-The \emph{mass} of a set of pairwise disjoint intervals is the sum of the reciprocals of all integers in them; thus the pair $[a,a+1]$ has mass $w(a)$. All logarithms are natural, $\pi(x)$ counts primes up to $x$, and $\tau(n)$ is the number of divisors of $n$. A prime power is an integer $p^a$ with $p$ prime and $a\ge1$; sums and unions over $q$ ``prime power'' in a range run over all such integers in that range. Asymptotic notation $o(\cdot)$ and $O(\cdot)$ refers to $q\to\infty$ or $k\to\infty$, as indicated, with every constant of Section~\ref{sec:params} held fixed.
+and for a signed correction pair, with $qm\ge2$ and $\sigma\in\{-1,+1\}$,
+\[
+w_\sigma(qm)=\frac1{qm}+\frac1{qm+\sigma},\qquad
+J(q,m,\sigma)=[\min(qm,qm+\sigma),\ \max(qm,qm+\sigma)].
+\]
+The \emph{mass} of a set of pairwise disjoint intervals is the sum of the reciprocals of all integers in them; thus the pair $[a,a+1]$ has mass $w(a)$ and $J(q,m,\sigma)$ has mass $w_\sigma(qm)$. All logarithms are natural, except for the explicitly written $\log_2$ in the structure theorem and its application. $\pi(x)$ counts primes up to $x$, and $\tau(n)$ is the number of divisors of $n$. A prime power is an integer $p^a$ with $p$ prime and $a\ge1$; sums and unions over $q$ ``prime power'' in a range run over all such integers in that range. Asymptotic notation $o(\cdot)$ and $O(\cdot)$ refers to $q\to\infty$, $X\to\infty$ or $k\to\infty$, as indicated, with every constant of Section~\ref{sec:params} held fixed. The symbol $M_q=q^\varepsilon$ is used for the fiber scale, and $M=k-R-C_H$ for the number of main pairs; the function $R(q)$ of Section~\ref{sec:envelope} is distinct from the core count $R=|\cR|$.
 
 \subsection{Formal verification}\label{sec:formal}
 
-A formalization of Theorem~\ref{thm:main} in Lean~4 with Mathlib is in progress \cite{Repo}. The formal target states \eqref{eq:main} for intervals indexed by $\{0,\ldots,k-1\}$ with separation required for every ordered pair of indices, exactly as in Theorem~\ref{thm:main}. We note that the formalization of Problem 289 in the Formal Conjectures library \cite{FC289} asks only for disjoint intervals and omits adjacency; Theorem~\ref{thm:main} implies both readings.
+The theorem has been formalized in Lean~4 using Mathlib. The certificate is recorded at tag \texttt{v1.0-unconditional-certificate} of the accompanying repository \cite{Repo}, at commit \texttt{6de963b} (full hash in Appendix~\ref{app:meta}). The terminal declaration \texttt{Erdos289.candidateStatement} has type \texttt{Erdos289.CandidateStatement}. Its transitive axiom report contains only \texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound}, the usual foundational axioms; no custom analytic axiom occurs.
+
+The formal proof uses the signed-fiber construction and the progression-based inverse-covering argument presented in this paper. The structure theorem, the Liu--Sawhney theorem, Mertens' theorem and the divisor bound are supplied by formal proofs, with bridges to the statements used here; Chebyshev's bound comes from Mathlib. Bourgain--Garaev and Erd\H{o}s--Tur\'an are not used. The original module containing six assumed inputs is retained in the repository as an archival specification, but none of its assumed declarations belongs to the terminal theorem's dependency chain.
+
+The target definition is the one fixed in the statement audit identified in Appendix~\ref{app:cert}. It requires exactly $k$ intervals of lengths two or three, endpoints at most $20k$, an omitted integer between every ordered pair of intervals, and exact rational reciprocal mass one; see Remark~\ref{rem:two} for the lower endpoint. The formalization of Problem 289 in the Formal Conjectures library \cite{FC289} asks only for disjoint intervals and omits adjacency; Theorem~\ref{thm:main} implies both readings. Appendix~\ref{app:cert} identifies the source revision, toolchain, dependency revisions, target-file hash, terminal theorem and axiom report. The kernel checks the formal implications; the correspondence between the formal proposition and the problem as posed is a human check, recorded there.
 
 \section{External inputs and choice of parameters}\label{sec:inputs}
 
-The proof uses three theorems from the literature. Each is stated here in the form in which it is used, together with the place where its hypotheses are verified.
-
-\subsection{Short sums of modular inverses}\label{sec:BG}
-
-\begin{theorem}[Bourgain--Garaev {\cite[Theorem 5]{BG}}]\label{thm:BG}
-For every sufficiently small fixed $c>0$, as the integer modulus $m$ tends to infinity, uniformly in $m^c<N<m$ and in coefficients $a$ coprime to $m$,
-\[
-\Bigl|\sum_{\substack{n\le N\\ (n,m)=1}}e_m(an^{-1})\Bigr|=o(N).
-\]
-\end{theorem}
-
-The quantitative bound in \cite{BG} is $N(\log\log m)^{O_c(1)}/\sqrt{\log m}$. Theorem~\ref{thm:BG} is used only in the proof of Proposition~\ref{prop:equi}, where it is converted into equidistribution of inverses in intervals by the Erd\H{o}s--Tur\'an inequality \eqref{eq:ET}.
+The proof uses two theorems from the literature and three classical estimates. Each is stated here in the form in which it is used, together with the place where its hypotheses are verified.
 
 \subsection{Structure in bounded subset sums}\label{sec:CF}
 
-A generalized arithmetic progression of rank $D$ is a set of the form
+A \emph{represented} generalized arithmetic progression of rank $D$ is given by integer generators $d_1,\ldots,d_D$ and real bounds $\alpha_i\le\beta_i$; for $t>0$ its \emph{dilate at scale $t$} is
 \[
-P=\Bigl\{\sum_{i=1}^Dn_id_i:\ \alpha_i\le n_i\le\beta_i,\ n_i\in\Z\Bigr\}
+tP=\Bigl\{\sum_{i=1}^Dn_id_i:\ n_i\in\Z,\ t\alpha_i\le n_i\le t\beta_i\Bigr\},
 \]
-with integer generators $d_i$ and real $\alpha_i\le\beta_i$; it is \emph{proper} if distinct coordinate vectors give distinct integers. The dilate $tP$ is defined in Section~\ref{sec:dilate}.
+and $P=1P$. The generators are retained under dilation; only the coordinate intervals expand. For noninteger $t$ this depends on the representation, which is kept fixed throughout. The dilate $tP$ is \emph{proper} if its coordinate box $\prod_i([t\alpha_i,t\beta_i]\cap\Z)$ is nonempty and distinct coordinate vectors in it give distinct integers. Properness here includes nonemptiness: an empty coordinate box would be vacuously injective, and the face argument in Lemma~\ref{lem:cover} needs an integer point to fix the inactive coordinates.
 
-\begin{theorem}[Conlon--Fox--He--Mubayi--Pham--Suk--Verstra\"ete {\cite[Theorem 3]{CFHMPSV}}]\label{thm:CF}
-Given fixed $\beta>1$ and $0<\eta<1$, there are constants $c>0$ and $d_0$ with the following property. If $A\subseteq[1,n]$, $|A|=m$, $n\le m^\beta$, and
+\begin{theorem}[Conlon--Fox--Pham {\cite[Theorem 1.5]{CFP}}; Conlon--Fox--He--Mubayi--Pham--Suk--Verstra\"ete {\cite[Theorem 3]{CFHMPSV}}]\label{thm:CF}
+Given fixed $\beta>1$ and $0<\eta<1$, there are constants $c>0$, $d_0$ and $m_0\ge2$ with the following property. If $m\ge m_0$, $A\subseteq[1,n]$ with $|A|=m$, $n\le m^\beta$, and
 \[
-m^\eta\le s\le cm/\log_2m,
+m^\eta\le s\le\frac{cm}{\log_2m},
 \]
-then there are $J\subseteq A$, a proper generalized arithmetic progression $P$ of rank at most $d_0$, and $J'\subseteq J$, such that
+then there are a represented progression $P$ of rank at most $d_0$, a set $J\subseteq A$, and a set $J'\subseteq J$, such that
 \[
-|J|\ge m-c^{-1}s\log_2m,\qquad J\cup\{0\}\subseteq P,\qquad |J'|\le s,
+|J|\ge m-\frac{s\log_2m}c,\qquad J\cup\{0\}\subseteq P,\qquad |J'|\le s,
 \]
-and the subset sums of $J'$ contain a translate of the nonempty proper dilate $csP$, with dilation taken in the supplied representation.
+$P$ and $csP$ are proper (in particular nonempty), and the subset sums of $J'$ contain a translate of $csP$, with dilation taken in the supplied representation.
 \end{theorem}
 
-This is derived in \cite{CFHMPSV} from Conlon--Fox--Pham \cite[Theorem 1.5]{CFP}. We cite the numbering of the journal version of \cite{CFHMPSV}, which agrees with arXiv version 2; the numbering differs in the first arXiv version. The logarithms in Theorem~\ref{thm:CF} are to base $2$, following the convention of \cite{CFP}; elsewhere in this paper logarithms are natural, and the change of base only affects the constant $c$. Theorem~\ref{thm:CF} is used only in the proof of Lemma~\ref{lem:cover}.
-
-Two points about the dilate deserve comment. First, properness of a represented progression does not by itself imply that its dilate is nonempty: a proper coordinate box may contain no integer point after dilation by a noninteger factor. Nonemptiness is nevertheless part of what the source proves, because the representation supplied in the proof of \cite[Theorem 1.5, pp.~26--27]{CFP} is centered, and a centered coordinate box contains the zero vector after every positive dilation. Second, for noninteger $t$ the dilate $tP$ depends on the representation of $P$; the statement refers to the representation supplied there, which is kept fixed throughout.
+The logarithms in Theorem~\ref{thm:CF} are to base $2$, following the convention of \cite{CFP}; the change of base only affects the constant $c$. Nonemptiness of the dilate is part of what the source proves: the representation supplied in the proof of \cite[Theorem 1.5, pp.~26--27]{CFP} is centered, and a centered coordinate box contains the zero vector after every positive dilation. We cite the numbering of the journal version of \cite{CFHMPSV}, which agrees with arXiv version 2; the numbering differs in the first arXiv version. Theorem~\ref{thm:CF} is used only in the proof of Lemma~\ref{lem:cover}.
 
 \subsection{Dense sets contain a unit-fraction sum of one}\label{sec:LS}
 
@@ -243,153 +255,200 @@ We use Chebyshev's bound $\pi(x)\ll x/\log x$, Mertens' estimate
 \begin{equation}\label{eq:mertens}
 \sum_{p\le x}\frac1p=\log\log x+B_1+o(1)
 \end{equation}
-for a constant $B_1$, and the divisor bound $\tau(n)=n^{o(1)}$; see \cite[Theorems 7, 427 and 315]{HW}. We also use the Erd\H{o}s--Tur\'an inequality in the following form \cite[Chapter 1]{Mo}: there is an absolute constant $C_0$ such that for real numbers $x_1,\ldots,x_N$, every interval $J\subseteq[0,1)$ and every integer $T\ge1$,
-\begin{equation}\label{eq:ET}
-\Bigl|\#\{n\le N:\ \{x_n\}\in J\}-N|J|\Bigr|
-\le C_0\Bigl(\frac NT+\sum_{h=1}^T\frac1h\Bigl|\sum_{n\le N}e(hx_n)\Bigr|\Bigr),
-\end{equation}
-where $\{x\}$ is the fractional part and $e(x)=\exp(2\pi ix)$.
+for a constant $B_1$, and the divisor bound: for every fixed $\xi>0$, $\tau(n)\le n^{\xi}$ for all sufficiently large $n$; see \cite[Theorems 7, 427 and 315]{HW}. The divisor bound is applied to integers of size up to a constant times $q^{1+\varepsilon}$, and it is convenient to state the uniform form once.
+
+\begin{proposition}[divisor envelope]\label{prop:envelope}
+Fix $\varepsilon>0$, $c_0\ge1$ and $\xi>0$. For all sufficiently large $q$,
+\[
+\max_{1\le n\le\lceil c_0q^{1+\varepsilon}\rceil}\tau(n)\le q^{\xi}.
+\]
+\end{proposition}
+
+\begin{proof}
+Put $\xi'=\xi/(2(1+\varepsilon))$ and let $N_0$ be such that $\tau(n)\le n^{\xi'}$ for $n\ge N_0$. For $n<N_0$, $\tau(n)\le n<N_0\le q^\xi$ once $q$ is large. For $N_0\le n\le c_0q^{1+\varepsilon}+1\le2c_0q^{1+\varepsilon}$,
+\[
+\tau(n)\le(2c_0)^{\xi'}q^{(1+\varepsilon)\xi'}=(2c_0)^{\xi'}q^{\xi/2}\le q^\xi
+\]
+for large $q$. Different applications below use different values of $\xi$; each is a separate instance of this proposition.
+\end{proof}
 
 \subsection{Choice of parameters}\label{sec:params}
 
 All constants are chosen once, in the following order, and are independent of $k$.
 
 \begin{enumerate}
-\item $\varepsilon=1/10$. Lemmas~\ref{lem:fiber}, \ref{lem:sep} and \ref{lem:cover} are proved for every fixed $\varepsilon\in(0,1)$; only this value is used afterwards.
+\item $\varepsilon=1/10$. Lemmas~\ref{lem:fiber}, \ref{lem:orient} and \ref{lem:cover} and Proposition~\ref{prop:density} are proved for every fixed $\varepsilon\in(0,1)$; only this value is used afterwards.
 \item $\delta=1/1000$, the approximate size of the initial deficit.
-\item An integer $L$, so large that: Lemmas~\ref{lem:fiber} and \ref{lem:cover} (with $\varepsilon=1/10$) hold for every prime power $q>L$; Lemma~\ref{lem:aux} holds for the cutoff $L$; and
-\begin{equation}\label{eq:Lcond}
-40L^{-1/20}<\delta/16,\qquad K:=\lcm(1,\ldots,L)\ \text{satisfies}\ K\delta\ge2\ \text{and}\ K\ge8.
-\end{equation}
-Each of these conditions holds for all sufficiently large $L$, so a single choice of $L$ meets all of them.
+\item An initial cutoff $L_{\rm base}$, large enough that the signed construction of Section~\ref{sec:fibers} is defined for all prime powers $q>L_{\rm base}$ and Proposition~\ref{prop:density} holds for the endpoint set $\cP^*_{L_{\rm base}}$. Since $\cP^*_L\subseteq\cP^*_{L_{\rm base}}$ for every $L\ge L_{\rm base}$, the density statement and the auxiliary-supply threshold derived from it in Lemma~\ref{lem:aux} apply uniformly to every later cutoff. This avoids choosing a threshold that depends on the cutoff it must bound.
+\item An integer $L\ge L_{\rm base}$, so large that all of the following hold.
+\begin{enumerate}
+\item[(a)] $L\ge11$.
+\item[(b)] Lemma~\ref{lem:fiber} applies to every prime power $q>L$, and Lemma~\ref{lem:orient} applies with cutoff $L$ (that is, $L\ge L_0$ there).
+\item[(c)] Lemma~\ref{lem:cover} applies with $C=8$ to every prime power $q>L$.
+\item[(d)] The size conditions of the signed construction hold for $q>L$: $q>8q^{1/10}$, $R(q)\ge1$ and $E(q)\ge1$, with $R$ and $E$ as in Section~\ref{sec:envelope}.
+\item[(e)] The divisor-envelope thresholds used in the sieve of Lemma~\ref{lem:fiber} hold for $q>L$.
+\item[(f)] $E(q)\le q^{1/40}$ for every $q>L$.
+\item[(g)] Lemma~\ref{lem:aux} applies with cutoff $L$.
+\item[(h)] $120L^{-1/40}<\delta/16$.
+\item[(i)] $K:=\lcm(1,\ldots,L)$ satisfies $K\delta\ge2$ and $K\ge8$.
+\end{enumerate}
+Each condition holds for all sufficiently large $L$, so a single choice of $L$ meets all of them; condition (a) alone is not sufficient for the construction.
 \item $K=\lcm(1,\ldots,L)$, $j_0=\lceil K\delta\rceil$, and $B=4^{j_0}$.
-\item For every prime power $q>L$, a fiber $I_q$ from Lemma~\ref{lem:fiber} and a family $\cF_q$ of $s(q)=\lfloor q^{1/20}\rfloor$ auxiliary pairs from Lemma~\ref{lem:aux}. These determine the endpoint sets $\cP^*$, $\cF^*$ and $\cU=\cP^*\cup\cF^*$ of Section~\ref{sec:descent}.
+\item The deterministic endpoint set $\cP^*_L$ of Section~\ref{sec:Pstar}, and for every prime power $q>L$ a family $\cF_q$ of $s(q)=\lfloor q^{1/20}\rfloor$ auxiliary pairs from Lemma~\ref{lem:aux}; these determine $\cF^*$ and $\cU=\cP^*_L\cup\cF^*$. The individual signed fibers $A_q$ of Lemma~\ref{lem:fiber} may also be fixed now; no globally compatible infinite family of oriented pairs is required or asserted.
 \end{enumerate}
 
 The quantities depending on $k$ are then determined in this order:
 \begin{gather*}
 Q=\lfloor k^{4/5}\rfloor,\qquad H=KBQ+2,\qquad
 C_H=\sum_{\substack{L<q\le H\\ q\ \text{prime power}}}s(q),\\
+\text{the compatible fibers $(I_q,\sigma_q)_{L<q\le H}$ of Lemma~\ref{lem:orient} for this $H$},\\
 \cR\ \text{and}\ R=|\cR|\ \text{(Section~\ref{sec:core})},\qquad M=k-R-C_H .
 \end{gather*}
-The phrase ``for sufficiently large $k$'' is used at finitely many places, each time with a threshold depending only on the constants above. The argument yields no explicit value of that threshold, and the constants $K$ and $B$, as well as the thresholds implicit in Theorems~\ref{thm:BG}--\ref{thm:LS}, are extremely large.
+The core $\cR$ avoids all of $\cP^*_L$ and therefore does not depend on the orientation choice; the two may be made in either order. The phrase ``for sufficiently large $k$'' is used at finitely many places, each time with a threshold depending only on the constants above. The argument yields no explicit value of that threshold, and the constants $K$ and $B$, as well as the thresholds implicit in Theorems~\ref{thm:CF} and \ref{thm:LS}, are extremely large.
 
-\section{Powersmooth fibers and correction pairs}\label{sec:fibers}
+\section{Signed correction fibers}\label{sec:fibers}
 
-Throughout this section $q=p^a$ is a prime power tending to infinity, $0<\varepsilon<1$ is fixed, and $M=q^{\varepsilon}$. A \emph{correction pair} is a pair $[qm,qm+1]$ with $m$ in the fiber $I_q$ constructed in Lemma~\ref{lem:fiber}.
+Throughout this section $0<\varepsilon<1$ is fixed and $q=p^a$ is a prime power tending to infinity.
 
-\subsection{Equidistribution of inverses in short intervals}\label{sec:equi}
+\subsection{The divisor envelope and the multiplier range}\label{sec:envelope}
 
-We call an integer $t$ \emph{eligible} if $t$ is odd (in case $q=2^a$) or $(t,2p)=1$ (in case $q=p^a$ with $p$ odd). The density of eligible integers is
-\begin{equation}\label{eq:rho}
-\rho=\tfrac12\quad(q=2^a),\qquad \rho=\tfrac12(1-1/p)\quad(p\ \text{odd}).
+For sufficiently large integers $q$ define
+\begin{equation}\label{eq:envelope}
+M_q=q^\varepsilon,\qquad
+V(q)=\max_{1\le n\le\lceil25q^{1+\varepsilon}\rceil}\tau(n),\qquad
+E(q)=V(q)^2\log q,\qquad
+R(q)=\frac{q^\varepsilon}{E(q)} .
+\end{equation}
+By Proposition~\ref{prop:envelope}, $V(q)\le q^{\xi}$ for every fixed $\xi>0$ and large $q$; hence
+\begin{equation}\label{eq:envelopesize}
+V(q)=q^{o(1)},\qquad E(q)=q^{o(1)},\qquad R(q)=q^{\varepsilon-o(1)}\longrightarrow\infty .
+\end{equation}
+The factor $\log q$ in $E(q)$ ensures $E(q)\to\infty$ without a separate argument that $V(q)$ does. The constant $25$ is a harmless envelope constant: every integer to which $V(q)$ is applied below is a neighbour $qm+\sigma$ with $1\le m\le8M_q$, and
+\begin{equation}\label{eq:envelopecontain}
+qm+\sigma\le8qM_q+1\le9q^{1+\varepsilon}\le\lceil25q^{1+\varepsilon}\rceil .
 \end{equation}
 
-\begin{proposition}\label{prop:equi}
-Let $U_0$ be one of the moduli $q$, $2q$ (if $q=2^a$) or $4q$, $4pq$ (if $p$ is odd). Every eligible $t$ is a unit modulo $U_0$, and, as $q\to\infty$, uniformly over all intervals $J$ of integers with $J\subseteq[0,U_0)$,
-\[
-\#\{t\in[4M,5M]:\ t\ \text{eligible},\ t^{-1}\bmod U_0\in J\}
-=\rho\,\frac{|J|}{U_0}\,M+o(M).
-\]
-\end{proposition}
+\subsection{Individually valid signed pairs}\label{sec:fiberconstr}
 
-\begin{proof}
-Eligibility is precisely the condition $(t,U_0)=1$ in each case, so the inverse exists. By the Erd\H{o}s--Tur\'an inequality \eqref{eq:ET}, applied to the numbers $x_t=(t^{-1}\bmod U_0)/U_0$ for eligible $t\le N$ with $N\in\{4M,5M\}$, it suffices to show that for every fixed nonzero integer $h$,
-\begin{equation}\label{eq:fourier}
-\sum_{\substack{t\le N\\ t\ \text{eligible}}}e_{U_0}(ht^{-1})=o(M)\qquad(q\to\infty),
-\end{equation}
-since then \eqref{eq:ET} with a fixed $T$ gives discrepancy at most $C_0(N/T)+o(M)$ for the eligible $t\le N$, and $T$ may be taken arbitrarily large after $q\to\infty$. The count over $[4M,5M]$ is the difference of the counts over $[1,5M]$ and $[1,4M]$, with an $O(1)$ error, and the number of eligible $t\le N$ is $\rho N+O(1)$.
-
-To prove \eqref{eq:fourier}, put $U=U_0/(h,U_0)$ and $h'=h/(h,U_0)$, so that $e_{U_0}(ht^{-1})=e_U(h't^{-1})$ with $(h',U)=1$. For large $q$,
-\[
-q/|h|\le U\le4q^2,
-\]
-and the prime $p$ still divides $U$. Fix $c$ with $0<c<\varepsilon/2$ so small that Theorem~\ref{thm:BG} applies; then $U^c\le4^cq^{2c}<M\le N<U$ for large $q$, so Theorem~\ref{thm:BG} applies to the modulus $U$ and the lengths $N=4M$ and $N=5M$.
-
-If $q=2^a$, or if $p$ is odd and $2\mid U$, eligibility is exactly the condition $(t,U)=1$, and \eqref{eq:fourier} is Theorem~\ref{thm:BG} directly. If $p$ is odd and $U$ is odd, the eligible $t$ are the odd $t$ with $p\nmid t$, that is, the units $t$ modulo $U$ which are odd. Subtract from the sum over all units $t\le N$ the sum over even units. Substituting $t=2u$ in the latter gives the phase $e_U(h'2^{-1}u^{-1})$, with the unit coefficient $h'2^{-1}$ modulo $U$, summed over units $u\le N/2$; Theorem~\ref{thm:BG} applies again to the lengths $2M$ and $5M/2$. Both sums are $o(M)$, which proves \eqref{eq:fourier}.
-\end{proof}
-
-Since the discrepancy bound is absolute, Proposition~\ref{prop:equi} applies equally to intervals $J$ of relative length $|J|/U_0$ tending to zero, such as the interval of relative length $1/(80p)$ used below. That interval counts choices to be discarded; only the uniform absolute error estimate is needed to obtain the lower bound after subtracting those bad choices.
-
-\subsection{Construction of the fibers}\label{sec:fiberconstr}
-
-\begin{lemma}[powersmooth fibers]\label{lem:fiber}
-Fix $0<\varepsilon<1$. For every sufficiently large prime power $q=p^a$ there is a set
-\[
-I_q\subseteq[q^\varepsilon,2q^\varepsilon]\cap\Z,\qquad |I_q|\ge q^{\varepsilon-o(1)},
-\]
-such that, for every $m\in I_q$,
-\[
-p\nmid m,\qquad 4\mid qm,\qquad qm+1\ \text{is}\ (q/2)\text{-powersmooth}.
-\]
-The estimate is uniform over prime powers $q$.
+\begin{lemma}[signed fibers]\label{lem:fiber}
+For every fixed $0<\varepsilon<1$ there is $q_0$ such that every prime power $q=p^a\ge q_0$ admits a finite set $A_q$ of positive multipliers, signs $\sigma_q(m)\in\{-1,+1\}$ and positions $y_q(m)\in4\N$, $m\in A_q$, satisfying
+\begin{gather}
+|A_q|\ge\frac{M_q}{8V(q)},\qquad R(q)\le m\le8M_q,\qquad p\nmid m,\label{eq:S2}\\
+qm+\sigma_q(m)\ \text{is strictly $q$-powersmooth},\label{eq:S3}\\
+J(q,m,\sigma_q(m))\in\bigl\{[y_q(m)-1,y_q(m)],\ [y_q(m),y_q(m)+1]\bigr\}.\label{eq:S4}
+\end{gather}
+Within each fiber the positions $y_q(m)$, $m\in A_q$, are distinct. The largest prime power dividing either endpoint of $J(q,m,\sigma_q(m))$ is exactly $q$. Nothing is asserted about separation between pairs of different fibers.
 \end{lemma}
 
 \begin{proof}
-We construct factorizations
-\begin{equation}\label{eq:fact}
-qm+1=rt,\qquad 4M\le t\le5M,\qquad \frac{3q}{10}\le r\le\frac{7q}{20}.
-\end{equation}
-Then $1.2\,qM\le rt\le1.75\,qM$, so $m=(rt-1)/q\in[M,2M]$ for large $q$, and both $r,t<q/2$. Given $t$, the condition on $r$ says that the inverse of $t$ modulo an appropriate modulus $U_0$ lies in a prescribed interval; all counts below are instances of Proposition~\ref{prop:equi} with the interval $[3q/10,7q/20]$, of length $q/20+O(1)$, read modulo $U_0$.
-
-\emph{Case $q=2^a$.} Choose odd $t$ and require the inverse of $t$ modulo $q$ to lie in the interval for $r$. By Proposition~\ref{prop:equi} with $U_0=q$ the number of such $t$ is $M/40+o(M)$. Among them, $2\mid m$ if and only if $rt\equiv1\pmod{2q}$, that is, if and only if the inverse of $t$ modulo $2q$ lies in the same absolute interval; by Proposition~\ref{prop:equi} with $U_0=2q$ their number is $M/80+o(M)$. Thus $M/80+o(M)$ choices have odd $m$, and $4\mid qm$ is automatic for large $q$.
-
-\emph{Case $p$ odd.} Choose $t$ with $(t,2p)=1$ and let $r$ be the inverse of $t$ modulo $4q$, required to lie in the interval in \eqref{eq:fact}. Then $qm=rt-1\equiv0\pmod 4$, so $4\mid m$. By Proposition~\ref{prop:equi} with $U_0=4q$, the number of such choices is
+\emph{Initial parameters.} Let
 \[
-\frac1{80}\cdot\frac{1-1/p}{2}M+o(M)=\frac1{160}(1-1/p)M+o(M).
+\cT_q=\{t\in[M_q,2M_q]\cap\N:\ \gcd(t,2p)=1\}.
 \]
-Since $4\mid m$, the additional condition $p\mid m$ is equivalent to $rt\equiv1\pmod{4pq}$, that is, to the inverse of $t$ modulo $4pq$ lying in the same absolute interval, which has relative length $1/(80p)$ modulo $4pq$. By Proposition~\ref{prop:equi} with $U_0=4pq$ this happens for $(1-1/p)M/(160p)+o(M)$ choices. Subtracting leaves
-\begin{equation}\label{eq:oddcount}
-\frac1{160}(1-1/p)^2M+o(M)\ \ge\ M/360+o(M)
-\end{equation}
-choices of $t$ with $p\nmid m$ and $4\mid m$.
+The density of integers coprime to $2p$ is $\tfrac12(1-1/p)\ge\tfrac13$ for odd $p$ and $\tfrac12$ for $p=2$, so $|\cT_q|\ge M_q/3-O(1)$, uniformly in $p$. Take $q$ so large that $q>8M_q$; then all multipliers and endpoints constructed below are positive.
 
-\emph{Powersmoothness.} Put
+\emph{Even prime powers.} Let $q=2^a\ge4$ and $t\in\cT_q$, so $t$ is odd. Let $1\le r<q$ be the inverse of $t$ modulo $q$, and put
 \[
-\eta=\varepsilon/10000,\qquad D=q^{\varepsilon-\eta}.
+m_1=\frac{rt-1}q,\qquad m_2=t-m_1 .
 \]
-Remove every $t$ having a prime factor exceeding $D$. Counting over all $t\le5M$ as an upper bound, their number is at most
-\begin{equation}\label{eq:largeprime}
-5M\sum_{\substack{D<\ell\le5M\\ \ell\ \text{prime}}}\frac1\ell
-=\Bigl(5\log\frac{\varepsilon}{\varepsilon-\eta}+o(1)\Bigr)M<\frac M{1000}
+Since $rt\equiv1\pmod q$ and $rt>1$, we have $rt\ge q+1$, so $m_1\ge1$; since $r<q$, $m_1<t$, so $m_2\ge1$. Then
+\begin{equation}\label{eq:S5}
+qm_1+1=rt,\qquad qm_2-1=(q-r)t,\qquad m_1+m_2=t .
 \end{equation}
-by \eqref{eq:mertens}. For a surviving factorization, suppose $u=\ell^b>q/2$ divides $rt$. Since both factors are less than $q/2$, the prime $\ell$ divides $t$; otherwise $u$ would divide $r$. Hence $\ell\le D$, and in particular $\ell\ne p$.
+Both multipliers are positive and less than $2M_q$. Since $t$ is odd, exactly one of $m_1,m_2$ is odd. Choose that one as $m$, with $\sigma=+1$ if $m=m_1$ and $\sigma=-1$ if $m=m_2$; then $p=2\nmid m$. As $4\mid q$, the endpoint $qm$ is divisible by four, and we set $y=qm$.
 
-There are $O(D\log q)$ prime powers $u$ with $\ell\le D$ between $q/2$ and $2qM$. For each of them the congruence $qm\equiv-1\pmod u$ has at most one solution $m\in[M,2M]$, because $(q,u)=1$ and $u>q/2>M$. Each such $m$ arises from at most $\tau(qm+1)=q^{o(1)}$ factorizations. Deleting them therefore removes at most
+\emph{Odd prime powers.} Let $p$ be odd and $t\in\cT_q$, so $\gcd(4t,q)=1$. Let $1\le r<q$ satisfy $4rt\equiv-1\pmod q$, and put
 \[
-O(D\log q)\,q^{o(1)}=q^{\varepsilon-\eta+o(1)}=o(M)
+m_1=\frac{4rt+1}q,\qquad m_2=4t-m_1 .
 \]
-factorizations. By \eqref{eq:oddcount}, \eqref{eq:largeprime} and the stronger count in the even case, a positive constant times $M$ factorizations remain, and for each of them $qm+1$ is $(q/2)$-powersmooth. Dividing by the divisor bound gives $q^{\varepsilon-o(1)}$ distinct valid $m$. Let $I_q$ be the set of these $m$.
+Since $4rt+1\equiv0\pmod q$ and $4rt+1>1$, $m_1\ge1$; and $m_1=4t$ would force $4t(q-r)=1$, so $m_1<4t$ and $m_2\ge1$. Then
+\begin{equation}\label{eq:S6}
+qm_1-1=4rt,\qquad qm_2+1=4(q-r)t,\qquad m_1+m_2=4t .
+\end{equation}
+Both multipliers are positive and less than $8M_q$. Since $p\nmid4t$, at least one of them is coprime to $p$. Choose such an $m$, with $\sigma=-1$ if $m=m_1$ and $\sigma=+1$ if $m=m_2$; fix a deterministic rule if both are admissible. The neighbour $qm+\sigma$ is $4rt$ or $4(q-r)t$, hence divisible by four, and we set $y=qm+\sigma$.
+
+In both cases no inverse is required to lie in a prescribed subinterval of its residue range; the whole range $1\le r<q$ is used. Each $t\in\cT_q$ thus yields one signed multiplier $(m,\sigma)$; the neighbour has the form $ft$ or $4ft$ with $1\le f<q$, and is at most $8qM_q$.
+
+\emph{First sieve: large prime factors of $t$.} Put
+\[
+\eta=\varepsilon/10000,\qquad T_q=q^{\varepsilon-\eta}.
+\]
+Discard every $t$ having a prime factor exceeding $T_q$. Counting multiples of each such prime in $[1,2M_q]$, their number is at most
+\begin{equation}\label{eq:S7}
+2M_q\sum_{\substack{T_q<\ell\le2M_q\\ \ell\ \text{prime}}}\frac1\ell+\pi(2M_q)
+=\Bigl(2\log\frac{\varepsilon}{\varepsilon-\eta}+o(1)\Bigr)M_q<\frac{M_q}{1000}
+\end{equation}
+by \eqref{eq:mertens} and Chebyshev's bound.
+
+\emph{Second sieve: large prime powers in the neighbour.} Suppose a prime power $u=\ell^b\ge q$ divides the neighbour $ft$ or $4ft$ of a surviving $t$. If $\ell\nmid4t$ then $u\mid f$, which is impossible because $f<q\le u$. Hence $\ell\mid4t$, so $\ell\le T_q$ (for large $q$, $T_q\ge2$); and $\ell\ne p$, because the neighbour is congruent to $\sigma\not\equiv0$ modulo $p$. There are $O_\varepsilon(T_q\log q)$ prime powers $u$ with $\ell\le T_q$ in the range $q\le u\le8qM_q+1$. For each such $u$ and each sign, the congruence $qm\equiv-\sigma\pmod u$ has at most one solution $m\in[1,8M_q]$, because $\gcd(q,u)=1$ and $8M_q<q\le u$. Each signed multiplier $(m,\sigma)$ arises from at most $V(q)$ parameters $t$, because $t$ divides the neighbour $qm+\sigma$, which lies in the range \eqref{eq:envelopecontain}. The second sieve therefore discards at most
+\begin{equation}\label{eq:S8}
+O_\varepsilon\bigl(T_qV(q)\log q\bigr)=o(M_q)
+\end{equation}
+parameters. For \eqref{eq:S8} it suffices that $V(q)\le q^{\eta/4}$ and $\log q\le q^{\eta/4}$, which hold for large $q$ by Proposition~\ref{prop:envelope}; then $T_qV(q)\log q\le q^{\varepsilon-\eta/2}$. This is a much stronger use of the divisor bound than the envelope estimate needed for the mass bound in Section~\ref{sec:descentprop}.
+
+\emph{Third sieve: small multipliers.} Discard the parameters whose multiplier satisfies $m<R(q)$. Each $m$ has at most $2V(q)$ preimages $t$, allowing both signs, so this costs at most
+\begin{equation}\label{eq:S9}
+2(R(q)+1)V(q)=\frac{2M_q}{V(q)\log q}+2V(q)=o(M_q).
+\end{equation}
+
+\emph{Conclusion.} By \eqref{eq:S7}--\eqref{eq:S9}, at least $M_q/3-M_q/1000-o(M_q)\ge M_q/4$ parameters $t$ remain for large $q$. Since each signed multiplier has at most $2V(q)$ preimages, the surviving parameters produce at least $M_q/(8V(q))$ distinct multipliers $m$. Select one signed pair for each; this is $A_q$, and \eqref{eq:S2}--\eqref{eq:S4} hold by construction: the neighbour of a surviving $t$ has no prime-power divisor $u\ge q$, so it is strictly $q$-powersmooth.
+
+\emph{Positions and labels.} In the even case distinct multipliers give distinct positions $qm$. In the odd case, $qm+\sigma=qm'+\sigma'$ with $m\ne m'$ would force $q\mid\sigma'-\sigma\in\{\pm2\}$, impossible for odd $q>2$. Since $m\le8M_q<q$ and $p\nmid m$, the largest prime power dividing $qm$ is exactly $q$; the neighbour is strictly $q$-powersmooth. Hence the label $q$ can be recovered from the unordered pair.
 \end{proof}
 
-\subsection{Separation of correction pairs}\label{sec:sep}
+\subsection{Finite simultaneous orientation}\label{sec:orient}
 
-\begin{lemma}[separation of correction pairs]\label{lem:sep}
-The pairs $[qm,qm+1]$, for $q>L$ a prime power and $m\in I_q$, are pairwise separated, including when $q$ varies. More precisely, distinct such pairs have left endpoints differing by at least four.
+\begin{lemma}[compatible fibers]\label{lem:orient}
+For every fixed $0<\varepsilon<1$ there is an integer $L_0\ge2$ with the following property. For every integer $L\ge L_0$ and every integer $H\ge L$ there are sets and signs
+\[
+(I_q,\sigma_q)_{L<q\le H,\ q\ \text{prime power}},\qquad I_q\subseteq A_q,\qquad |I_q|\ge q^{7\varepsilon/8},
+\]
+with $\sigma_q$ the signs of Lemma~\ref{lem:fiber}, such that the retained intervals $J(q,m,\sigma_q(m))$, over all $m\in I_q$ and all prime powers $L<q\le H$, are pairwise distinct and pairwise separated.
 \end{lemma}
 
+The statement is finite: it asserts a compatible family for the labels up to $H$, chosen after $H$ is known, and not a single compatible infinite family. The finite statement is exactly what the descent needs.
+
 \begin{proof}
-The largest prime-power divisor of $qm$ is $q$, since $p\nmid m$ and $m<q$. Equal left endpoints therefore force equal $q$ and $m$. All left endpoints are multiples of four, so distinct ones differ by at least four, leaving at least two unused integers between consecutive pairs.
+Let $N_q=|A_q|$. By \eqref{eq:S2} and \eqref{eq:envelopesize}, choose $L_0$ so large that for every prime power $q>L_0$,
+\begin{equation}\label{eq:S10}
+N_q\ge q^{15\varepsilon/16},\qquad N_q/4\ge q^{7\varepsilon/8},\qquad
+(9/10)^{q^{15\varepsilon/16}}\le\frac1{2q^2}.
+\end{equation}
+Fix $L\ge L_0$ and $H\ge L$. Consider the finite set $S$ of all positions $y_q(m)$, $m\in A_q$, $L<q\le H$. To each $y\in S$ assign a bit, choosing either the left interval $[y-1,y]$ or the right interval $[y,y+1]$; there are $2^{|S|}$ assignments, and we average over all of them with equal weight. Retain a candidate $(q,m)$ when its interval $J(q,m,\sigma_q(m))$ agrees with the bit at its position.
+
+Fix a label $q$. Its $N_q$ positions are distinct, so the retained count $B_q$ is a sum of $N_q$ independent bits, each retained with probability $\tfrac12$. Averaging $2^{-B_q}$ over the assignments and expanding the product gives
+\[
+\E\bigl[2^{-B_q}\bigr]=\Bigl(\tfrac12\cdot1+\tfrac12\cdot\tfrac12\Bigr)^{N_q}=(3/4)^{N_q},
+\]
+and therefore, since $2^{-B_q}>2^{-N_q/4}$ whenever $B_q<N_q/4$,
+\begin{equation}\label{eq:S12}
+\Pr\bigl(B_q<N_q/4\bigr)\le2^{N_q/4}(3/4)^{N_q}<(9/10)^{N_q}\le\frac1{2q^2},
+\end{equation}
+using $2^{1/4}\cdot3/4<9/10$ and \eqref{eq:S10}. Here $\Pr$ and $\E$ are normalized counts over the finite cube of bit assignments. A union bound over the labels gives total failure weight at most
+\begin{equation}\label{eq:S13}
+\frac12\sum_{q=L+1}^H\frac1{q^2}<\frac12\sum_{q=L+1}^H\frac1{q(q-1)}<\frac1{2L}<1 .
+\end{equation}
+Hence some assignment retains at least $N_q/4\ge q^{7\varepsilon/8}$ candidates in every fiber; let $I_q$ be the retained multipliers. If the range of labels is empty there is nothing to prove.
+
+\emph{Separation.} Consider two retained intervals at positions $y<z$. Both are multiples of four, so $z\ge y+4$. The earlier interval is contained in $[y-1,y+1]$ and ends at $b\le y+1$; the later starts at $a'\ge z-1\ge y+3$. Thus $b+1\le y+2<a'$, the required omitted integer. At a common position only one orientation is retained, and a retained interval at that position and with that orientation is a single interval; two different labels cannot supply the same interval because the largest prime power dividing its endpoints identifies the label (Lemma~\ref{lem:fiber}), and within one fiber positions are distinct. So retained intervals at a common position coincide, and distinct retained intervals have distinct positions and are separated.
 \end{proof}
+
+The bit selects left or right relative to the position $y$, not a uniform sign: for $p=2$ the position is $y=qm$ and $\sigma=+1$ means the right interval, while for odd $p$ the position is $y=qm+\sigma$ and $\sigma=+1$ means the left interval $[y-1,y]$. Retained left endpoints may differ by as little as three; separation, not a gap of four, is the conclusion.
 
 \section{Sparse modular inverse subsets cover all residues}\label{sec:cover}
-
-\subsection{Dilates of generalized arithmetic progressions}\label{sec:dilate}
-
-For a progression $P=\{\sum_in_id_i:\ \alpha_i\le n_i\le\beta_i,\ n_i\in\Z\}$ and $t>0$, the dilate $tP$ used in Theorem~\ref{thm:CF} expands the coordinate intervals while retaining the generators: it uses integer coordinates $n_i\in[t\alpha_i,t\beta_i]$. Thus its generators, and in rank one its common difference, are unchanged. For noninteger $t$ this depends on the chosen representation of $P$; throughout, the representation supplied by Theorem~\ref{thm:CF}, and the dilate defined from it, are kept fixed.
 
 \subsection{A pigeonhole lemma}\label{sec:pigeon}
 
 \begin{proposition}[simultaneous approximation]\label{prop:pigeon}
-Let $q\ge2$, let $d_1,\ldots,d_d$ be integers, and let $a_1,\ldots,a_d\ge1$ be real numbers with $V=\prod_ia_i<q$. Put
+Let $q\ge2$, let $d_1,\ldots,d_d$ be integers, and let $a_1,\ldots,a_d\ge1$ be real numbers with $\Vgap=\prod_ia_i<q$. Put
 \[
-B_i=\frac{4q}{a_i}\Bigl(\frac Vq\Bigr)^{1/d}.
+B_i=\frac{4q}{a_i}\Bigl(\frac{\Vgap}q\Bigr)^{1/d}.
 \]
 Then there are $1\le T<q$ and integers $e_i\equiv Td_i\pmod q$ with $|e_i|\le B_i$ for all $i$.
 \end{proposition}
 
 \begin{proof}
-Consider the $q$ vectors $(td_i\bmod q)_{1\le i\le d}$, $0\le t<q$, in $[0,q)^d$. Ignore the coordinates with $B_i\ge q$, and partition each remaining coordinate range $[0,q)$ into intervals of length $B_i$, at most $2q/B_i$ of them. Note that $\prod_i(q/B_i)=q/4^d$, and that $B_i\le4q$ for every $i$ because $V<q$ and $a_i\ge1$. If $r\ge1$ coordinates remain, the number of boxes is at most
+Consider the $q$ vectors $(td_i\bmod q)_{1\le i\le d}$, $0\le t<q$, in $[0,q)^d$. Ignore the coordinates with $B_i\ge q$, and partition each remaining coordinate range $[0,q)$ into intervals of length $B_i$, at most $2q/B_i$ of them. Note that $\prod_i(q/B_i)=q/4^d$, and that $B_i\le4q$ for every $i$ because $\Vgap<q$ and $a_i\ge1$. If $r\ge1$ coordinates remain, the number of boxes is at most
 \[
 \prod_{i:\,B_i<q}\frac{2q}{B_i}\le2^r\cdot\frac{q}{4^d}\cdot4^{d-r}=q/2^r<q .
 \]
@@ -401,27 +460,39 @@ The corresponding step in \cite{CFHMPSV} is formulated with a coprimality hypoth
 \subsection{The covering lemma}\label{sec:coverlemma}
 
 \begin{lemma}[sparse inverse covering]\label{lem:cover}
-Fix $0<\varepsilon<1$. For every sufficiently large prime power $q$, if
+For every fixed $0<\varepsilon<1$ and $C\ge1$ there is $q_0(\varepsilon,C)$ such that, for every prime power $q\ge q_0$ and every finite set
 \[
-I\subseteq[q^\varepsilon,2q^\varepsilon]\cap\Z,\qquad (i,q)=1\ \ (i\in I),\qquad |I|\ge q^{7\varepsilon/8},
+I\subseteq[1,Cq^\varepsilon]\cap\N,\qquad \gcd(i,q)=1\ \ (i\in I),\qquad |I|\ge q^{7\varepsilon/8},
 \]
-then every residue modulo $q$ is a sum of inverses of at most $q^{\varepsilon/2}$ distinct members of $I$.
+every residue modulo $q$ is a sum of inverses of at most
+\[
+s=\lfloor q^{\varepsilon/2}\rfloor
+\]
+distinct members of $I$.
 \end{lemma}
 
-This is a sparse extension of \cite[Theorem 2]{CFHMPSV}. The proof follows their progression and divisor-count argument, with the density loss accounted for explicitly.
+This is a sparse extension of \cite[Theorem 2]{CFHMPSV}. The proof follows their progression and divisor-count argument, with the density loss accounted for explicitly. The descent uses the lemma with $C=8$; the threshold $q_0$ depends on $C$.
 
 \begin{proof}
-Put $s=\lfloor q^{\varepsilon/2}\rfloor$ and $m=|I|$, and represent the inverses of the members of $I$ by integers in $[1,q-1]$; let $A$ be the set of these representatives. Apply Theorem~\ref{thm:CF} with $\beta=2/\varepsilon$, $\eta=1/3$ and ambient parameter $n=q$. For sufficiently large $q$,
+\emph{Structure theorem.} Take $q$ so large that $Cq^\varepsilon<q$. Then reduction modulo $q$, and hence inversion, is injective on $I$. Represent the inverses of the members of $I$ by integers in $[1,q-1]$; let $A$ be the set of these representatives, of size $m=|I|$, so that
 \[
-q\le m^{2/\varepsilon},\qquad m^{1/3}\le s\le cm/\log_2m,
+q^{7\varepsilon/8}\le m\le Cq^\varepsilon .
 \]
-so we obtain $J\subseteq A$, $P$ and $J'$ with $|J|\ge m/2$. Keep the representation defining the theorem's dilate fixed:
+Apply Theorem~\ref{thm:CF} with $\beta=2/\varepsilon$, $\eta=1/3$ and ambient parameter $n=q$. For sufficiently large $q$,
+\[
+m\ge m_0,\qquad q\le m^{2/\varepsilon},\qquad m^{1/3}\le s\le\frac{cm}{\log_2m},
+\]
+so we obtain $P$, $J$ and $J'$. The structural loss $s\log_2m/c$ is $o(m)$, so for large $q$
+\begin{equation}\label{eq:G1}
+|J|\ge\tfrac34m .
+\end{equation}
+Keep the representation defining the theorem's dilate fixed:
 \[
 P=\Bigl\{\sum_{i=1}^{D}n_id_i:\ \alpha_i\le n_i\le\beta_i,\ n_i\in\Z\Bigr\},\qquad D\le d_0 .
 \]
 Choose an integer coordinate vector $v$ representing $0\in P$. Put $\ell_i=\lceil\alpha_i\rceil$ and $u_i=\lfloor\beta_i\rfloor$. Call a coordinate \emph{active} when $u_i>\ell_i$; all other coordinates are constant on $P$. Relabel the active coordinates $1,\ldots,d$ and put
 \[
-a_i=u_i-\ell_i\ge1,\qquad V=\prod_{i=1}^da_i .
+a_i=u_i-\ell_i\ge1,\qquad \Vgap=\prod_{i=1}^da_i .
 \]
 Every $j\in J$ satisfies
 \begin{equation}\label{eq:jrep}
@@ -429,43 +500,55 @@ j=\sum_{i=1}^d(n_i-v_i)d_i,\qquad |n_i-v_i|\le a_i,
 \end{equation}
 since the contributions of the constant coordinates vanish after subtracting the representation of zero. There is at least one active coordinate, because $P$ contains zero and the nonzero elements of $J$.
 
-\emph{Upper bound for $V$.} The supplied proper dilate $csP$ is nonempty by Theorem~\ref{thm:CF}. Fix each inactive coordinate at any admissible integer in its original dilated interval. This produces a face of that same proper progression; no representation is changed and no new dilation is formed. For an active coordinate, its dilated interval contains at least
+\emph{Upper bound for $\Vgap$.} The dilate $csP$ is nonempty by Theorem~\ref{thm:CF}. Fix each inactive coordinate at an integer of its dilated interval, which exists by nonemptiness. This produces a face of that same proper dilate; no representation is changed and no new dilation is formed. For an active coordinate, its dilated interval contains at least
 \[
 cs(\beta_i-\alpha_i)-1\ge csa_i-1\ge(cs/2)a_i
 \]
-integers for large $q$. Thus the face has at least $(cs/2)^dV$ points. Its supplied translate lies in the subset sums of $J'$, which lie in $[0,sq]$. Consequently
-\begin{equation}\label{eq:Vupper}
-(cs/2)^dV\le sq+1,\qquad V\ll_\varepsilon qs^{1-d}\ll_\varepsilon q^{1-(d-1)\varepsilon/2}.
+integers for large $q$. Thus the face has at least $(cs/2)^d\Vgap$ points. Its supplied translate lies in the subset sums of $J'$, which lie in $[0,sq]$. Consequently
+\begin{equation}\label{eq:G2}
+(cs/2)^d\Vgap\le sq+1,\qquad \Vgap\ll_\varepsilon qs^{1-d}\ll_\varepsilon q^{1-(d-1)\varepsilon/2}.
 \end{equation}
-If $V\ge q$ this already forces $d=1$, and the final paragraph below applies. Assume $V<q$.
+If $\Vgap\ge q$ this already forces $d=1$, and the final paragraph below applies. Assume $\Vgap<q$.
 
-\emph{Lower bound for $V$.} Apply Proposition~\ref{prop:pigeon} to the active generators $d_1,\ldots,d_d$ and the numbers $a_i$, obtaining $1\le T<q$ and $e_i\equiv Td_i\pmod q$ with $|e_i|\le B_i$. For each $j\in J$, by \eqref{eq:jrep} the centered representative $h$ of $Tj\bmod q$ satisfies
+\emph{Lower bound for $\Vgap$.} Apply Proposition~\ref{prop:pigeon} to the active generators and the numbers $a_i$, obtaining $1\le T<q$ and $e_i\equiv Td_i\pmod q$ with $|e_i|\le B_i$. Put $x=(\Vgap/q)^{1/d}$. For each $j\in J$, by \eqref{eq:jrep} the centered representative $h$ of $Tj\bmod q$ satisfies
 \[
-|h|\le\min\{q/2,R_0\},\qquad R_0=\sum_ia_iB_i=4dq(V/q)^{1/d}.
+|h|\le\min\Bigl\{\frac q2,\ \sum_ia_iB_i\Bigr\}=\min\{q/2,\ 4dqx\}.
 \]
-Pair this $h$ with the $i\in I$ for which $j\equiv i^{-1}\pmod q$. There are at least $|J|$ distinct ordered pairs $(i,h)$, even if multiplication by $T$ is not injective on $J$. They satisfy
-\[
-ih=qz+T,\qquad |z|\le1+8dq^\varepsilon(V/q)^{1/d}.
-\]
-The product $ih$ is nonzero because $1\le T<q$, and $|ih|\le q^{1+\varepsilon}$. For each $z$ the divisor bound allows at most $q^{o(1)}$ ordered pairs $(i,h)$. Therefore
-\[
-\frac m2\le|J|\le q^{o(1)}\bigl(1+q^\varepsilon(V/q)^{1/d}\bigr).
-\]
-Since $m\ge q^{7\varepsilon/8}$, the additive $1$ is absorbed for large $q$, giving
-\begin{equation}\label{eq:Vlower}
-V\ge q^{1-d\varepsilon/8-o(1)}.
+Pair this $h$ with the $i\in I$ for which $j\equiv i^{-1}\pmod q$; distinct $j$ give distinct $i$, so there are at least $|J|$ distinct ordered pairs $(i,h)$, whether or not multiplication by $T$ is injective on $J$. They satisfy
+\begin{equation}\label{eq:G3}
+ih=qz+T,\qquad z\in\Z,
 \end{equation}
-For $d\ge2$ this contradicts \eqref{eq:Vupper}, because
+and the product is nonzero because $0<T<q$. Since $i\le Cq^\varepsilon$,
+\[
+|ih|\le\tfrac C2q^{1+\varepsilon},\qquad |ih|\le4Cdq^{1+\varepsilon}x .
+\]
+The second bound and \eqref{eq:G3} confine $z$ to a real interval of length $8Cdq^\varepsilon x$, so $z$ has at most $1+8Cdq^\varepsilon x$ integer possibilities. Define the divisor envelope
+\[
+\Delta_C(q)=\max_{1\le n\le\lceil Cq^{1+\varepsilon}\rceil}\tau(n)=q^{o(1)}
+\]
+(Proposition~\ref{prop:envelope}), and take $q$ large enough that $\Delta_C(q)\le m/4$. For each $z$, the positive integer $i$ divides the nonzero integer $|qz+T|\le\lceil Cq^{1+\varepsilon}\rceil$ and determines $h$, so there are at most $\Delta_C(q)$ ordered pairs $(i,h)$ with that $z$. Therefore
+\[
+\tfrac34m\le|J|\le\Delta_C(q)\bigl(1+8Cdq^\varepsilon x\bigr)\le\tfrac14m+8Cd\,\Delta_C(q)\,q^\varepsilon x,
+\]
+so $x\ge m/(16Cd\,\Delta_C(q)\,q^\varepsilon)$ and, using $m\ge q^{7\varepsilon/8}$,
+\begin{equation}\label{eq:G4}
+\Vgap=qx^d\ge\frac{q\,m^d}{(16Cd)^d\Delta_C(q)^dq^{d\varepsilon}}\ge\frac{q^{1-d\varepsilon/8}}{(16Cd)^d\Delta_C(q)^d}.
+\end{equation}
+Because $C$ is fixed and $d\le d_0$ is bounded, this gives
+\begin{equation}\label{eq:Vlower}
+\Vgap\ge q^{1-d\varepsilon/8-o(1)}.
+\end{equation}
+For $d\ge2$ this contradicts \eqref{eq:G2}, because
 \[
 \frac{(d-1)\varepsilon}2-\frac{d\varepsilon}8=\frac{(3d-4)\varepsilon}8>0 .
 \]
 The rank is bounded independently of $q$, so these comparisons are uniform. Thus $d=1$.
 
-\emph{Conclusion.} By \eqref{eq:jrep} every $j\in J$ is a multiple of $d_1$. Since these $j$ are units modulo $q$, $(d_1,q)=1$. The translated one-dimensional face of the original dilate contained in the subset sums of $J'$ has at least $(c/2)sV$ terms. If $V\ge q$ this exceeds $q$ for large $q$; otherwise \eqref{eq:Vlower} gives
+\emph{Conclusion.} By \eqref{eq:jrep} every $j\in J$ is a multiple of $d_1$. Since these $j$ are units modulo $q$, $\gcd(d_1,q)=1$. The translated one-dimensional face of the dilate contained in the subset sums of $J'$ has at least $(c/2)s\Vgap$ terms. If $\Vgap\ge q$ this exceeds $q$ for large $q$; otherwise \eqref{eq:Vlower} gives
 \[
-(c/2)sV\ge(c/2)q^{1+3\varepsilon/8-o(1)}>q .
+(c/2)s\Vgap\ge(c/2)q^{1+3\varepsilon/8-o(1)}>q .
 \]
-An arithmetic progression with common difference coprime to $q$ and at least $q$ terms covers every residue modulo $q$. Every such term is a subset sum of $J'$, which has at most $s$ members, that is, a sum of at most $s$ inverses of distinct members of $I$.
+An arithmetic progression with common difference coprime to $q$ and more than $q$ terms covers every residue modulo $q$. Every such term is a subset sum of $J'$, which has at most $s$ members, that is, a sum of at most $s$ inverses of distinct members of $I$.
 \end{proof}
 
 \section{The correction and descent mechanism}\label{sec:descent}
@@ -495,14 +578,50 @@ Every integer that is not $y$-powersmooth is counted by one of the two bounds.
 
 \subsection{Possible correction endpoints}\label{sec:Pstar}
 
-Define the set of \emph{possible correction endpoints}
-\[
-\cP^*=\bigcup_{\substack{q>L\\ q\ \text{prime power}}}\ \bigcup_{\substack{q^{1/10}\le m\le2q^{1/10}\\ m\in\Z}}\{qm,\ qm+1\}.
-\]
-It contains every endpoint of every correction pair $[qm,qm+1]$, $m\in I_q$, whichever fibers were chosen. If an element of $\cP^*$ is at most $X$ then $q^{11/10}\le qm\le X$, so $q\le X^{10/11}$. Since there are $O(Y/\log Y)$ prime powers up to $Y$,
-\begin{equation}\label{eq:Pstar}
-|\cP^*\cap[1,X]|\ll\sum_{\substack{q\le X^{10/11}\\ q\ \text{prime power}}}q^{1/10}\ll\frac X{\log X}.
+Define the deterministic set of \emph{possible signed correction endpoints}
+\begin{equation}\label{eq:D1}
+\cP^*_L=\bigcup_{\substack{q>L\\ q\ \text{prime power}}}\ \bigcup_{\substack{m\in\N\\ R(q)\le m\le8q^\varepsilon}}\{qm-1,\ qm,\ qm+1\}.
 \end{equation}
+It contains both endpoints of every possible signed correction pair $J(q,m,\sigma)$ with $m\in A_q$, before any orientation is chosen, and it depends neither on $H$, nor on the bit assignment of Lemma~\ref{lem:orient}, nor on the subsets used in cancellation.
+
+\begin{proposition}[density zero]\label{prop:density}
+For every fixed $0<\varepsilon<1$ and every cutoff $L$,
+\begin{equation}\label{eq:D2}
+|\cP^*_L\cap[1,X]|=o(X)\qquad(X\to\infty).
+\end{equation}
+\end{proposition}
+
+The stronger rate $O(X/\log X)$, which held for the narrower endpoint set of the earlier construction, is not claimed for this enlarged set; every later use needs only density zero.
+
+\begin{proof}
+Fix $0<\zeta<\varepsilon$. By \eqref{eq:envelopesize} there is $q_1$ with $E(q)\le q^\zeta$ for $q\ge q_1$; the finitely many labels $q<q_1$ contribute only finitely many endpoints. For a label $q\ge q_1$, every endpoint is at least $qm-1\ge qR(q)-1\ge q^{1+\varepsilon-\zeta}-1$, so an endpoint at most $X$ forces
+\[
+q^{1+\varepsilon-\zeta}\le qm\le X+1,\qquad\text{hence}\qquad q\le Z:=(X+1)^{1/(1+\varepsilon-\zeta)} .
+\]
+Put $Y=X^{1/(1+\varepsilon)}$. Labels $q\le Y$ contribute at most
+\[
+3\sum_{\substack{q\le Y\\ q\ \text{prime power}}}8q^\varepsilon=O\Bigl(\frac{Y^{1+\varepsilon}}{\log Y}\Bigr)=O\Bigl(\frac X{\log X}\Bigr)
+\]
+endpoints, by Chebyshev's bound. For $Y<q\le Z$ the multipliers with $qm\le X+1$ number at most $(X+1)/q+1$, so these labels contribute at most
+\[
+3(X+1)\sum_{\substack{Y<q\le Z\\ q\ \text{prime power}}}\frac1q+3Z .
+\]
+For prime labels, \eqref{eq:mertens} gives
+\[
+\sum_{Y<p\le Z}\frac1p=\log\frac{\log Z}{\log Y}+o(1)=\log\frac{1+\varepsilon}{1+\varepsilon-\zeta}+o(1).
+\]
+Higher prime powers contribute $o(1)$: indeed
+\[
+\sum_{\substack{p^a>Y\\ a\ge2}}p^{-a}=O(Y^{-1/2}),
+\]
+since for $p\le\sqrt Y$ the geometric tail of the powers exceeding $Y$ is at most $2/Y$, and for $p>\sqrt Y$ the tails are bounded by $2\sum_{n>\sqrt Y}n^{-2}$. Finally $Z=o(X)$ because $\zeta<\varepsilon$. Consequently
+\[
+\limsup_{X\to\infty}\frac{|\cP^*_L\cap[1,X]|}X\le3\log\frac{1+\varepsilon}{1+\varepsilon-\zeta}.
+\]
+The order of limits is: fix $\zeta$, let $X\to\infty$, then let $\zeta\downarrow0$. Equivalently, given $\kappa>0$, first choose $\zeta$ so that the displayed constant is less than $\kappa/2$, then choose $X$ large. This proves \eqref{eq:D2}.
+\end{proof}
+
+Since $\cP^*_L\subseteq\cP^*_{L_{\rm base}}$ for $L\ge L_{\rm base}$, the density statement for the fixed set $\cP^*_{L_{\rm base}}$ bounds every later $\cP^*_L$ uniformly, as used in Section~\ref{sec:params}.
 
 \subsection{Auxiliary pairs}\label{sec:aux}
 
@@ -515,7 +634,7 @@ pairs $[a,a+1]$ satisfying
 \[
 q^{11/10}\le a,\qquad a+1\le2q^{11/10},\qquad 4\mid a,
 \]
-with both endpoints $(q/2)$-powersmooth, such that all auxiliary pairs, over all $q>L$, are pairwise separated, and every auxiliary endpoint has distance at least two from every element of $\cP^*$. In particular every auxiliary pair is separated from every correction pair. If $\cF^*$ is the set of all auxiliary endpoints, then
+with both endpoints $(q/2)$-powersmooth, such that all auxiliary pairs, over all $q>L$, are pairwise separated, and every auxiliary endpoint has distance at least two from every element of $\cP^*_L$. In particular every auxiliary pair is separated from every possible signed correction pair. If $\cF^*$ is the set of all auxiliary endpoints, then
 \begin{equation}\label{eq:Fstar}
 |\cF^*\cap[1,X]|=O(X^{21/22}).
 \end{equation}
@@ -528,11 +647,11 @@ Construct the families in increasing order of the numerical prime power $q$. Put
 \end{equation}
 candidates have both endpoints $y$-powersmooth; the constant is positive.
 
-Delete every candidate having an endpoint within distance one of $\cP^*$. By \eqref{eq:Pstar} this deletes only $O(x/\log x)=o(x)$ candidates. Delete also every candidate having an endpoint within distance one of a previously chosen auxiliary endpoint. The number deleted in this second step is at most a constant times
+Delete every candidate having an endpoint within distance one of $\cP^*_L$. Each element of $\cP^*_L\cap[x-2,2x+2]$ spoils at most four candidates, so by Proposition~\ref{prop:density} this deletes only $o(x)$ candidates. Delete also every candidate having an endpoint within distance one of a previously chosen auxiliary endpoint. The number deleted in this second step is at most a constant times
 \[
 \sum_{\substack{q'<q\\ q'\ \text{prime power}}}s(q')\le q^{21/20}=o(q^{11/10})=o(x).
 \]
-Thus a positive constant times $x$ candidates remain, more than $s(q)$ for all sufficiently large $q$. Select any $s(q)$ of them as $\cF_q$. All estimates are uniform in $q$, so a single sufficiently large $L$ suffices for the entire ascending construction. Separation between auxiliary pairs of the same $q$ holds because all candidates are separated; between different $q$ it holds by the second deletion; and every auxiliary endpoint has distance at least two from $\cP^*$ by the first deletion, so an auxiliary pair and a correction pair, whose endpoints lie in $\cP^*$, are separated.
+Thus a positive constant times $x$ candidates remain, more than $s(q)$ for all sufficiently large $q$. Select any $s(q)$ of them as $\cF_q$. All estimates are uniform in $q$, so a single sufficiently large $L$ suffices for the entire ascending construction. Separation between auxiliary pairs of the same $q$ holds because all candidates are separated; between different $q$ it holds by the second deletion. Every auxiliary endpoint has distance at least two from $\cP^*_L$ by the first deletion, and a possible signed correction pair has both endpoints in $\cP^*_L$, so it is separated from every auxiliary pair.
 
 For \eqref{eq:Fstar}, an auxiliary endpoint at most $X$ has label $q\le X^{10/11}$, so
 \[
@@ -541,33 +660,33 @@ For \eqref{eq:Fstar}, an auxiliary endpoint at most $X$ has label $q\le X^{10/11
 \]
 \end{proof}
 
-The families $\cF_q$ depend only on $L$; they are fixed once and for all, independently of $k$. Put $\cU=\cP^*\cup\cF^*$. By \eqref{eq:Pstar} and \eqref{eq:Fstar},
-\begin{equation}\label{eq:U}
-|\cU\cap[1,X]|=O(X/\log X).
+The families $\cF_q$ depend only on $L$; they are fixed once and for all, independently of $k$ and of every later finite choice of compatible fibers. Put $\cU=\cP^*_L\cup\cF^*$. By \eqref{eq:D2} and \eqref{eq:Fstar},
+\begin{equation}\label{eq:D3}
+|\cU\cap[1,X]|=o(X).
 \end{equation}
 
-\subsection{The cancellation identity}\label{sec:cancel}
+\subsection{The signed cancellation identity}\label{sec:cancel}
 
 \begin{remark}\label{rem:cancel}
-For a correction pair $[qm,qm+1]$ with $m\in I_q$, in the ring of rationals whose denominators are coprime to $p$,
-\begin{equation}\label{eq:cancel}
-q\,w(qm)=\frac1m+\frac q{qm+1}\equiv m^{-1}\pmod q,
+For a signed correction pair $J(q,m,\sigma)$ with $m\in A_q$, in the ring of rationals whose denominators are coprime to $p$,
+\begin{equation}\label{eq:D4}
+q\,w_\sigma(qm)=\frac1m+\frac q{qm+\sigma}\equiv m^{-1}\pmod q,
 \end{equation}
-because $p\nmid m$ and $qm+1\equiv1\pmod p$, so both denominators are coprime to $p$. Powersmoothness of $qm+1$ is a separate matter: it guarantees that the denominator of the second term introduces only prime powers at most $q/2$. This is the identity behind the descent: subtracting pair masses whose $m^{-1}$ sum to the right residue removes the factor $q$ from the denominator. The proof of Proposition~\ref{prop:descent} makes this explicit with a common denominator.
+because $p\nmid m$ and $qm+\sigma\equiv\sigma\not\equiv0\pmod p$, so both denominators are coprime to $p$. Strict $q$-powersmoothness of $qm+\sigma$ is a separate matter: it guarantees that the denominator of the second term introduces only prime powers below $q$. This is the identity behind the descent: subtracting pair masses whose $m^{-1}$ sum to the right residue removes the factor $q$ from the denominator. The proof of Proposition~\ref{prop:descent} makes this explicit with a common denominator.
 \end{remark}
 
 \subsection{The descent}\label{sec:descentprop}
 
-\begin{proposition}[descent]\label{prop:descent}
-Let $L$, $K$, $\delta$, the fibers $I_q$ and the families $\cF_q$ be as in Section~\ref{sec:params}. Let $H>L$ be an integer and let $r_0$ be a rational number with $r_0\ge\delta/4$ whose reduced denominator has no prime-power divisor exceeding $H$. Then there is a set $\cC$ of exactly
+\begin{proposition}[signed descent]\label{prop:descent}
+Let $L$, $K$, $\delta$ and the families $\cF_q$ be as in Section~\ref{sec:params}, let $H>L$ be an integer, and let $(I_q,\sigma_q)_{L<q\le H}$ be compatible fibers for this $H$ from Lemma~\ref{lem:orient}. Let $r_0$ be a rational number with $r_0\ge\delta/4$ whose reduced denominator has no prime-power divisor exceeding $H$. Then there is a set $\cC$ of exactly
 \begin{equation}\label{eq:CH}
 C_H=\sum_{\substack{L<q\le H\\ q\ \text{prime power}}}s(q)\le H^{21/20}
 \end{equation}
-pairs, each either a correction pair $[qm,qm+1]$ with $m\in I_q$ or a member of $\cF_q$, for some prime power $q\in(L,H]$, such that:
+pairs, each either a retained signed correction pair $J(q,m,\sigma_q(m))$ with $m\in I_q$ or a member of $\cF_q$, for some prime power $q\in(L,H]$, such that:
 \begin{enumerate}
 \item[(i)] the pairs in $\cC$ are pairwise separated;
-\item[(ii)] every endpoint of a pair in $\cC$ lies in $\cU$ and is at most $2H^{11/10}+1$;
-\item[(iii)] the mass $W_{\cC}$ of $\cC$ satisfies $W_{\cC}\le40L^{-1/20}<\delta/16$;
+\item[(ii)] every endpoint of a pair in $\cC$ lies in $\cU$, is at least $L$, and is at most $8H^{11/10}+1$;
+\item[(iii)] the mass $W_{\cC}$ of $\cC$ satisfies $W_{\cC}\le120L^{-1/40}<\delta/16$;
 \item[(iv)] $r=r_0-W_{\cC}$ satisfies $r\ge r_0-\delta/16>0$, and its reduced denominator divides $K$.
 \end{enumerate}
 \end{proposition}
@@ -575,27 +694,45 @@ pairs, each either a correction pair $[qm,qm+1]$ with $m\in I_q$ or a member of 
 \begin{proof}
 Visit every prime power $q\in(L,H]$ in decreasing numerical order, maintaining a current deficit, initially $r_0$. The invariant before stage $q$ is that no prime power larger than $q$ divides the current reduced denominator; it holds initially by hypothesis.
 
-\emph{Stage $q=p^a$.} If $q$ is the full power of $p$ in the current denominator, write the current deficit as $u/(qv)$ with $p\nmid uv$. The fiber $I_q$ satisfies the hypotheses of Lemma~\ref{lem:cover}: its members are coprime to $q$, and $|I_q|\ge q^{\varepsilon-o(1)}\ge q^{7\varepsilon/8}$ for $q>L$. Lemma~\ref{lem:cover} therefore selects $S\subseteq I_q$ with $c_q=|S|\le s(q)$ such that
+\emph{Stage $q=p^a$.} If $q$ is the full power of $p$ in the current denominator, write the current deficit as $u/(qv)$ with $p\nmid uv$. The retained fiber $I_q$ satisfies the hypotheses of Lemma~\ref{lem:cover} with $C=8$: its members are coprime to $q$ and at most $8q^\varepsilon$, and $|I_q|\ge q^{7\varepsilon/8}$. Lemma~\ref{lem:cover} therefore selects $S\subseteq I_q$ with $c_q=|S|\le s(q)$ such that
 \[
 \sum_{m\in S}m^{-1}\equiv uv^{-1}\pmod q .
 \]
-Subtract the masses $w(qm)$, $m\in S$, from the deficit. To see the effect, let $D$ be the least common multiple of $v$ and of all the integers $m$ and $qm+1$ for $m\in S$. Then $p\nmid D$: indeed $p\nmid v$, $p\nmid m$, and $qm+1\equiv1\pmod p$ for every $m$. Moreover
+Write $\sigma_m=\sigma_q(m)$ and subtract the masses $w_{\sigma_m}(qm)$, $m\in S$, from the deficit. To see the effect, let
 \[
-qD\Bigl(\frac u{qv}-\sum_{m\in S}w(qm)\Bigr)=\frac{uD}v-\sum_{m\in S}\frac Dm-q\sum_{m\in S}\frac D{qm+1}
+D=\lcm\bigl(v,\ \{m:m\in S\},\ \{qm+\sigma_m:m\in S\}\bigr).
 \]
-is an integer divisible by $q$, by the chosen congruence. The corrected deficit therefore has the form $z/D$ with $z\in\Z$, so its reduced denominator is coprime to $p$: the full factor $p^a$ has been eliminated. Every newly introduced prime power is smaller than $q$, because $m<q$ and $qm+1$ is $(q/2)$-powersmooth. If the current denominator has no prime-power factor numerically equal to $q$, set $S=\varnothing$ and $c_q=0$.
-
-In either case, subtract next the masses of any $s(q)-c_q$ pairs from $\cF_q$. Their denominators introduce only prime powers at most $q/2$. They may reintroduce a smaller power of the same prime $p$, which is handled at its later turn. After the complete stage every prime power in the denominator is strictly smaller than $q$, which is the invariant for the next stage, including at stages using only auxiliary pairs.
-
-\emph{Bookkeeping.} Each stage adds exactly $s(q)$ pairs, so $|\cC|=C_H$, and $C_H\le\sum_{n\le H}n^{1/20}\le H^{21/20}$. Every selected pair begins at $q^{11/10}$ or beyond, so the pairs of stage $q$ have total mass at most
-\begin{equation}\label{eq:stagecost}
-2s(q)q^{-11/10}\le2q^{-21/20},
+All these integers are coprime to $p$: $p\nmid v$, $p\nmid m$, and $qm+\sigma_m\equiv\sigma_m\not\equiv0\pmod p$. The exact calculation is
+\begin{equation}\label{eq:D5}
+qD\Bigl(\frac u{qv}-\sum_{m\in S}w_{\sigma_m}(qm)\Bigr)=\frac{uD}v-\sum_{m\in S}\frac Dm-q\sum_{m\in S}\frac D{qm+\sigma_m},
 \end{equation}
-and their endpoints are at most $2H^{11/10}+1$. Summing \eqref{eq:stagecost} over all integers $q>L$,
+an integer divisible by $q$ by the chosen congruence. The corrected deficit therefore has the form $z/D$ with $z\in\Z$, so its reduced denominator is coprime to $p$: the full current $p$-power has been eliminated. Every newly introduced prime power is smaller than $q$: those from $m$ because $m<q$, and those from $qm+\sigma_m$ by \eqref{eq:S3}. Strict descent below $q$ is all that is needed; no bound $q/2$ is claimed for correction neighbours. If the current denominator has no prime-power factor numerically equal to $q$, set $S=\varnothing$ and $c_q=0$.
+
+In either case, subtract next the masses of any $s(q)-c_q$ pairs from $\cF_q$. Their denominators introduce only prime powers at most $q/2$. They may reintroduce a smaller power of the same prime $p$, which is handled at its later turn. After the complete stage every prime power in the denominator is strictly smaller than $q$, which is the invariant for the next stage, including at stages using only auxiliary pairs. Every prime power in $(L,H]$ is visited, including those at which only padding is needed.
+
+\emph{Count and endpoints.} Each stage adds exactly $s(q)$ pairs, so $|\cC|=C_H$, and $C_H\le\sum_{n\le H}n^{1/20}\le H^{21/20}$. A retained correction pair has endpoints in $\{qm-1,qm,qm+1\}$ with $m\le8q^\varepsilon$, so they are at most $8q^{11/10}+1\le8H^{11/10}+1$, and at least $qm-1\ge q-1\ge L$; an auxiliary pair has endpoints in $[q^{11/10},2q^{11/10}]$, which lie in the same range. Correction endpoints lie in $\cP^*_L$ and auxiliary endpoints in $\cF^*$, so all endpoints lie in $\cU$.
+
+\emph{Separation.} Retained correction pairs are pairwise separated by Lemma~\ref{lem:orient}; auxiliary pairs are pairwise separated and separated from every possible correction pair by Lemma~\ref{lem:aux}.
+
+\emph{Mass.} For $qm\ge2$,
 \[
-W_{\cC}\le2\sum_{n>L}n^{-21/20}\le40L^{-1/20}<\delta/16
+w_{-1}(qm)=\frac1{qm}+\frac1{qm-1}\le\frac3{qm},\qquad w_{+1}(qm)\le\frac2{qm}\le\frac3{qm}.
 \]
-by \eqref{eq:Lcond}. Correction endpoints lie in $\cP^*$ and auxiliary endpoints in $\cF^*$, so all endpoints lie in $\cU$. Correction pairs are pairwise separated by Lemma~\ref{lem:sep}; auxiliary pairs are pairwise separated and separated from every correction pair by Lemma~\ref{lem:aux}. On completion the reduced denominator has only prime powers at most $L$, each of which divides $K=\lcm(1,\ldots,L)$; hence the reduced denominator of $r$ divides $K$, and $r\ge r_0-W_{\cC}>r_0-\delta/16\ge\delta/4-\delta/16>0$.
+With $\varepsilon=1/10$, $m\ge R(q)=q^{1/10}/E(q)$ and $E(q)\le q^{1/40}$ (condition (f) of Section~\ref{sec:params}),
+\[
+w_{\sigma_m}(qm)\le3E(q)q^{-11/10}.
+\]
+Each auxiliary pair has mass at most $2q^{-11/10}\le3E(q)q^{-11/10}$, since $E(q)\ge1$. A stage of exactly $s(q)$ pairs therefore costs at most
+\begin{equation}\label{eq:D6}
+3s(q)E(q)q^{-11/10}\le3q^{1/20+1/40-11/10}=3q^{-41/40}.
+\end{equation}
+Summing over all integers $q>L$,
+\begin{equation}\label{eq:D7}
+W_{\cC}\le3\sum_{n>L}n^{-41/40}\le3\int_L^\infty x^{-41/40}\,dx=120L^{-1/40}<\frac\delta{16}
+\end{equation}
+by condition (h) of Section~\ref{sec:params}.
+
+\emph{Residual.} On completion the reduced denominator has only prime powers at most $L$, each of which divides $K=\lcm(1,\ldots,L)$; hence the reduced denominator of $r$ divides $K$, and $r\ge r_0-W_{\cC}>r_0-\delta/16\ge\delta/4-\delta/16>0$.
 \end{proof}
 
 \section{The core}\label{sec:core}
@@ -620,7 +757,7 @@ and define the set of \emph{reserved parameters}
 \begin{equation}\label{eq:reserved}
 \cR=\bigl\{d\in[Q,BQ)\cap\Z:\ [Kd-1,Kd+3]\cap\cU=\varnothing\bigr\},\qquad R=|\cR| .
 \end{equation}
-The protected interval $[Kd-1,Kd+3]$ contains the one-integer neighbourhood of the possible core triple $[Kd,Kd+2]$. Thus neither that triple nor its shorter pair $[Kd+1,Kd+2]$ can overlap or be adjacent to any pair with endpoints in $\cU$, in particular to any pair in the set $\cC$ of Proposition~\ref{prop:descent}.
+The protected window $[Kd-1,Kd+3]$ contains the one-integer neighbourhood of the possible core triple $[Kd,Kd+2]$. Thus neither that triple nor its shorter pair $[Kd+1,Kd+2]$ can overlap or be adjacent to any pair with both endpoints in $\cU$, in particular to any pair in the set $\cC$ of Proposition~\ref{prop:descent}, whichever orientations and subsets that proposition uses. The core is protected against the deterministic superset $\cP^*_L$ of every possible signed endpoint, not only against a previously selected family.
 
 \begin{proposition}[core]\label{prop:core}
 For sufficiently large $k$ the following hold.
@@ -635,9 +772,9 @@ W_{\core}\le\frac2K\sum_{Q\le d<BQ}\frac1d=\frac{2j_0\log4}K+o(1)\le4\delta\log4
 \end{proposition}
 
 \begin{proof}
-(i) By \eqref{eq:U}, only $O_{K,B}(Q/\log Q)=o(Q)$ parameters $d\in[Q,BQ)$ are excluded from $\cR$, so $R=(B-1)Q-o(Q)$, which is $\Theta(k^{4/5})=o(k)$. By \eqref{eq:CH}, $C_H\le H^{21/20}=O(Q^{21/20})=O(k^{21/25})$.
+(i) Every excluded $d\in[Q,BQ)$ has a witness $n\in\cU\cap[Kd-1,Kd+3]$, and these windows are disjoint for distinct $d$ because $K\ge8$; all witnesses lie in $[1,KBQ+3]$. Hence the number of excluded parameters is at most $|\cU\cap[1,KBQ+3]|=o(KBQ)=o(Q)$ by \eqref{eq:D3}, since $K$ and $B$ are fixed. So $R=(B-1)Q-o(Q)$, which is $\Theta(k^{4/5})=o(k)$. By \eqref{eq:CH}, $C_H\le H^{21/20}=O(Q^{21/20})=O(k^{21/25})$.
 
-(ii) Distinct triples $[Kd,Kd+2]$ have starts differing by at least $K\ge8$, so they are separated, and so are the pairs they contain. All endpoints are at most $KBQ+2=H$. The mass bound \eqref{eq:Wcore} uses $\sum_{Q\le d<BQ}1/d=\log B+o(1)=j_0\log4+o(1)$ and $j_0/K\le\delta+1/K\le2\delta$ by \eqref{eq:Lcond}.
+(ii) Distinct triples $[Kd,Kd+2]$ have starts differing by at least $K\ge8$, so they are separated, and so are the pairs they contain. All endpoints are at most $KBQ+2=H$. The mass bound \eqref{eq:Wcore} uses $\sum_{Q\le d<BQ}1/d=\log B+o(1)=j_0\log4+o(1)$ and $j_0/K\le\delta+1/K\le2\delta$ by condition (i) of Section~\ref{sec:params}.
 
 (iii) Apply Lemma~\ref{lem:dense} in the $j_0$ disjoint bands
 \[
@@ -690,11 +827,12 @@ Finally, \eqref{eq:r0} follows from \eqref{eq:Wmain}. Every main endpoint is $Q$
 
 \section{Proof of the main theorem}\label{sec:proof}
 
-Let $k$ be sufficiently large for Propositions~\ref{prop:core} and \ref{prop:main} and for the estimates below. Construct, in this order:
+Let $k$ be sufficiently large for Propositions~\ref{prop:core} and \ref{prop:main} and for the estimates below, and put $Q=\lfloor k^{4/5}\rfloor$, $H=KBQ+2$ and $C_H$ as in \eqref{eq:CH}. Construct, in this order:
 \begin{enumerate}
-\item the core pairs $[Kd+1,Kd+2]$, $d\in\cR$, and the sets $D_0,\ldots,D_{j_0-1}$ of Proposition~\ref{prop:core};
+\item the core pairs $[Kd+1,Kd+2]$, $d\in\cR$, and the sets $D_0,\ldots,D_{j_0-1}$ of Proposition~\ref{prop:core}; these depend only on $\cU$, not on any orientation choice;
+\item the compatible fibers $(I_q,\sigma_q)_{L<q\le H}$ of Lemma~\ref{lem:orient} for this $H$, which is finite; condition (b) of Section~\ref{sec:params} gives $L\ge L_0$;
 \item the $M=k-R-C_H$ main pairs $\cM$ of Proposition~\ref{prop:main}, with the initial deficit $r_0$ of \eqref{eq:r0};
-\item the $C_H$ correction and auxiliary pairs $\cC$ of Proposition~\ref{prop:descent}, applied to $r_0$ and $H=KBQ+2$. The hypotheses hold: $H>L$ for large $k$, $r_0\ge\delta/2\ge\delta/4$, and the denominator of $r_0$ has prime powers at most $H$ by Proposition~\ref{prop:main}.
+\item the $C_H$ correction and auxiliary pairs $\cC$ of Proposition~\ref{prop:descent}, applied to $r_0$, $H$ and the fibers of step 2. The hypotheses hold: $H>L$ for large $k$, $r_0\ge\delta/2\ge\delta/4$, and the denominator of $r_0$ has prime powers at most $H$ by Proposition~\ref{prop:main}.
 \end{enumerate}
 The residual $r=r_0-W_{\cC}$ satisfies, by Proposition~\ref{prop:descent}(iii)--(iv) and \eqref{eq:r0},
 \[
@@ -707,23 +845,130 @@ W_{\core}+W_{\main}+W_{\cC}+\frac jK=(1-r_0)+W_{\cC}+r=1 .
 
 \emph{Count.} The family consists of $R$ core intervals, $M$ main pairs and $C_H$ pairs from $\cC$; no interval was split or merged, so the total number is $R+M+C_H=k$. Every interval has two or three members.
 
-\emph{Separation.} The pairs of $\cC$ are pairwise separated by Proposition~\ref{prop:descent}(i), and their endpoints lie in $\cU$, so by the definition \eqref{eq:reserved} of $\cR$ every core interval, extended or not, is separated from every pair of $\cC$. Distinct core intervals are separated by Proposition~\ref{prop:core}(ii). Main pairs are separated from one another by Proposition~\ref{prop:main}. Finally, all endpoints of $\cC$ are at most
+\emph{Separation.} The pairs of $\cC$ are pairwise separated by Proposition~\ref{prop:descent}(i). Their endpoints lie in $\cU$, so by the definition \eqref{eq:reserved} of $\cR$ every core interval, extended or not, is separated from every pair of $\cC$, for both orientations and both signs of the correction pairs. Distinct core intervals are separated by Proposition~\ref{prop:core}(ii). Main pairs are separated from one another by Proposition~\ref{prop:main}. Finally, all endpoints of $\cC$ are at most
 \[
-2H^{11/10}+1=O(k^{22/25})=o(k),
+8H^{11/10}+1=O(k^{22/25})=o(k),
 \]
 and all core endpoints are at most $H=O(k^{4/5})=o(k)$, so for large $k$ all of them lie below $k/1024-2$, separating them from every main pair. Thus the whole family is separated.
 
-\emph{Endpoints.} Main endpoints are at most $20k$ and all other endpoints are $o(k)$, so $b_i\le20k$. Every left endpoint is at least $\min\{L^{11/10},KQ,k/1024\}\ge2$.
+\emph{Endpoints.} Main endpoints are at most $20k$ and all other endpoints are $o(k)$, so $b_i\le20k$. Every left endpoint is at least $\min\{L,KQ,k/1024\}\ge2$: the endpoints of $\cC$ are at least $L$ by Proposition~\ref{prop:descent}(ii), core endpoints are at least $KQ$, and main endpoints are at least $k/1024$.
 
 Listing the intervals in increasing order gives exactly the conditions \eqref{eq:main}. This proves Theorem~\ref{thm:main}. \qed
 
 \section*{Acknowledgements and declaration}
 
-Large language models were used extensively in this work: in developing and checking the argument, in drafting this manuscript, and in writing the accompanying Lean formalization. The models used were GPT~6 Astra (OpenAI), Claude Fable~5.1 (Anthropic) and Gemini~3.8 Flash (Google). The Lean formalization builds on Mathlib and, in addition, on an extensive library of Lean proofs of roughly three million lines. All mathematical content was reviewed by the author, who takes sole responsibility for it. The author thanks the reviewers whose comments on earlier drafts led to the present formulation.
+Large language models were used extensively in this work: in developing and checking the argument, in drafting this manuscript, and in writing the accompanying Lean formalization. The models used were GPT~6 Astra (OpenAI), Claude Fable~5.1 (Anthropic) and Gemini~3.8 Flash (Google). The Lean formalization builds on Mathlib and, in addition, on Boris Alexeev's \texttt{plby/lean-proofs} library of machine-generated Lean proofs \cite{plby}, roughly three million lines, from which the modules supplying the structure theorem, the Liu--Sawhney theorem, Mertens' theorem and the divisor bound are vendored with their provenance recorded (Appendix~\ref{app:cert}). All mathematical content was reviewed by the author, who takes sole responsibility for it. The author thanks the reviewers whose comments on earlier drafts led to the present formulation.
+
+\appendix
+
+\section{Formal verification certificate}\label{app:cert}
+
+\subsection{The formal target}\label{app:target}
+
+The audited file \texttt{Erdos289/Intervals.lean} declares, inside the namespace \texttt{Erdos289}:
+
+\begin{verbatim}
+structure FamilyWitness (k : Nat) where
+  intervals : Fin k -> NatInterval
+  positive : forall i, 1 <= (intervals i).lo
+  short : forall i, (intervals i).hi = (intervals i).lo + 1 \/
+    (intervals i).hi = (intervals i).lo + 2
+  separated : forall i j, i < j -> (intervals i).Separated (intervals j)
+  bounded : forall i, (intervals i).hi <= 20 * k
+  total_mass : sum i, (intervals i).mass = 1
+
+def CandidateStatement : Prop :=
+  exists k0 : Nat, forall k : Nat, k0 <= k -> Nonempty (FamilyWitness k)
+\end{verbatim}
+
+Here \texttt{NatInterval} is a pair of natural-number endpoints \texttt{lo}, \texttt{hi}; its carrier is the set of integers from \texttt{lo} to \texttt{hi} inclusive; \texttt{I.Separated J} means \texttt{I.hi + 1 < J.lo}; and \texttt{I.mass} is the exact rational sum of the reciprocals of the carrier. (Unicode symbols are rendered in ASCII above.) The field \texttt{positive} excludes the denominator zero; \texttt{short} gives exactly two or three members; \texttt{separated} with indices in \texttt{Fin k} gives exactly $k$ pairwise separated intervals; \texttt{total\_mass} is an exact equality in $\Q$. This is Theorem~\ref{thm:main} with the lower endpoint condition $a_i\ge1$ in place of $a_i\ge2$; Remark~\ref{rem:two} shows the two are equivalent given the other conditions. The intervals are indexed by $\{0,\ldots,k-1\}$ and are separated for every ordered pair of indices, which after sorting is the condition $b_i+1<a_{i+1}$.
+
+\subsection{Certificate metadata}\label{app:meta}
+
+\begin{center}
+\footnotesize
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}p{12.4cm}@{}}
+\toprule
+Repository & \url{https://github.com/beetree/math_erdos_289}\\
+Tag & \texttt{v1.0-unconditional-certificate}\\
+Commit & \texttt{6de963b7572b9ea27aa3339de85dc7254744687f}\\
+Lean toolchain & \texttt{leanprover/lean4:v4.34.0-rc2} (the file \texttt{lean-toolchain})\\
+Mathlib & \texttt{v4.34.0-rc2}, resolved revision \texttt{85e3a25e006c35636f0e53b0e9296caca2685bc0}\\
+Other Lake dependencies & as resolved in \texttt{lake-manifest.json} at the tag: batteries \texttt{d54dddc5}, aesop \texttt{18889deb}, Qq \texttt{507746ab}, proofwidgets \texttt{a8acbfd8}, importGraph \texttt{d8823026}, LeanSearchClient \texttt{ba67e212}, plausible \texttt{d9598f07}, Cli \texttt{ab3a82db}. The manifest at the tag has SHA-256 \texttt{119e31567cce06a9f16a6fe8dd2fab7636ce8483c1a2687efc38ced5bc53e773}.\\
+Vendored proofs & modules under \texttt{SolveMath/} (Liu--Sawhney, Mertens, divisor bound; 41 modules) and \texttt{ErdosProblems/} (the structure theorem, from the Erd\H{o}s 186 development; 258 modules), ported from the recorded reference snapshot of \texttt{plby/lean-proofs} \cite{plby}, commit \texttt{61fce10ef6671b1df0325f22bc76c8cd1f2fa554}, with the listed compatibility and warning-cleanup edits. Provenance, upstream authorship and every deviation are recorded in \texttt{ErdosProblems/PROVENANCE.md} and \texttt{SolveMath/PROVENANCE.md}. The ported structure-theorem files carry Apache-2.0 headers as recorded there.\\
+Bridges & \texttt{Erdos289.Ported.cfhmpsv\_structure\_audited} (file \texttt{Erdos289/CFPBridge.lean}) proves the audited proposition \texttt{CFHMPSVStructureStatement}; \texttt{bridge\_liu\_sawhney}, \texttt{bridge\_mertens\_second}, \texttt{bridge\_divisor\_bound} (file \texttt{Erdos289/ExternalBridge.lean}) connect the other three.\\
+Terminal declaration & \texttt{Erdos289.candidateStatement} (file \texttt{Erdos289/Main.lean})\\
+Terminal type & \texttt{Erdos289.CandidateStatement}\\
+Target file & \texttt{Erdos289/Intervals.lean}, SHA-256 \texttt{178e26470eb61a81f183761d053b697d1800bda64a622dd69858ad065f441871}, unchanged since the statement audit\\
+Archival specification & \texttt{Erdos289/ExternalAxioms.lean}, SHA-256 \texttt{6a4affa2cecb731c87ec21433305842bd3c0c92bc7c62a8ca86f410f3647c5d7}; its six assumed declarations are not in the dependency chain\\
+Axioms & \texttt{[propext, Classical.choice, Quot.sound]}\\
+Build & the maintainer reports a warning-free \texttt{lake build} at the tag, with the axiom report printed by \texttt{Erdos289/Main.lean}\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The following transcript was recorded by the maintainer at the tag:
+\begin{verbatim}
+$ cat lean-toolchain
+leanprover/lean4:v4.34.0-rc2
+$ lake exe cache get
+$ lake build
+i [9101/9104] Replayed Erdos289.Main
+info: Erdos289/Main.lean:21:0: 'Erdos289.candidateStatement' depends on
+  axioms: [propext, Classical.choice, Quot.sound]
+Build completed successfully (9104 jobs).
+\end{verbatim}
+
+\emph{Audit scope.} In preparing this revision, the axiom report was re-run on the author's machine from the existing local build of the repository at commit \texttt{1ad8794}, whose Lean sources differ from the tag only in the compatibility file \texttt{Erdos289/Compat.lean}, which the terminal theorem does not import. The commands
+\begin{verbatim}
+lake build Erdos289.Main
+lake env lean AxiomCheck.lean
+\end{verbatim}
+with the file \texttt{AxiomCheck.lean} containing
+\begin{verbatim}
+import Erdos289.Main
+#check (Erdos289.candidateStatement : Erdos289.CandidateStatement)
+#print axioms Erdos289.candidateStatement
+\end{verbatim}
+reported the build up to date and printed the type and the same three axioms. A from-scratch rebuild at the tagged checkout was not performed for this revision; no independent third party has yet reproduced the certificate. A reproducibility check should run from the pinned checkout with its existing lockfile, without updating dependency revisions, and record
+\begin{verbatim}
+git rev-parse HEAD
+git rev-parse 'v1.0-unconditional-certificate^{commit}'
+cat lean-toolchain
+sha256sum Erdos289/Intervals.lean lake-manifest.json
+lake build
+\end{verbatim}
+followed by the check file above. The exact target type and the complete axiom report are the relevant mathematical checks; a warning-free build is hygiene. An unused axiom declaration elsewhere in the repository does not make the terminal theorem conditional.
+
+\subsection{Correspondence between the paper and the formalization}\label{app:corr}
+
+The kernel establishes the formal implications. The remaining human task is to check that the formal proposition says what the problem and this paper claim (Appendix~\ref{app:target}), and, for readers comparing the two proofs, that the formal components correspond to the components here. The following points were checked for that correspondence.
+
+\begin{center}
+\footnotesize
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}p{12.4cm}@{}}
+\toprule
+Component & Correspondence\\
+\midrule
+Signed pairs & the sign is exactly $\pm1$; the interval is the ordered pair $\min/\max$ of $qm$ and $qm+\sigma$; both denominators are positive (\texttt{signedPair}, \texttt{wSigned}).\\
+Multiplier range & $R(q)\le m\le8q^\varepsilon$ with $V$, $E$, $R$ as in \eqref{eq:envelope} (\texttt{Venv}, \texttt{Eenv}, \texttt{Rq}); the envelope thresholds are eventual statements (\texttt{venv\_le}, \texttt{Eenv\_le\_eventually}).\\
+Strict powersmoothness & every prime power dividing the neighbour is $<q$, including powers of small primes (\texttt{Powersmooth (q - 1)}).\\
+Compatible fibers & quantifier order $\forall\varepsilon\,\exists L_0\,\forall L\ge L_0\,\forall H\ge L\,\exists(I_q,\sigma_q)$ (\texttt{lemmaF2}); sets of distinct multipliers; all cross-label intervals separated (\texttt{Iv.Sep}).\\
+Position orientation & the bit chooses left or right relative to the multiple of four (\texttt{slot}), not a uniform sign.\\
+Inverse covering & $C=8$ (\texttt{lemma3\_wide}); units modulo the full $q$; a subset, not a multiset; at most $\lfloor q^{\varepsilon/2}\rfloor$ summands.\\
+Structure-theorem bridge & the same represented progression; nonempty proper boxes at scales $1$ and $cs$ (\texttt{properAt}); source-native $\log_2$ (\texttt{logTwo}); threshold $m\ge m_0$ and the cardinality quantifiers.\\
+Descent & all stages through $H$; exact padding (\texttt{CH}); the signed common-denominator identity \eqref{eq:D5}; the whole current $p$-power removed before smaller powers are handled (\texttt{descentS}).\\
+Core protection & avoids the deterministic superset $\cP^*_L$ of every possible signed endpoint (\texttt{PstarSigned}, \texttt{USigned}), not only a selected family (\texttt{coreS}).\\
+Final count and mass & exactly $R+M+C_H=k$; core extensions preserve the count; total reciprocal mass exactly one (\texttt{erdos289S2}).\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Where the formal proof uses stronger intermediate estimates than the displayed ones, the displayed bounds follow from them; in particular the formal lower bound in the covering lemma is the explicit inequality \eqref{eq:G4}, and the formal mass bound is \eqref{eq:D6} summed as in \eqref{eq:D7}.
 
 \begin{thebibliography}{CFHMPSV}
 
-\bibitem[BG]{BG} J.~Bourgain and M.~Z.~Garaev, \emph{Kloosterman sums in residue rings}, Acta Arith.\ \textbf{164} (2014), 43--64. arXiv:1309.1124.
+\bibitem[BG]{BG} J.~Bourgain and M.~Z.~Garaev, \emph{Kloosterman sums in residue rings}, Acta Arith.\ \textbf{164} (2014), 43--64. arXiv:1309.1124. (Used in an earlier draft only; see Section~\ref{sec:outline}.)
 
 \bibitem[CFHMPSV]{CFHMPSV} D.~Conlon, J.~Fox, X.~He, D.~Mubayi, H.~T.~Pham, A.~Suk and J.~Verstra\"ete, \emph{A question of Erd\H{o}s and Graham on Egyptian fractions}, Discrete Analysis 2025:28. arXiv:2404.16016v2.
 
@@ -739,9 +984,9 @@ Large language models were used extensively in this work: in developing and chec
 
 \bibitem[LS]{LS} Y.~Liu and M.~Sawhney, \emph{On further questions regarding unit fractions}, arXiv:2404.07113.
 
-\bibitem[Mo]{Mo} H.~L.~Montgomery, \emph{Ten Lectures on the Interface between Analytic Number Theory and Harmonic Analysis}, CBMS Regional Conference Series in Mathematics \textbf{84}, American Mathematical Society, 1994.
+\bibitem[Al]{plby} B.~Alexeev, \emph{lean-proofs}, \url{https://github.com/plby/lean-proofs}, commit \texttt{61fce10e}, 2026.
 
-\bibitem[Repo]{Repo} J.~Land, \emph{Erd\H{o}s Problem 289: Lean formalization}, \url{https://github.com/beetree/math_erdos_289}, 2026.
+\bibitem[Repo]{Repo} J.~Land, \emph{Erd\H{o}s Problem 289: Lean formalization}, \url{https://github.com/beetree/math_erdos_289}, tag \texttt{v1.0-unconditional-certificate}, 2026.
 
 \end{thebibliography}
 
