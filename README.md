@@ -21,7 +21,7 @@ No `sorryAx`, no `Lean.ofReduceBool`, and no project-declared axiom appears: the
 `Erdos289.candidateStatement : Erdos289.CandidateStatement` is proved using Mathlib
 (`v4.34.0-rc2`, revision `85e3a25e`, pinned in `lake-manifest.json`) and the vendored proved
 lemmas under `SolveMath/` and `ErdosProblems/`, with only the stated standard foundational
-axioms. The transcript above was recorded on 4 September 2026 at commit `61f54d7` of `main`
+axioms. The transcript above was recorded on 4 September 2026 at commit `c93abf8` of `main`
 (clean working tree); the check file in "Terminal theorem and verification procedure" below
 gives the same report for the terminal theorem and for the four audited input theorems. No
 independent third party has yet reproduced it.

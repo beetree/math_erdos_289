@@ -206,7 +206,7 @@ The \emph{mass} of a set of pairwise disjoint intervals is the sum of the recipr
 
 \subsection{Formal verification}\label{sec:formal}
 
-The theorem has been formalized in Lean~4 using Mathlib. The certificate is recorded in the accompanying repository \cite{Repo} at commit \texttt{61f54d7} of its main branch (full hash in Appendix~\ref{app:meta}). The tag \texttt{v1.0-unconditional-certificate} records an earlier certificate for the same terminal target; Appendix~\ref{app:meta} identifies the later checked revision. The terminal declaration \texttt{Erdos289.candidateStatement} has type \texttt{Erdos289.CandidateStatement}. Its transitive axiom report contains only \texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound}, the usual foundational axioms; no custom analytic axiom occurs.
+The theorem has been formalized in Lean~4 using Mathlib. The certificate is recorded in the accompanying repository \cite{Repo} at commit \texttt{c93abf8} of its main branch (full hash in Appendix~\ref{app:meta}). The tag \texttt{v1.0-unconditional-certificate} records an earlier certificate for the same terminal target; Appendix~\ref{app:meta} identifies the later checked revision. The terminal declaration \texttt{Erdos289.candidateStatement} has type \texttt{Erdos289.CandidateStatement}. Its transitive axiom report contains only \texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound}, the usual foundational axioms; no custom analytic axiom occurs.
 
 The formal proof uses the signed-fiber construction and the progression-based inverse-covering argument presented in this paper. The structure theorem, the Liu--Sawhney theorem, Mertens' theorem and the divisor bound are supplied by formal proofs, with bridges to the statements used here; Chebyshev's bound comes from Mathlib. Bourgain--Garaev and Erd\H{o}s--Tur\'an are not used. The original module containing six assumed inputs is retained in the repository as an archival specification, but none of its assumed declarations belongs to the terminal theorem's dependency chain.
 
@@ -891,7 +891,7 @@ Here \texttt{NatInterval} is a pair of natural-number endpoints \texttt{lo}, \te
 \begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}p{12.4cm}@{}}
 \toprule
 Repository & \url{https://github.com/beetree/math_erdos_289}\\
-Commit & \texttt{61f54d7ba430b3869854bb51ccefb16e48e5c11d} (branch \texttt{main})\\
+Commit & \texttt{c93abf8ad46b3ff7198aaa2a6d71fb00d1fb2a0b} (branch \texttt{main})\\
 Earlier certificate & tag \texttt{v1.0-unconditional-certificate}, commit \texttt{6de963b7572b9ea27aa3339de85dc7254744687f}, an earlier certificate for the same terminal target with the same target file, archival file and manifest hashes. Between the two revisions the Lean sources changed in the compatibility file \texttt{Erdos289/Compat.lean} (which the terminal theorem does not import), in comments, and by the renaming of one vendored file to an ASCII name; the git history records the exact diff\\
 Lean toolchain & \texttt{leanprover/lean4:v4.34.0-rc2} (the file \texttt{lean-toolchain})\\
 Mathlib & \texttt{v4.34.0-rc2}, resolved revision \texttt{85e3a25e006c35636f0e53b0e9296caca2685bc0}\\
@@ -911,7 +911,7 @@ Build & warning-free \texttt{lake build}, with the axiom report printed by \text
 The following transcript (long lines wrapped for the page) was recorded on 4 September 2026 in the maintainer's working copy at the commit above, with a clean status, the pinned toolchain and the existing lockfile; \texttt{lake build} replays the up-to-date modules from the build cache.
 \begin{verbatim}
 $ git rev-parse HEAD
-61f54d7ba430b3869854bb51ccefb16e48e5c11d
+c93abf8ad46b3ff7198aaa2a6d71fb00d1fb2a0b
 $ cat lean-toolchain
 leanprover/lean4:v4.34.0-rc2
 $ sha256sum Erdos289/Intervals.lean lake-manifest.json
@@ -1005,7 +1005,7 @@ which at $d=2$ is $\varepsilon(1/4-1/250)$ and increases with $d$; for $d=1$ the
 
 \bibitem[Al]{plby} B.~Alexeev, \emph{lean-proofs}, \url{https://github.com/plby/lean-proofs}, commit \texttt{61fce10e}, 2026.
 
-\bibitem[Repo]{Repo} J.~Land, \emph{Erd\H{o}s Problem 289: Lean formalization}, \url{https://github.com/beetree/math_erdos_289}, commit \texttt{61f54d7}, 2026.
+\bibitem[Repo]{Repo} J.~Land, \emph{Erd\H{o}s Problem 289: Lean formalization}, \url{https://github.com/beetree/math_erdos_289}, commit \texttt{c93abf8}, 2026.
 
 \end{thebibliography}
 
