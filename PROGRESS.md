@@ -41,8 +41,8 @@ the axiom report names exactly `Erdos289.External.Assumed.*`.
 | # | Axiom | Source | Used by | Prospects for removal |
 |---|---|---|---|---|
 | A1 | `liu_sawhney` | Liu–Sawhney, Thm 1.3 | Lemma 6 → core | A port from the same corpus is in progress in `expert_input/ported/LiuSawhney/` (run `port_ls`, launched outside this session). |
-| A2 | `cfhmpsv_structure` | Conlon–Fox–Pham Thm 1.5 via CFHMPSV Thm 3 | Lemma 3 | **Kept as an axiom by decision.** |
-| A3 | `bourgain_garaev` | Bourgain–Garaev, Thm 5 | Lemma 1 (S1) | **Kept as an axiom by decision.** |
+| ~~A2~~ | `cfhmpsv_structure` | Conlon–Fox–Pham Thm 1.5 via CFHMPSV Thm 3 | Lemma 3 | **Being discharged on this branch** by the verbatim port of the CFP structure theorem from `plby/lean-proofs` (Erdős 186 development; 258 modules, ≈90k lines, Apache-2.0; `ErdosProblems/`), bridged to the audited statement in `Erdos289/CFPBridge.lean`. Decision: use the port rather than the elementary covering (docs Section 1). |
+| A3 | `bourgain_garaev` | Bourgain–Garaev, Thm 5 | Lemma 1 (S1) | **Being discharged on this branch** by the author's elementary signed-fiber construction (docs Sections 2–4): Lemmas F1, F2, D1, signed cancellation (D3), mass tail (D5), and the adapted Lemma 5 / core / descent / assembly. |
 | A4 | `erdos_turan` | discrete Erdős–Turán inequality | Lemma 1 (S1) | Moderate. Classical; a self-contained Fourier-analytic proof is feasible. |
 | ~~A5~~ | `mertens_second` | Mertens' second theorem | Lemma 1 (sieve), Lemma 4 | **DISCHARGED**: ported proof (4 modules, 1,591 lines) from `plby/lean-proofs`; axiom-clean. |
 | ~~A6~~ | `divisor_bound` | Hardy–Wright Thm 315 | Lemma 1, Lemma 3 | **DISCHARGED**: ported proof (342 lines) from `plby/lean-proofs`; axiom-clean. |
@@ -53,7 +53,20 @@ State the main theorem as `ExternalInputs → CandidateStatement`, per Appendix 
 six-axiom audit, so the six inputs are visible in the theorem's type and the axiom report
 shows only the three standard axioms.
 
-## Agents
+## Agents (branch `elementary-replacements`, worktree `~/math_erdos_289_pr`)
+
+| Run | Model | File | Task | Status |
+|---|---|---|---|---|
+| `covering` | Opus | `Covering.lean` | docs §1 elementary covering | stopped (port chosen) |
+| `signedF1` | Opus | `SignedF1.lean` | Lemma F1 signed fibers | running |
+| `signedF2` | Opus | `SignedF2.lean` | Lemma F2 orientation | running |
+| `signedD1` | Opus | `SignedD1.lean` | Lemma D1 density zero | running |
+| `signedCancel` | Sonnet (janna) | `SignedCancel.lean` | signed cancellation (D3) | running |
+| `signedTail` | Sonnet (johan) | `SignedTail.lean` | mass tail (D4)–(D5) | running |
+| `lemma5S` | Sonnet (janna) | `Lemma5S.lean` | auxiliary family avoiding `PstarSigned` | running |
+| `coreS` | Sonnet (johan) | `CoreS.lean` | core with density-zero protected set | done, proved |
+
+## Agents (earlier, on main)
 
 | Run name | CLI / model | File(s) owned | Task | Status |
 |---|---|---|---|---|
