@@ -242,7 +242,7 @@ public import SolveMath.Corpus.NumberTheory.UnitFractionSubsumResults.LargeEstim
 public import SolveMath.Corpus.NumberTheory.UnitFractionSubsumResults.TechnicalProposition
 public import SolveMath.Corpus.Analysis.UnitFractionAnalyticEstimates.TendstoLogCoeTop
 public import SolveMath.Corpus.Analysis.UnitFractionAnalyticEstimates.PartialSummation
-public import SolveMath.Corpus.Analysis.UnitFractionAnalyticEstimates.DivisorBound₁
+public import SolveMath.Corpus.Analysis.UnitFractionAnalyticEstimates.DivisorBound1
 public import SolveMath.Corpus.Analysis.UnitFractionAnalyticEstimates.AbsVonMangoldtDiv
 public import SolveMath.Corpus.Analysis.UnitFractionAnalyticEstimates.PrimeReciprocalEq
 public import SolveMath.Corpus.Analysis.UnitFractionAnalyticEstimates.WeakMertensThirdUpper

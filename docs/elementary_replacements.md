@@ -1,6 +1,9 @@
 # Erdős 289: elementary replacements for the two remaining deep inputs
 
-**Status.** This is a new mathematical replacement argument, with independent internal audits of the covering lemma, the signed correction fibers, their simultaneous separation, and the downstream estimates. It has not yet been translated into Lean. The existing compilation and axiom reports are those reported by the project maintainer, on Lean and Mathlib v4.34.0-rc2.
+> **Historical proposal.** Sections 2–4 supplied the signed-fiber construction used in the completed formalization (tag `v1.0-unconditional-certificate`). Section 1's weighted-Fourier replacement was **not** used in the certificate; the implemented inverse-covering proof retains the Conlon–Fox–Pham structure theorem through `Erdos289.lemma3_wide` (with `C = 8`), supplied by the vendored formal proof under `ErdosProblems/`. The status text, dependency table and implementation sequence below record the proposal as written, not the released proof; where this document says "not yet translated into Lean", the signed construction has since been formalized (`Erdos289/SignedF1.lean`, `SignedF2.lean`, `SignedD1.lean`) and the manuscript (`erdos_289_full_proof.pdf`, Sections 3–5) presents it. Bourgain–Garaev and Erdős–Turán are not used by the terminal theorem.
+
+
+**Status (as originally written; see the historical notice above).** This is a new mathematical replacement argument, with independent internal audits of the covering lemma, the signed correction fibers, their simultaneous separation, and the downstream estimates. It has not yet been translated into Lean. The existing compilation and axiom reports are those reported by the project maintainer, on Lean and Mathlib v4.34.0-rc2.
 
 The conclusion of this investigation is stronger than merely narrowing the two external statements:
 
@@ -405,7 +408,7 @@ N_q\ge M/(8V(q))
 \tag{F13}
 $$
 
-The resulting multipliers satisfy $R(q)\le m\le8q^\varepsilon$ and have a sign attached. Applying Corollary C4 with $C=8$ gives the same budget $\lfloor q^{\varepsilon/2}\rfloor$ for covering residues.
+The resulting multipliers satisfy $R(q)\le m\le8q^\varepsilon$ and have a sign attached. Applying Corollary C4 with $C=8$ gives the same budget $\lfloor q^{\varepsilon/2}\rfloor$ for covering residues. *(As implemented: the certificate instead applies the GAP-based covering lemma `Erdos289.lemma3_wide` with $C=8$, which has the same hypotheses and conclusion.)*
 
 The original universal equidistribution proposition is not proved by this construction. Its use has been removed.
 
@@ -564,7 +567,7 @@ The final intervals still have two or three members, are nonadjacent, and have e
 
 ### Covering lemma
 
-The exact original sparse-covering statement can be retained and proved from Lemmas C1–C2. For the new correction construction, use Corollary C4 with $C=8$: the input is a finite set of positive integers at most $8q^\varepsilon$, each a unit modulo $q$, with cardinality at least $q^{7\varepsilon/8}$. The conclusion is an actual subset, not a multiset, of cardinality at most $\lfloor q^{\varepsilon/2}\rfloor$, whose inverses sum to the prescribed residue modulo the full modulus $q$.
+*(As implemented: the certificate proves the covering statement below by the GAP argument, `Erdos289.lemma3_wide`, not by Lemmas C1–C2.)* The exact original sparse-covering statement can be retained and proved from Lemmas C1–C2. For the new correction construction, use Corollary C4 with $C=8$: the input is a finite set of positive integers at most $8q^\varepsilon$, each a unit modulo $q$, with cardinality at least $q^{7\varepsilon/8}$. The conclusion is an actual subset, not a multiset, of cardinality at most $\lfloor q^{\varepsilon/2}\rfloor$, whose inverses sum to the prescribed residue modulo the full modulus $q$.
 
 The weighted powerset proof includes distinctness and the size restriction directly. It covers nonunit frequencies and composite moduli. It neither assumes nor proves the general GAP structural assertion.
 
@@ -601,8 +604,8 @@ After the new arguments are formalized, the expected dependencies are:
 | Liu–Sawhney | Retained through the reported proved bridge |
 | Mertens second theorem | Retained through the reported proved bridge |
 | Divisor bound | Retained through the reported proved bridge |
-| CFHMPSV structure | Unused; not proved by this argument |
-| Bourgain–Garaev | Unused; not proved by this argument |
+| CFHMPSV structure | Unused; not proved by this argument *(as implemented: used, supplied by the vendored formal proof)* |
+| Bourgain–Garaev | Unused; not proved by this argument *(as implemented: unused)* |
 | Erdős–Turán | Unused in this proof path |
 
 On the maintainer's reported status of the three retained bridges, completing this rewrite would leave only the standard Lean axioms in the terminal theorem's report. That is an expectation to verify with the actual compiled theorem, not a claim about a build performed here.
@@ -664,7 +667,7 @@ Thus this fallback also preserves the terminal endpoint bound $20k$, but retains
 
 ## 8. Recommended implementation sequence
 
-1. Prove Lemmas C1–C2 and Corollary C4, first with $C=2$. This removes the CFP dependency without altering the old fibers or downstream estimates.
+1. Prove Lemmas C1–C2 and Corollary C4, first with $C=2$. This removes the CFP dependency without altering the old fibers or downstream estimates. *(Not carried out; the certificate keeps the GAP-based covering lemma and the CFP input.)*
 2. Generalize that same corollary to $C=8$; only the fixed upper-bound constant changes.
 3. Prove the complementary identities, sieve deletions, and distinct-slot claims in Lemma F1.
 4. Prove Lemma F2 using a finite bit cube, its product-average identity, and the telescoping union bound.

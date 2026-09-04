@@ -8,13 +8,13 @@ This file connects `Statement k` (and the eventually-true form of it) to the
 externally audited `FamilyWitness` and `CandidateStatement` from
 `Erdos289.Intervals`.
 
-`Erdos289.Expert` is intentionally not imported: it declares its own
-`Problem289Witness` structure in the `Erdos289` namespace, which collides
-with the audited `Problem289Witness` in `Erdos289.Intervals` (same name,
-same namespace) and makes the two files mutually unimportable. This file's
-proof of `Statement.familyWitness` reimplements the consecutive-separation
+`Erdos289.Expert` is not imported here: this file's proof of
+`Statement.familyWitness` reimplements the consecutive-separation
 induction from `Statement.problem289` directly, so it needs only `Defs`
-and `Intervals`.
+and `Intervals`. (An earlier name collision between `Expert`'s witness
+structure and the audited `Problem289Witness` in `Erdos289.Intervals` has
+been resolved by renaming the former to `Problem289WitnessIv`; the root
+module `Erdos289.lean` imports both files.)
 -/
 
 namespace Erdos289

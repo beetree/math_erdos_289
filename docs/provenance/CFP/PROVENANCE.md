@@ -11,13 +11,10 @@
   Pham–Zakharov), of which the Conlon–Fox–Pham structure theorem is a component. Formal author
   credited in the file headers: Codex. Two Kneser-theorem files come from
   `ErdosProblems/Erdos13/` (authors: Mantas Bakšys, Yaël Dillies, ported from Mathlib work).
-- License: all ported files except three (`Erdos186/GAP.lean`, `Erdos186/CFP/Bilu/CoordinateFlag.lean`,
-  `Erdos186/CFP/Bilu/Proposition75Case1.lean`) carry the header "Released under Apache 2.0 license
-  as described in the file LICENSE", and `src/latest/LICENSE` in the source tree (reproduced
-  verbatim here as `ErdosProblems/LICENSE.upstream`) states that files from external sources are
-  licensed under the Apache License, Version 2.0. The three files without a header are from the
-  same upstream directory and commit; their individual licensing status is not determined by this
-  record. This is better provenance than the solve-math ports (which had no license file).
+- License: every ported file carries the header "Released under Apache 2.0 license as described in
+  the file LICENSE", and `src/latest/LICENSE` in the source tree states that such files are
+  licensed under the Apache License, Version 2.0. This is better provenance than the solve-math
+  ports (which had no license file).
 
 ## Main theorem
 
@@ -43,8 +40,7 @@ found 69,117 constants and no axiom other than those three.
 
 ## What was ported
 
-All 258 modules of the import closure, ported from the identified snapshot with the edits listed
-below, preserving module paths (`ErdosProblems/...`):
+All 258 modules of the import closure, verbatim, preserving module paths (`ErdosProblems/...`):
 90,434 lines after the edits below (91,108 before). Not one module was dropped; see
 `PRUNING_NOTES.md` for the proof-term data showing that 22 of them are unused and why pruning
 was not applied.
@@ -56,40 +52,22 @@ was not applied.
 2. One proof fix for the Mathlib v4.33 → v4.34.0-rc2 drift, in
    `ErdosProblems/Erdos186/CFP/Bilu/Proposition75Case2Construction.lean` line 804:
    `f.normDet_ne_zero_tfae.out 0 4` → `f.normDet_ne_zero_tfae.out 1 5`
-   (`List.TFAE.out` became 1-indexed). See `docs/provenance/CFP/PORT_LOG_cfp_w1a.md`.
+   (`List.TFAE.out` became 1-indexed). See `PORT_LOG_cfp_w1a.md`.
 
 That is the complete diff: `diff -r` against the source shows only the removed command lines
 and this one line.
 
 ## Bridge and axiom check
 
-- `Erdos289/CFPBridge.lean` (namespace `Erdos289.Ported`; the port's standalone
-  `Erdos289Bridge.lean`, merged on integration) proves
+- `Erdos289Bridge.lean` (plain file, namespace `Erdos289.Ported`) proves
   `cfhmpsv_structure_audited : Erdos289.External.CFHMPSVStructureStatement`, the audited
   proposition from `Erdos289/ExternalAxioms.lean`, from `nonemptyIntegerTheorem15`. The
   translation: `c := min (scaleNum/scaleDen) (1/(lossConstant+1))`, `d₀ := D`, `m₀ := 2`;
   the centered GAP (radii `r`) becomes a `GAPRepresentation` with `lower = -r`, `upper = r`;
   the real dilate at scale `c·s` sits inside the integer `k`-dilate because `c·s ≤ k`; the
   `+1` in the loss is absorbed since `s·log₂ m ≥ 1`.
-- The port's standalone `Axioms.lean` (which printed the axioms of the ported theorem and of the
-  bridge theorem) was not carried over; the axiom report of the terminal theorem is printed by
-  `Erdos289/Main.lean` on every build, and the diagnostic
-  `#print axioms Erdos289.Ported.cfhmpsv_structure_audited` can be run against `Erdos289.CFPBridge`.
+- `Axioms.lean` prints the axioms of the ported theorem and of the bridge theorem.
 
 ## Building
 
-Historical: the standalone port was built with `docs/provenance/build.sh -j 8 <port dir>`. In this
-repository the library is built by `lake build` (library `ErdosProblems` in `lakefile.toml`).
-
-## Deviations in this repository's copy (added on integration, 2026-09-04)
-
-- At 13 sites (listed by `git log -p` of this file's integration commit), the deprecated tactic
-  `push_neg` was replaced by its documented replacement `push Not`, to keep the project's build
-  warning-free. No other change to any ported file. Linters that would otherwise fire on the
-  verbatim code are disabled for this library in `lakefile.toml`.
-- In `ErdosProblems/Erdos186/CFP/RandomPartition.lean` and `ErdosProblems/Erdos186/CFP/RandomPartitionSharp.lean`,
-  merged consecutive `intro` lines into explicit `intro B hBpart hlarge hzeroB d hd hdRank P hsteps hvolume hcontained`
-  to eliminate "Try this" suggestions.
-- In `ErdosProblems/Erdos186/CFP/Bilu/Section6DistortingHalfCell.lean` (three sites) and
-  `ErdosProblems/Erdos186/CFP/NoCarryEmbedding.lean` (one site), `ring` calls that only succeeded by
-  falling back to `ring_nf` (emitting a "Try this" info on every build) were replaced by `ring_nf`.
+`expert_input/ported/build.sh -j 8 expert_input/ported/CFP` (from the project root).

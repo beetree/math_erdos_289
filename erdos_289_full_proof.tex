@@ -97,7 +97,7 @@ The answer to Problem 289 is affirmative: for all sufficiently large $k$ there e
 Take $I_i=[a_i,b_i]$ from Theorem~\ref{thm:main}. For $i<j$ the inequalities $b_i+1<a_{i+1}\le a_j$ show that $I_i$ and $I_j$ are disjoint, hence distinct, and that the integer $b_i+1$ lies in neither of them, so they are not adjacent. Each $|I_i|\in\{2,3\}$ is at least $2$, and the reciprocal sum is the same.
 \end{proof}
 
-The separation requirement is the substance of the problem. If adjacent intervals were permitted, any interval of length at least four could be cut into adjacent pieces of lengths two and three, so the number $k$ of intervals would carry no information; and as observed in the discussion of \cite{EP289}, without the restrictions the question is easy. Theorem~\ref{thm:main} says more than the problem asks: the intervals have length two or three, and all of them lie in $[1,20k]$. The constant $20$ is not optimized; it arises from the far band $[4k,20k]$ used in Section~\ref{sec:main}, where the only requirement is the inequality $16\gamma>1$ in \eqref{eq:gammabounds}.
+The separation requirement is the substance of the problem. Allowing adjacency would permit splitting an interval of length at least four into adjacent pieces of lengths two and three, increasing the interval count without changing the union or its reciprocal mass; and as observed in the discussion of \cite{EP289}, without the restrictions the question is easy. Theorem~\ref{thm:main} says more than the problem asks: the intervals have length two or three, and all of them lie in $[1,20k]$. The constant $20$ is not optimized; it arises from the far band $[4k,20k]$ used in Section~\ref{sec:main}, where the only requirement is the inequality $16\gamma>1$ in \eqref{eq:gammabounds}.
 
 \begin{remark}\label{rem:two}
 The condition $a_i\ge2$ in \eqref{eq:main} is automatic once the other conditions hold. If some interval began at $1$, its length condition would make it contain both $1$ and $2$, so its reciprocal mass alone would be at least $1+\tfrac12>1$, while every other interval has positive mass; this contradicts total mass one. The formal target in Appendix~\ref{app:cert} requires only $a_i\ge1$, and this observation bridges the two formulations. The construction below also gives $a_i\ge2$ directly.
@@ -123,7 +123,7 @@ The descent works as follows. Let $q=p^a$ be the largest prime power in the curr
 \[
 w_\sigma(qm)=\frac1{qm}+\frac1{qm+\sigma},
 \]
-and modulo $q$ the first term behaves like $m^{-1}/q$ while the second is a junk term whose denominator involves only smaller prime powers. Lemma~\ref{lem:fiber} produces, by an elementary construction, a fiber of about $q^{\varepsilon}$ such multipliers: for each auxiliary parameter $t$ the two complementary multipliers $m_1$ and $m_2$ with $m_1+m_2=t$ (or $4t$) satisfy $qm_1\pm1=rt$ and $qm_2\mp1=(q-r)t$ for a modular inverse $r$, so one of them is coprime to $p$, and a sieve on $t$ together with the divisor bound makes the neighbour smooth. No equidistribution of modular inverses is needed. Lemma~\ref{lem:cover} shows that the inverses of a sparse set of size $q^{7\varepsilon/8}$ already cover every residue modulo $q$ using at most $q^{\varepsilon/2}$ summands. Subtracting the corresponding pair masses therefore removes the factor $p^a$ from the denominator while introducing only smaller prime powers. This is the obstacle peculiar to pairs, as opposed to single unit fractions: the junk term $1/(qm+\sigma)$ must not reintroduce large prime powers.
+and modulo $q$ the first term behaves like $m^{-1}/q$ while the second is a junk term whose denominator involves only smaller prime powers. Lemma~\ref{lem:fiber} produces, by an elementary construction, a fiber of about $q^{\varepsilon}$ such multipliers: for each auxiliary parameter $t$ the two complementary multipliers $m_1$ and $m_2$ with $m_1+m_2=t$ (or $4t$) satisfy $qm_1\pm1=rt$ and $qm_2\mp1=(q-r)t$ for a modular inverse $r$ (with $t$ replaced by $4t$ throughout in the odd-prime case), so one of them is coprime to $p$, and a sieve on $t$ together with the divisor bound makes the neighbour smooth. No equidistribution of modular inverses is needed. Lemma~\ref{lem:cover} shows that the inverses of a sparse set of size $q^{7\varepsilon/8}$ already cover every residue modulo $q$ using at most $q^{\varepsilon/2}$ summands. Subtracting the corresponding pair masses therefore removes the factor $p^a$ from the denominator while introducing only smaller prime powers. This is the obstacle peculiar to pairs, as opposed to single unit fractions: the junk term $1/(qm+\sigma)$ must not reintroduce large prime powers.
 
 Signed pairs at different labels could overlap or touch. Each pair has one endpoint that is a multiple of four, its \emph{position}, and is either the left pair $[y-1,y]$ or the right pair $[y,y+1]$ at that position $y$. Lemma~\ref{lem:orient} chooses, for all the finitely many prime powers $q\le H$ at once, one orientation per position by a finite counting argument, and keeps at least a quarter of every fiber; the retained pairs are then pairwise separated across all labels. This choice is finite and is made after $H$ is known.
 
@@ -141,8 +141,9 @@ An earlier draft of this paper obtained the correction fibers from the Bourgain-
 \draw[->] (0,0) -- (12.6,0) node[right] {$n$};
 \node[below,font=\scriptsize] at (12.3,-0.35) {(log scale)};
 \newcommand{\tick}[2]{\draw (#1,-0.08) -- (#1,0.08); \node[below] at (#1,-0.1) {#2};}
-\tick{0.6}{$L$} \tick{4.2}{$KQ$} \tick{5.2}{$KBQ$} \tick{6.8}{$8H^{11/10}{+}1$}
-\tick{8.0}{$k/1024$} \tick{9.6}{$k$} \tick{10.4}{$4k$} \tick{12.0}{$20k$}
+\tick{0.6}{$L$} \tick{4.2}{$KQ$} \tick{5.2}{$KBQ$}
+\draw (6.8,-0.08) -- (6.8,0.08); \node[below=10pt] at (6.8,-0.1) {$8H^{11/10}{+}1$};
+\tick{8.4}{$k/1024$} \tick{9.7}{$k$} \tick{10.5}{$4k$} \tick{12.0}{$20k$}
 \draw[thick] (0.6,1.5) -- (6.8,1.5);
 \draw[thick] (0.6,1.38) -- (0.6,1.62);
 \draw[thick] (6.8,1.38) -- (6.8,1.62);
@@ -151,13 +152,13 @@ An earlier draft of this paper obtained the correction fibers from the Bourgain-
 \draw[thick] (4.2,0.58) -- (4.2,0.82);
 \draw[thick] (5.2,0.58) -- (5.2,0.82);
 \node[above] at (4.7,0.75) {core (Section~\ref{sec:core}), $\Theta(k^{4/5})$};
-\draw[thick] (8.0,0.7) -- (9.6,0.7);
-\draw[thick] (8.0,0.58) -- (8.0,0.82);
-\draw[thick] (9.6,0.58) -- (9.6,0.82);
-\draw[thick] (10.4,0.7) -- (12.0,0.7);
-\draw[thick] (10.4,0.58) -- (10.4,0.82);
+\draw[thick] (8.4,0.7) -- (9.7,0.7);
+\draw[thick] (8.4,0.58) -- (8.4,0.82);
+\draw[thick] (9.7,0.58) -- (9.7,0.82);
+\draw[thick] (10.5,0.7) -- (12.0,0.7);
+\draw[thick] (10.5,0.58) -- (10.5,0.82);
 \draw[thick] (12.0,0.58) -- (12.0,0.82);
-\node[above] at (10.0,0.75) {main pairs (Section~\ref{sec:main})};
+\node[above] at (10.2,0.75) {main pairs (Section~\ref{sec:main})};
 \end{tikzpicture}
 \caption{Where the three kinds of intervals live. Here $Q=\lfloor k^{4/5}\rfloor$, $H=KBQ+2$, and $K$, $B$, $L$ are constants.}\label{fig:line}
 \end{figure}
@@ -414,7 +415,7 @@ Let $N_q=|A_q|$. By \eqref{eq:S2} and \eqref{eq:envelopesize}, choose $L_0$ so l
 N_q\ge q^{15\varepsilon/16},\qquad N_q/4\ge q^{7\varepsilon/8},\qquad
 (9/10)^{q^{15\varepsilon/16}}\le\frac1{2q^2}.
 \end{equation}
-Fix $L\ge L_0$ and $H\ge L$. Consider the finite set $S$ of all positions $y_q(m)$, $m\in A_q$, $L<q\le H$. To each $y\in S$ assign a bit, choosing either the left interval $[y-1,y]$ or the right interval $[y,y+1]$; there are $2^{|S|}$ assignments, and we average over all of them with equal weight. Retain a candidate $(q,m)$ when its interval $J(q,m,\sigma_q(m))$ agrees with the bit at its position.
+Fix $L\ge L_0$ and $H\ge L$. If no prime power lies in $(L,H]$ there is nothing to prove, so assume there is one. Consider the finite set $S$ of all positions $y_q(m)$, $m\in A_q$, $L<q\le H$. To each $y\in S$ assign a bit, choosing either the left interval $[y-1,y]$ or the right interval $[y,y+1]$; there are $2^{|S|}$ assignments, and we average over all of them with equal weight. Retain a candidate $(q,m)$ when its interval $J(q,m,\sigma_q(m))$ agrees with the bit at its position.
 
 Fix a label $q$. Its $N_q$ positions are distinct, so the retained count $B_q$ is a sum of $N_q$ independent bits, each retained with probability $\tfrac12$. Averaging $2^{-B_q}$ over the assignments and expanding the product gives
 \[
@@ -426,9 +427,9 @@ and therefore, since $2^{-B_q}>2^{-N_q/4}$ whenever $B_q<N_q/4$,
 \end{equation}
 using $2^{1/4}\cdot3/4<9/10$ and \eqref{eq:S10}. Here $\Pr$ and $\E$ are normalized counts over the finite cube of bit assignments. A union bound over the labels gives total failure weight at most
 \begin{equation}\label{eq:S13}
-\frac12\sum_{q=L+1}^H\frac1{q^2}<\frac12\sum_{q=L+1}^H\frac1{q(q-1)}<\frac1{2L}<1 .
+\frac12\sum_{q=L+1}^H\frac1{q^2}\le\frac12\sum_{q=L+1}^H\frac1{q(q-1)}\le\frac1{2L}<1 .
 \end{equation}
-Hence some assignment retains at least $N_q/4\ge q^{7\varepsilon/8}$ candidates in every fiber; let $I_q$ be the retained multipliers. If the range of labels is empty there is nothing to prove.
+Hence some assignment retains at least $N_q/4\ge q^{7\varepsilon/8}$ candidates in every fiber; let $I_q$ be the retained multipliers.
 
 \emph{Separation.} Consider two retained intervals at positions $y<z$. Both are multiples of four, so $z\ge y+4$. The earlier interval is contained in $[y-1,y+1]$ and ends at $b\le y+1$; the later starts at $a'\ge z-1\ge y+3$. Thus $b+1\le y+2<a'$, the required omitted integer. At a common position only one orientation is retained, and a retained interval at that position and with that orientation is a single interval; two different labels cannot supply the same interval because the largest prime power dividing its endpoints identifies the label (Lemma~\ref{lem:fiber}), and within one fiber positions are distinct. So retained intervals at a common position coincide, and distinct retained intervals have distinct positions and are separated.
 \end{proof}
@@ -440,7 +441,7 @@ The bit selects left or right relative to the position $y$, not a uniform sign: 
 \subsection{A pigeonhole lemma}\label{sec:pigeon}
 
 \begin{proposition}[simultaneous approximation]\label{prop:pigeon}
-Let $q\ge2$, let $d_1,\ldots,d_d$ be integers, and let $a_1,\ldots,a_d\ge1$ be real numbers with $\Vgap=\prod_ia_i<q$. Put
+Let $q\ge2$ and $d\ge1$, let $d_1,\ldots,d_d$ be integers, and let $a_1,\ldots,a_d\ge1$ be real numbers with $\Vgap=\prod_ia_i<q$. Put
 \[
 B_i=\frac{4q}{a_i}\Bigl(\frac{\Vgap}q\Bigr)^{1/d}.
 \]
@@ -865,7 +866,7 @@ Large language models were used extensively in this work: in developing and chec
 
 \subsection{The formal target}\label{app:target}
 
-The audited file \texttt{Erdos289/Intervals.lean} declares, inside the namespace \texttt{Erdos289}:
+The audited file \texttt{Erdos289/Intervals.lean} declares, inside the namespace \texttt{Erdos289}, the following two items. The display is a schematic ASCII rendering of the declaration: the source uses Unicode ($\N$, $\to$, $\forall$, $\exists$, $\le$, $\vee$, $\sum$), and the exact text is in the file and is reproduced in the repository README.
 
 \begin{verbatim}
 structure FamilyWitness (k : Nat) where
@@ -881,7 +882,7 @@ def CandidateStatement : Prop :=
   exists k0 : Nat, forall k : Nat, k0 <= k -> Nonempty (FamilyWitness k)
 \end{verbatim}
 
-Here \texttt{NatInterval} is a pair of natural-number endpoints \texttt{lo}, \texttt{hi}; its carrier is the set of integers from \texttt{lo} to \texttt{hi} inclusive; \texttt{I.Separated J} means \texttt{I.hi + 1 < J.lo}; and \texttt{I.mass} is the exact rational sum of the reciprocals of the carrier. (Unicode symbols are rendered in ASCII above.) The field \texttt{positive} excludes the denominator zero; \texttt{short} gives exactly two or three members; \texttt{separated} with indices in \texttt{Fin k} gives exactly $k$ pairwise separated intervals; \texttt{total\_mass} is an exact equality in $\Q$. This is Theorem~\ref{thm:main} with the lower endpoint condition $a_i\ge1$ in place of $a_i\ge2$; Remark~\ref{rem:two} shows the two are equivalent given the other conditions. The intervals are indexed by $\{0,\ldots,k-1\}$ and are separated for every ordered pair of indices, which after sorting is the condition $b_i+1<a_{i+1}$.
+Here \texttt{NatInterval} is a pair of natural-number endpoints \texttt{lo}, \texttt{hi}; its carrier is the set of integers from \texttt{lo} to \texttt{hi} inclusive; \texttt{I.Separated J} means \texttt{I.hi + 1 < J.lo}; and \texttt{I.mass} is the exact rational sum of the reciprocals of the carrier. The field \texttt{positive} excludes the denominator zero; \texttt{short} gives exactly two or three members; \texttt{separated} with indices in \texttt{Fin k} gives exactly $k$ pairwise separated intervals; \texttt{total\_mass} is an exact equality in $\Q$. This is Theorem~\ref{thm:main} with the lower endpoint condition $a_i\ge1$ in place of $a_i\ge2$; Remark~\ref{rem:two} shows the two are equivalent given the other conditions. The intervals are indexed by $\{0,\ldots,k-1\}$ and are separated for every ordered pair of indices, which after sorting is the condition $b_i+1<a_{i+1}$.
 
 \subsection{Certificate metadata}\label{app:meta}
 
@@ -896,49 +897,62 @@ Lean toolchain & \texttt{leanprover/lean4:v4.34.0-rc2} (the file \texttt{lean-to
 Mathlib & \texttt{v4.34.0-rc2}, resolved revision \texttt{85e3a25e006c35636f0e53b0e9296caca2685bc0}\\
 Other Lake dependencies & as resolved in \texttt{lake-manifest.json} at the tag: batteries \texttt{d54dddc5}, aesop \texttt{18889deb}, Qq \texttt{507746ab}, proofwidgets \texttt{a8acbfd8}, importGraph \texttt{d8823026}, LeanSearchClient \texttt{ba67e212}, plausible \texttt{d9598f07}, Cli \texttt{ab3a82db}. The manifest at the tag has SHA-256 \texttt{119e31567cce06a9f16a6fe8dd2fab7636ce8483c1a2687efc38ced5bc53e773}.\\
 Vendored proofs & modules under \texttt{SolveMath/} (Liu--Sawhney, Mertens, divisor bound; 41 modules) and \texttt{ErdosProblems/} (the structure theorem, from the Erd\H{o}s 186 development; 258 modules), ported from the recorded reference snapshot of \texttt{plby/lean-proofs} \cite{plby}, commit \texttt{61fce10ef6671b1df0325f22bc76c8cd1f2fa554}, with the listed compatibility and warning-cleanup edits. Provenance, upstream authorship and every deviation are recorded in \texttt{ErdosProblems/PROVENANCE.md} and \texttt{SolveMath/PROVENANCE.md}. The ported structure-theorem files carry Apache-2.0 headers as recorded there.\\
-Bridges & \texttt{Erdos289.Ported.cfhmpsv\_structure\_audited} (file \texttt{Erdos289/CFPBridge.lean}) proves the audited proposition \texttt{CFHMPSVStructureStatement}; \texttt{bridge\_liu\_sawhney}, \texttt{bridge\_mertens\_second}, \texttt{bridge\_divisor\_bound} (file \texttt{Erdos289/ExternalBridge.lean}) connect the other three.\\
+Bridges & the structure input is supplied by \texttt{Erdos289.Ported.cfhmpsv\_structure\_audited} in \texttt{Erdos289/CFPBridge.lean}. The other audited statements are supplied by \texttt{Erdos289.Ported.liu\_sawhney\_audited}, \texttt{Erdos289.Ported.mertens\_second\_audited} and \texttt{Erdos289.Ported.divisor\_bound\_audited} in \texttt{SolveMath/Ported/}. The working aliases used by the construction (\texttt{Erdos289.liu\_sawhney}, \texttt{mertens\_second}, \texttt{divisor\_bound}, \texttt{cfhmpsv\_structure}) are connected to these proved inputs in \texttt{Erdos289/ExternalBridge.lean}. Earlier axiom-based bridge declarations remain in that file but are not the active aliases.\\
 Terminal declaration & \texttt{Erdos289.candidateStatement} (file \texttt{Erdos289/Main.lean})\\
 Terminal type & \texttt{Erdos289.CandidateStatement}\\
 Target file & \texttt{Erdos289/Intervals.lean}, SHA-256 \texttt{178e26470eb61a81f183761d053b697d1800bda64a622dd69858ad065f441871}, unchanged since the statement audit\\
 Archival specification & \texttt{Erdos289/ExternalAxioms.lean}, SHA-256 \texttt{6a4affa2cecb731c87ec21433305842bd3c0c92bc7c62a8ca86f410f3647c5d7}; its six assumed declarations are not in the dependency chain\\
 Axioms & \texttt{[propext, Classical.choice, Quot.sound]}\\
-Build & the maintainer reports a warning-free \texttt{lake build} at the tag, with the axiom report printed by \texttt{Erdos289/Main.lean}\\
+Build & warning-free \texttt{lake build} at the tag from a fresh clone, with the axiom report printed by \texttt{Erdos289/Main.lean}; transcript below\\
 \bottomrule
 \end{tabular}
 \end{center}
 
-The following transcript was recorded by the maintainer at the tag:
+The following transcript (long lines wrapped for the page) was recorded on 4 September 2026 from a fresh clone of the repository checked out at the tag, with the pinned toolchain and the existing lockfile; the Mathlib oleans came from \texttt{lake exe cache get}, and every module of the three project libraries was compiled from source in the fresh clone.
 \begin{verbatim}
+$ git rev-parse HEAD
+6de963b7572b9ea27aa3339de85dc7254744687f
+$ git rev-parse 'v1.0-unconditional-certificate^{commit}'
+6de963b7572b9ea27aa3339de85dc7254744687f
 $ cat lean-toolchain
 leanprover/lean4:v4.34.0-rc2
+$ sha256sum Erdos289/Intervals.lean lake-manifest.json
+178e26470eb61a81f183761d053b697d1800bda64a622dd69858ad065f441871
+  Erdos289/Intervals.lean
+119e31567cce06a9f16a6fe8dd2fab7636ce8483c1a2687efc38ced5bc53e773
+  lake-manifest.json
 $ lake exe cache get
 $ lake build
-i [9101/9104] Replayed Erdos289.Main
+i [9101/9104] Built Erdos289.Main (3.2s)
 info: Erdos289/Main.lean:21:0: 'Erdos289.candidateStatement' depends on
   axioms: [propext, Classical.choice, Quot.sound]
 Build completed successfully (9104 jobs).
+$ lake env lean AxiomCheck.lean
+Erdos289.candidateStatement : Erdos289.CandidateStatement
+'Erdos289.candidateStatement' depends on axioms:
+  [propext, Classical.choice, Quot.sound]
+'Erdos289.Ported.cfhmpsv_structure_audited' depends on axioms:
+  [propext, Classical.choice, Quot.sound]
+'Erdos289.Ported.liu_sawhney_audited' depends on axioms:
+  [propext, Classical.choice, Quot.sound]
+'Erdos289.Ported.mertens_second_audited' depends on axioms:
+  [propext, Classical.choice, Quot.sound]
+'Erdos289.Ported.divisor_bound_audited' depends on axioms:
+  [propext, Classical.choice, Quot.sound]
 \end{verbatim}
-
-\emph{Audit scope.} In preparing this revision, the axiom report was re-run on the author's machine from the existing local build of the repository at commit \texttt{1ad8794}, whose Lean sources differ from the tag only in the compatibility file \texttt{Erdos289/Compat.lean}, which the terminal theorem does not import. The commands
-\begin{verbatim}
-lake build Erdos289.Main
-lake env lean AxiomCheck.lean
-\end{verbatim}
-with the file \texttt{AxiomCheck.lean} containing
+Here \texttt{AxiomCheck.lean} is the file
 \begin{verbatim}
 import Erdos289.Main
 #check (Erdos289.candidateStatement : Erdos289.CandidateStatement)
 #print axioms Erdos289.candidateStatement
+#print axioms Erdos289.Ported.cfhmpsv_structure_audited
+#print axioms Erdos289.Ported.liu_sawhney_audited
+#print axioms Erdos289.Ported.mertens_second_audited
+#print axioms Erdos289.Ported.divisor_bound_audited
 \end{verbatim}
-reported the build up to date and printed the type and the same three axioms. A from-scratch rebuild at the tagged checkout was not performed for this revision; no independent third party has yet reproduced the certificate. A reproducibility check should run from the pinned checkout with its existing lockfile, without updating dependency revisions, and record
-\begin{verbatim}
-git rev-parse HEAD
-git rev-parse 'v1.0-unconditional-certificate^{commit}'
-cat lean-toolchain
-sha256sum Erdos289/Intervals.lean lake-manifest.json
-lake build
-\end{verbatim}
-followed by the check file above. The exact target type and the complete axiom report are the relevant mathematical checks; a warning-free build is hygiene. An unused axiom declaration elsewhere in the repository does not make the terminal theorem conditional.
+whose output is shown; the last four reports are diagnostics for the retained theorem interfaces, and the terminal report is the essential gate. The build produced no errors and no warnings.
+
+\emph{Audit scope.} The transcript above was produced on the author's side, on the maintainer's machine, from a fresh checkout; it is not a reproduction by an independent third party, and no such reproduction has yet been reported. A reviewer who audited the source tree of this revision without a Lean toolchain confirmed the hashes and the import structure but could not run the build. To reproduce, start from a fresh checkout of the pinned tag with its existing lockfile, do not update dependency revisions, and run the commands above. The exact target type and the complete axiom report of the lowercase theorem \texttt{Erdos289.candidateStatement} are the relevant mathematical checks; printing the axioms of the proposition \texttt{Erdos289.CandidateStatement} is not the proof audit, and a warning-free build is hygiene. An unused axiom declaration elsewhere in the repository does not make the terminal theorem conditional.
 
 \subsection{Correspondence between the paper and the formalization}\label{app:corr}
 
@@ -964,7 +978,15 @@ Final count and mass & exactly $R+M+C_H=k$; core extensions preserve the count; 
 \end{tabular}
 \end{center}
 
-Where the formal proof uses stronger intermediate estimates than the displayed ones, the displayed bounds follow from them; in particular the formal lower bound in the covering lemma is the explicit inequality \eqref{eq:G4}, and the formal mass bound is \eqref{eq:D6} summed as in \eqref{eq:D7}.
+The paper and the formalization prove the same covering lemma with different intermediate estimates. The formalization uses an explicit fixed power loss in the divisor-count step: the lemma \texttt{paper\_steps\_4\_5} (file \texttt{Erdos289/Lemma3Steps45.lean}) proves, from the retained-set estimate $|J|\ge q^{7\varepsilon/8}/2$ and a divisor majorant of the form $\max\{n_0,x^{\varepsilon/4000}\}$,
+\[
+\Vgap\ge\frac{q^{1-d\varepsilon/8-d\varepsilon/500}}{(16Cd)^d}.
+\]
+This differs from the divisor-envelope bound \eqref{eq:G4}, which uses $|J|\ge3m/4$ and $\Delta_C(q)$, and neither bound is claimed to be the other; but it is sufficient for the same rank conclusion. For $d\ge2$ its exponent exceeds the upper-bound exponent of \eqref{eq:G2} by
+\[
+\varepsilon\Bigl(\frac{3d-4}8-\frac d{500}\Bigr)>0,
+\]
+which at $d=2$ is $\varepsilon(1/4-1/250)$ and increases with $d$; for $d=1$ the progression-length exponent is $1+(3/8-1/500)\varepsilon>1$. Both positivity claims are uniform in the bounded rank $d\le d_0$. The signed descent uses the common mass bound \eqref{eq:D6} summed as in \eqref{eq:D7}, giving $120L^{-1/40}$ in both presentations. Other harmless differences: the formal odd-prime construction inverts $4t$ rather than solving $4rt\equiv-1$, which exchanges the two candidates; the formal first sieve uses $\eta=\varepsilon/20000$ with allowance $M_q/200$; the orientation count averages $(81/256)^{B_q}$ rather than $2^{-B_q}$; the density proof splits the labels at a smaller exponent; the cancellation uses a product denominator rather than a least common multiple; and the auxiliary avoidance condition is stronger than the displayed distance two. None of these changes the terminal target or adds an axiom, and the proof scripts are not a line-for-line translation of every displayed estimate.
 
 \begin{thebibliography}{CFHMPSV}
 

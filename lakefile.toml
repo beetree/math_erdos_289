@@ -18,15 +18,15 @@ rev = "v4.34.0-rc2"
 [[lean_lib]]
 name = "Erdos289"
 
-# Verbatim ports of axiom-clean proofs of classical inputs (see Erdos289/Ported.lean and
-# expert_input/ported/*/PROVENANCE.md for provenance).
+# Ports of axiom-clean proofs of classical inputs (Liu–Sawhney, Mertens, divisor bound); see
+# SolveMath/PROVENANCE.md and docs/provenance/ for provenance and the documented edits.
 [[lean_lib]]
 name = "SolveMath"
-# Verbatim third-party ports: do not report deprecations/lints we will not fix in place.
+# Third-party ports: do not report deprecations/lints we will not fix in place.
 leanOptions = { linter.deprecated = false, linter.unusedSimpArgs = false, linter.style.haveILetI = false, linter.unusedVariables = false, linter.defProp = false, linter.unnecessarySimpa = false, linter.unusedTactic = false, linter.unnecessarySeqFocus = false, linter.unusedSectionVars = false, linter.unreachableTactic = false }
 
-# Verbatim port of the Conlon–Fox–Pham structure theorem from plby/lean-proofs (Apache-2.0);
-# see ErdosProblems/PROVENANCE.md.
+# Port of the Conlon–Fox–Pham structure theorem from plby/lean-proofs (Apache-2.0 headers; see
+# ErdosProblems/PROVENANCE.md and ErdosProblems/LICENSE.upstream for the documented edits and license).
 [[lean_lib]]
 name = "ErdosProblems"
 leanOptions = { warn.classDefReducibility = false, linter.deprecated = false, linter.unusedSimpArgs = false, linter.style.haveILetI = false, linter.unusedVariables = false, linter.defProp = false, linter.unnecessarySimpa = false, linter.unusedTactic = false, linter.unnecessarySeqFocus = false, linter.unusedSectionVars = false, linter.unreachableTactic = false }

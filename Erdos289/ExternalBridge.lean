@@ -6,19 +6,32 @@ import SolveMath.Ported.LiuSawhney
 import Erdos289.CFPBridge
 
 /-!
-# Bridging the author's audited external axioms to our statements
+# The literature inputs, supplied by proved (vendored) theorems
 
-This file proves our five external axioms (`Erdos289.liu_sawhney`, `Erdos289.cfhmpsv_structure`,
-`Erdos289.bourgain_garaev`, `Erdos289.mertens_second`, `Erdos289.divisor_bound`) as theorems from
-the author's independently-audited axiom module `Erdos289.External.Assumed`, so that
-`#print axioms` on downstream results shows only the audited `Erdos289.External.Assumed.*`
-axioms.
+This file connects the working statements used by the construction
+(`Erdos289.liu_sawhney`, `Erdos289.cfhmpsv_structure`, `Erdos289.mertens_second`,
+`Erdos289.divisor_bound`) to their proofs:
+
+* `liu_sawhney`, `mertens_second`, `divisor_bound` are aliases of the ported proofs
+  `Erdos289.Ported.liu_sawhney`, `Erdos289.Ported.mertens_second`, `Erdos289.Ported.divisor_bound`
+  (`SolveMath/Ported/*.lean`); the audited-form statements are `Erdos289.Ported.*_audited` in the
+  same files.
+* `cfhmpsv_structure` is `bridge_cfhmpsv_structure` below, proved from
+  `Erdos289.Ported.cfhmpsv_structure_audited` (`Erdos289/CFPBridge.lean`, vendored CFP proof).
+
+The declarations `bridge_liu_sawhney`, `bridge_mertens_second`, `bridge_divisor_bound` and
+`bridge_bourgain_garaev` below are **historical**: they derive the same statements from the
+archived axiom module `Erdos289.External.Assumed` (`Erdos289/ExternalAxioms.lean`). They are not
+the active aliases and are not in the dependency chain of the terminal theorem
+`Erdos289.candidateStatement`, whose axiom report is `[propext, Classical.choice, Quot.sound]`.
 -/
 
 namespace Erdos289
 
 open Filter Finset
 open scoped BigOperators
+
+/-! ## Historical bridges from the archived axiom module (not used by the terminal theorem) -/
 
 theorem bridge_liu_sawhney (ζ : ℝ) (hζ0 : 0 < ζ) (hζ1 : ζ < 1 / 2) :
     ∀ᶠ N : ℕ in atTop, ∀ A ⊆ Finset.Icc 1 N,
@@ -274,7 +287,9 @@ For every fixed `0 < ζ < 1/2`, for all sufficiently large `N`, every subset `A`
 `[1, N]` with density at least `1 - 1/e + ζ` contains a subset `D` whose reciprocals sum
 to exactly `1`.
 
-Derived from the audited axiom `Erdos289.External.Assumed.liu_sawhney` via the bridge above. -/
+Supplied by the ported proof `Erdos289.Ported.liu_sawhney` (`SolveMath/Ported/LiuSawhney.lean`);
+the audited-form statement is `Erdos289.Ported.liu_sawhney_audited`. The historical
+`bridge_liu_sawhney` above (from the archived axiom) is not the active alias. -/
 alias liu_sawhney := Ported.liu_sawhney
 
 /-- **Conlon–Fox–He–Mubayi–Pham–Suk–Verstraëte**, *A question of Erdős and Graham on
@@ -302,18 +317,26 @@ For every sufficiently small fixed `c > 0`, the short Kloosterman-type sum
 `∑_{n ≤ N, (n,m)=1} e_m(a n⁻¹)` is `o(N)` as the modulus `m → ∞`, uniformly in
 `m^c < N < m` and in coefficients `a` coprime to `m`.
 
-Derived from the audited axiom `Erdos289.External.Assumed.bourgain_garaev` via the bridge above. -/
+Historical: derived from the archived axiom `Erdos289.External.Assumed.bourgain_garaev` via the
+bridge above. Not used by the terminal theorem (the signed-fiber construction replaces the
+equidistribution argument). -/
 alias bourgain_garaev := bridge_bourgain_garaev
 
 /-- **Mertens' second theorem**: `∑_{p ≤ x} 1/p = log log x + B₁ + o(1)` for a constant
 `B₁`. Mathlib does not currently contain this asymptotic (checked: no lemma involving
 `Mertens`, and `Nat.primeCounting`/Chebyshev files only give prime-counting bounds, not
-the reciprocal-prime sum). Taken as an unproved classical input. -/
+the reciprocal-prime sum). Supplied by the ported proof `Erdos289.Ported.mertens_second`
+(`SolveMath/Ported/MertensSecond.lean`); the audited-form statement is
+`Erdos289.Ported.mertens_second_audited`. The historical `bridge_mertens_second` above is not the
+active alias. -/
 alias mertens_second := Ported.mertens_second
 
 /-- The uniform divisor bound `τ(n) = n^{o(1)}`. Mathlib does not currently contain this
 (checked: only the trivial bound `Nat.card_divisors_le_self : n.divisors.card ≤ n`, no
-`n^ε`-type divisor bound). Taken as an unproved classical input. -/
+`n^ε`-type divisor bound). Supplied by the ported proof `Erdos289.Ported.divisor_bound`
+(`SolveMath/Ported/DivisorBound.lean`); the audited-form statement is
+`Erdos289.Ported.divisor_bound_audited`. The historical `bridge_divisor_bound` above is not the
+active alias. -/
 alias divisor_bound := Ported.divisor_bound
 
 end Erdos289

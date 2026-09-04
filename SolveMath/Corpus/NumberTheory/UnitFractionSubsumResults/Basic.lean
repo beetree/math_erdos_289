@@ -187,7 +187,7 @@ public import SolveMath.Corpus.Analysis.UnitFractionFourierAnalysis.MajorArcs
 public import SolveMath.Corpus.Analysis.UnitFractionFourierAnalysis.CircleMethod
 public import SolveMath.Corpus.Analysis.UnitFractionAnalyticEstimates.TendstoLogCoeTop
 public import SolveMath.Corpus.Analysis.UnitFractionAnalyticEstimates.PartialSummation
-public import SolveMath.Corpus.Analysis.UnitFractionAnalyticEstimates.DivisorBound₁
+public import SolveMath.Corpus.Analysis.UnitFractionAnalyticEstimates.DivisorBound1
 public import SolveMath.Corpus.Analysis.UnitFractionAnalyticEstimates.AbsVonMangoldtDiv
 public import SolveMath.Corpus.Analysis.UnitFractionAnalyticEstimates.PrimeReciprocalEq
 public import SolveMath.Corpus.Analysis.UnitFractionAnalyticEstimates.WeakMertensThirdUpper

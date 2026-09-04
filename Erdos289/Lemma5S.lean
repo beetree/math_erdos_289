@@ -722,10 +722,6 @@ theorem USigned_density (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (L : ℕ) (A 
     exact_mod_cast hcardle
   linarith [hcardleR, hX1, hFstarle]
 
--- `Erdos289/SignedD1.lean` (proving `lemmaD1`) is being developed in parallel and does not exist
--- yet in this worktree; `lemma5S` is therefore left unassembled here (see the report at the end
--- of this file / the final PR message for the check performed).
-
 /-- **Lemma 5, signed version**: for every sufficiently large cutoff an auxiliary family avoiding
 the enlarged endpoint set exists. -/
 theorem lemma5S (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :

@@ -1,6 +1,6 @@
 module
 
-public import SolveMath.Corpus.Analysis.UnitFractionAnalyticEstimates.DivisorBound₁
+public import SolveMath.Corpus.Analysis.UnitFractionAnalyticEstimates.DivisorBound1
 public import SolveMath.Corpus.NumberTheory.MertensTheorems
 
 @[expose] public section

@@ -349,10 +349,10 @@ lemma intermediate_bound :
     · exact inv_nonneg.2 my_mul_thing
     · simp
 
--- `prime_proper_powers` moved to `DivisorBound₁.lean` (R6B wave 2) so it can also be
+-- `prime_proper_powers` moved to `DivisorBound1.lean` (R6B wave 2) so it can also be
 -- reused in `AbsVonMangoldtDiv.lean`, which is upstream of this file; it is still in
 -- scope here via the transitive import (this file imports `AbsVonMangoldtDiv.lean`,
--- which imports `DivisorBound₁.lean`).
+-- which imports `DivisorBound1.lean`).
 
 lemma is_O_reciprocal_difference_aux {x : ℝ} :
   |(∑ q ∈ (Finset.Icc 1 ⌊x⌋₊).filter IsPrimePow, (q : ℝ)⁻¹) -

@@ -2,39 +2,76 @@
 
 ## Verification transcript
 
-`lake build` on `main` produces no errors and no warnings; the single info line is the axiom
-report of the terminal theorem, printed by `Erdos289/Main.lean`:
+Recorded on 4 September 2026 from a fresh clone of this repository checked out at tag
+`v1.0-unconditional-certificate`, with the pinned toolchain and the existing lockfile (no
+dependency revision was updated). The Mathlib oleans came from `lake exe cache get`; every module
+of `Erdos289`, `SolveMath` and `ErdosProblems` was compiled from source in the fresh clone.
 
 ```console
+$ git rev-parse HEAD
+6de963b7572b9ea27aa3339de85dc7254744687f
+$ git rev-parse 'v1.0-unconditional-certificate^{commit}'
+6de963b7572b9ea27aa3339de85dc7254744687f
 $ cat lean-toolchain
 leanprover/lean4:v4.34.0-rc2
+$ sha256sum Erdos289/Intervals.lean lake-manifest.json
+178e26470eb61a81f183761d053b697d1800bda64a622dd69858ad065f441871  Erdos289/Intervals.lean
+119e31567cce06a9f16a6fe8dd2fab7636ce8483c1a2687efc38ced5bc53e773  lake-manifest.json
 $ lake exe cache get
 $ lake build
-ℹ [9101/9104] Replayed Erdos289.Main
+ℹ [9101/9104] Built Erdos289.Main (3.2s)
 info: Erdos289/Main.lean:21:0: 'Erdos289.candidateStatement' depends on axioms: [propext, Classical.choice, Quot.sound]
+✔ [9102/9104] Built Erdos289.Compat (3.5s)
+✔ [9103/9104] Built Erdos289 (2.9s)
 Build completed successfully (9104 jobs).
-$
+$ cat AxiomCheck.lean
+import Erdos289.Main
+#check (Erdos289.candidateStatement : Erdos289.CandidateStatement)
+#print axioms Erdos289.candidateStatement
+#print axioms Erdos289.Ported.cfhmpsv_structure_audited
+#print axioms Erdos289.Ported.liu_sawhney_audited
+#print axioms Erdos289.Ported.mertens_second_audited
+#print axioms Erdos289.Ported.divisor_bound_audited
+$ lake env lean AxiomCheck.lean
+Erdos289.candidateStatement : Erdos289.CandidateStatement
+'Erdos289.candidateStatement' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos289.Ported.cfhmpsv_structure_audited' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos289.Ported.liu_sawhney_audited' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos289.Ported.mertens_second_audited' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos289.Ported.divisor_bound_audited' depends on axioms: [propext, Classical.choice, Quot.sound]
 ```
 
-`propext`, `Classical.choice`, and `Quot.sound` are Lean's standard foundational axioms.
-No `sorryAx`, no `Lean.ofReduceBool`, and no project-declared axiom appears: the theorem
-`Erdos289.candidateStatement : Erdos289.CandidateStatement` is proved from Mathlib alone
-(Mathlib `v4.34.0-rc2`, revision `85e3a25e`, pinned in `lake-manifest.json`). The transcript
-above was recorded at tag `v1.0-unconditional-certificate` (commit `6de963b`).
+The build produced no errors and no warnings; the single info line is the axiom report printed
+by `Erdos289/Main.lean`. `propext`, `Classical.choice`, and `Quot.sound` are Lean's standard
+foundational axioms. No `sorryAx`, no `Lean.ofReduceBool`, and no project-declared axiom
+appears: the theorem `Erdos289.candidateStatement : Erdos289.CandidateStatement` is proved using
+Mathlib (`v4.34.0-rc2`, revision `85e3a25e`, pinned in `lake-manifest.json`) and the vendored
+proved lemmas under `SolveMath/` and `ErdosProblems/`, with only the stated standard foundational
+axioms. The last four lines are diagnostics for the retained theorem interfaces; the terminal
+report is the essential gate. This check was run by the author's side (the maintainer's
+machine); no independent third party has yet reproduced it.
 
 ## How to read this repository
 
-The trust chain has exactly two links.
+The trust chain has two links, plus the integrity of the checking environment.
 
-1. **The statement of faithfulness** (reproduced verbatim in the next section). It is
-   the human-checked claim that the formal proposition `Erdos289.CandidateStatement`,
-   as declared in the audited file `Erdos289/Intervals.lean`, is a faithful strengthening
-   of the nonadjacent formulation of Erdős Problem 289. This is the one thing a reader
-   must examine and believe; no machine can check it.
-2. **The Lean kernel.** Once the terminal theorem `Erdos289.CandidateStatement` is proved
-   and `#print axioms` on it reports only `propext`, `Classical.choice`, and `Quot.sound`,
-   nothing else needs to be trusted: not the manuscript, not the tactics, not the AI
-   that wrote the proof scripts, and not any cited paper.
+1. **The statement of faithfulness** (reproduced in the next section, with the status updates
+   noted there). It is the human-checked claim that the formal proposition
+   `Erdos289.CandidateStatement`, as declared in the audited file `Erdos289/Intervals.lean`,
+   is a faithful strengthening of the nonadjacent formulation of Erdős Problem 289. This is
+   the one thing a reader must examine and believe; no machine can check it.
+2. **The Lean kernel.** Once the terminal theorem `Erdos289.candidateStatement` (lowercase
+   `c`; it is the proof of the proposition `Erdos289.CandidateStatement`) is checked and
+   `#print axioms Erdos289.candidateStatement` reports only `propext`, `Classical.choice`,
+   and `Quot.sound`, the manuscript's analytic arguments, the tactics, the AI that wrote the
+   proof scripts, and the cited papers need not be trusted as independent authorities: the
+   proof terms and their dependencies supply the justification. Printing the axioms of the
+   proposition definition `CandidateStatement` is not the proof audit; the theorem is.
+
+The remaining trust is in this correspondence, in Lean's logical foundations and checker, and
+in the integrity of the checking environment and of the identified source artifact. A
+transcript does not authenticate itself: reproduce the check from a fresh checkout of the
+pinned revision (see "Terminal theorem and verification procedure").
 
 The audited file is included unchanged. Its SHA-256 is the one recorded in the
 statement of faithfulness:
@@ -124,7 +161,7 @@ $$
 
 That condition permits adjacent intervals. For example, $[4,5]$ and $[6,7]$ satisfy it, despite leaving no omitted integer. Our condition excludes this pair, since $5+1<6$ is false, while permitting $[4,5]$ and $[7,8]$. This demonstrates that the older separation predicate is insufficient; it is not an assertion that the truth values of the two complete existential conjectures differ. Consequently, a proof of that Formal Conjectures statement alone would not establish the intended nonadjacent assertion. Merging adjacent intervals changes their number, and splitting an interval into adjacent pieces cannot be used to reach the required count. The present target requires separation between **every** ordered pair of final intervals, regardless of their role in the construction.
 
-The project also defines `Erdos289.Problem289Statement`, which permits any interval length at least two and an arbitrary fixed positive integer $C$ in the bound $b_i\le Ck$. Despite its name, this still includes a linear-bound strengthening of the problem stated above. The source contains a draft implication `candidate_implies_problem289`, obtained by taking $C=20$. This implication assumes `CandidateStatement`; it does not prove that assumption.
+The project also defines `Erdos289.Problem289Statement`, which permits any interval length at least two and an arbitrary fixed positive integer $C$ in the bound $b_i\le Ck$. Despite its name, this still includes a linear-bound strengthening of the problem stated above. The source contains the proved implication `candidate_implies_problem289`, obtained by taking $C=20$. This implication assumes `CandidateStatement`; it does not prove that assumption.
 
 For the intended kernel guarantee, the completed artifact must contain an **unconditional theorem of type `Erdos289.CandidateStatement`**, with its definitions agreeing with those audited here. A theorem that assumes the candidate, its construction, or unproved analytic inputs would certify only an implication. Merely defining the proposition, compiling auxiliary lemmas, or obtaining a successful build is insufficient.
 
@@ -146,7 +183,7 @@ The toolchain is Lean `v4.34.0-rc2` with Mathlib `v4.34.0-rc2` (revision `85e3a2
 
 ## Terminal theorem and verification procedure
 
-The terminal theorem is intended to be
+The terminal theorem is
 
 ```lean
 theorem Erdos289.candidateStatement : Erdos289.CandidateStatement
@@ -159,7 +196,16 @@ with `CandidateStatement` and `FamilyWitness` exactly as in the audited
 lake build   # must succeed with no errors; the axiom report is printed by Erdos289/Main.lean
 ```
 
-For the unconditional certificate described in the statement of faithfulness, the axiom
+or, after the build, with a check file `AxiomCheck.lean` containing
+
+```lean
+import Erdos289.Main
+#check (Erdos289.candidateStatement : Erdos289.CandidateStatement)
+#print axioms Erdos289.candidateStatement
+```
+
+run `lake env lean AxiomCheck.lean`. Use the lowercase theorem name; `Erdos289.CandidateStatement`
+is the proposition, not the proof. For the unconditional certificate described in the statement of faithfulness, the axiom
 report must list only `propext`, `Classical.choice`, and `Quot.sound`.
 
 At tag `v1.0-unconditional-certificate` (commit `6de963b`) this is the case: the build is
@@ -169,49 +215,59 @@ record; none of its axioms is in the terminal theorem's dependency chain.
 
 ## Current status
 
-Complete. The formalization follows the manuscript except that Lemma 1 (the correction fibers,
-which the manuscript obtains from inverse equidistribution via Bourgain–Garaev and Erdős–Turán)
-is replaced by the author's elementary signed-fiber construction, recorded in
-`docs/elementary_replacements.md`, Sections 2–4. Paper section → Lean file:
+Complete, according to the certificate recorded above. The formalization and the accompanying
+manuscript (`erdos_289_full_proof.pdf`) use signed correction fibers and finite orientation
+selection. Sparse inverse covering retains the Conlon–Fox–Pham structure theorem, supplied by a
+vendored formal proof. Bourgain–Garaev and Erdős–Turán are not used by the terminal theorem. The
+paper and the Lean development differ in some intermediate estimates, as described in the paper's
+Appendix A.3 (for example the fixed-loss lower bound in `Lemma3Steps45.lean` versus the paper's
+divisor-envelope bound). Paper section → Lean file:
 
-| Component | File | Status |
-|---|---|---|
-| Audited target (`FamilyWitness`, `CandidateStatement`) | `Intervals.lean` | audited, unchanged |
-| Working definitions and `Statement k` | `Defs.lean` | proved |
-| Bridge `Statement k → FamilyWitness k`; corrected nonadjacent `Fin k → ℕ × ℕ` formulation (`erdos_289_nonadjacent_statement`, adapted from Formal Conjectures) | `Target.lean`, `Compat.lean` | proved |
-| Separated family → ordered statement | `Sorting.lean` | proved |
-| Literature inputs used (Liu–Sawhney; Conlon–Fox–Pham structure theorem; Mertens; divisor bound) | `ExternalBridge.lean`, `CFPBridge.lean`, vendored libraries | proved (vendored, kernel-checked) |
-| Signed correction fibers (replaces §2 Lemma 1): F1, F2, D1 | `SignedDefs.lean`, `SignedF1.lean`, `SignedF2.lean`, `SignedD1.lean`, `Sieve.lean` | proved |
-| §2 Lemma 2 (separation of unsigned pairs) | `Lemma2.lean` | proved |
-| §3 Lemma 3 (sparse inverse covering), widened to multipliers `≤ C·q^ε` | `Lemma3Basic.lean`, `Lemma3Steps45.lean`, `Lemma3.lean` | proved |
-| §4 Lemma 4 (powersmooth supply) | `Lemma4.lean` | proved |
-| §4 cancellation identity, signed form | `Cancel.lean`, `DenBound.lean`, `SignedCancel.lean` | proved |
-| §4 Lemma 5 (auxiliary pairs), signed form | `Lemma5.lean`, `Lemma5S.lean` | proved |
-| §4 correction procedure and mass bounds, signed form | `Descent.lean`, `DescentS.lean`, `CorrDataS.lean`, `Tail.lean`, `SignedTail.lean` | proved |
-| §5 Lemma 6 and the core | `Lemma6.lean`, `Core.lean`, `CoreS.lean`, `Harmonic.lean` | proved |
-| §6 main pairs | `MainPairs.lean`, `Greedy.lean` | proved |
-| §7 assembly | `AssemblyS2.lean` | proved |
-| Terminal theorem `candidateStatement` | `Main.lean` | proved; axiom report = `propext`, `Classical.choice`, `Quot.sound` |
-| Ported elementary lemmas from the author's starter | `Expert.lean` | proved |
+| Paper component | Section | Principal Lean files |
+|---|---:|---|
+| Audited target (`FamilyWitness`, `CandidateStatement`) | App. A.1 | `Intervals.lean` (audited, unchanged) |
+| Working definitions and `Statement k`; bridge to `FamilyWitness`; sorted statement | 8 | `Defs.lean`, `Target.lean`, `Sorting.lean`, `Compat.lean` |
+| Literature inputs (Liu–Sawhney; Conlon–Fox–Pham structure theorem; Mertens; divisor bound) | 2 | `ExternalBridge.lean`, `CFPBridge.lean`, `External.lean`, vendored libraries |
+| Signed fibers and finite orientation (Lemmas 1–2) | 3 | `SignedDefs.lean`, `SignedF1.lean`, `SignedF2.lean`, `Sieve.lean` |
+| Sparse inverse covering (Lemma 3, wide form with `C = 8`) | 4 | `Lemma3Basic.lean`, `Lemma3Steps45.lean`, `Lemma3.lean`, `CFPBridge.lean` |
+| Endpoint density, powersmooth supply, auxiliary pairs, signed cancellation, descent (Prop. 3, Lemmas 4–5, Prop. 4) | 5 | `SignedD1.lean`, `Lemma4.lean`, `Lemma5S.lean`, `SignedCancel.lean`, `DescentS.lean`, `SignedTail.lean`, `CorrDataS.lean` |
+| Protected core (Lemma 6, Prop. 5) | 6 | `Lemma6.lean`, `CoreS.lean`, `Harmonic.lean` |
+| Main pairs (Prop. 6) | 7 | `MainPairs.lean`, `Greedy.lean` |
+| Final assembly and terminal theorem | 8 | `AssemblyS2.lean`, `Sorting.lean`, `Target.lean`, `Main.lean` |
+| Elementary lemmas ported from the author's starter | — | `Expert.lean` |
+
+Files retained from the earlier unsigned development and not on the terminal theorem's path in
+the same role: `Lemma2.lean` (separation of the earlier unsigned pairs; **not** the paper's current
+Lemma 2, which is finite simultaneous orientation), `Lemma5.lean`, `Cancel.lean`, `DenBound.lean`,
+`Descent.lean`, `Tail.lean`, `Core.lean` (unsigned versions, some of which supply helper lemmas to
+their signed counterparts), and the historical axiom-based bridges in `ExternalBridge.lean`.
 
 ## Vendored proofs
 
-The `SolveMath` library holds 41 modules (about 30,700 lines) copied verbatim from Boris
-Alexeev's `plby/lean-proofs` corpus via the `solve-math` repository, each set minimized by
-walking the proof terms of the main theorem: 1 module for the divisor bound, 3 for Mertens,
-37 for Liu–Sawhney. The only entry points are the three bridge files `SolveMath/Ported/*.lean`,
-and the only `Erdos289` file importing them is `Erdos289/ExternalBridge.lean`.
-The `ErdosProblems` library holds the 258 modules (about 90,000 lines, Apache-2.0) of the
-Conlon–Fox–Pham structure theorem from the same corpus's Erdős 186 development, bridged to the
-audited statement in `Erdos289/CFPBridge.lean`; see `ErdosProblems/PROVENANCE.md`. Provenance, upstream authorship (Codex / GPT-5.6, no LICENSE
-file upstream) and every edit are recorded per port in `PROVENANCE.md` files kept with the
-reference copies outside the repository. No dependency on the `solve-math` repository exists.
+The `SolveMath` library holds 41 modules (about 30,700 lines) ported from Boris Alexeev's
+`plby/lean-proofs` corpus (commit `61fce10e`) via the `solve-math` repository, each set
+minimized by walking the proof terms of the main theorem: 1 module for the divisor bound, 3 for
+Mertens, 37 for Liu–Sawhney. The only entry points are the three bridge files
+`SolveMath/Ported/{DivisorBound,MertensSecond,LiuSawhney}.lean` (theorems `Erdos289.Ported.<name>`
+and `Erdos289.Ported.<name>_audited`), and the only `Erdos289` file importing them is
+`Erdos289/ExternalBridge.lean`. The `ErdosProblems` library holds the 258 modules (about 90,000
+lines; Apache-2.0 headers on all but three files, see `ErdosProblems/PROVENANCE.md` and
+`ErdosProblems/LICENSE.upstream`) of the Conlon–Fox–Pham structure theorem from the same corpus's
+Erdős 186 development, bridged to the audited statement by `Erdos289.Ported.cfhmpsv_structure_audited`
+in `Erdos289/CFPBridge.lean`. The files are ported from the identified snapshot with the documented
+changes (compatibility and warning-cleanup edits, and one filename made ASCII), not byte-identical
+copies. Provenance, upstream authorship (Codex / GPT-5.6; the `solve-math` route had no LICENSE
+file) and every edit are summarized in `SolveMath/PROVENANCE.md` and `ErdosProblems/PROVENANCE.md`;
+the full port records are included under `docs/provenance/`. The upstream reference snapshot
+itself is not included. No dependency on the `solve-math` repository exists.
 
 ## Layout
 
-- `erdos_289_full_proof.pdf`, `erdos_289_full_proof.tex`: the manuscript being formalized
-  (`scripts/build_proof_pdf.sh` rebuilds the PDF).
-- `docs/elementary_replacements.md`: the author's replacement argument for Lemma 1, as formalized.
+- `erdos_289_full_proof.pdf`, `erdos_289_full_proof.tex`: the manuscript accompanying the
+  formalization (`scripts/build_proof_pdf.sh` rebuilds the PDF).
+- `docs/elementary_replacements.md`: the author's replacement proposal (historical); its
+  Sections 2–4 (signed fibers) were formalized, its Section 1 (weighted-Fourier covering) was not.
+- `docs/provenance/`: the port records for the vendored proofs.
 - `Erdos289/`: the Lean sources; `Erdos289/Main.lean` holds the terminal theorem. The audited
   files `Intervals.lean` and `ExternalAxioms.lean` are included unchanged.
 - `SolveMath/`, `ErdosProblems/`: vendored proofs of the literature inputs (see "Vendored proofs").

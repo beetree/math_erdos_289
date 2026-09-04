@@ -23,9 +23,9 @@ cutoff `L` and every `H ≥ L`, from:
 * The eventual smallness of the divisor envelope (`Erdos289.Eenv_le_eventually`,
   `Erdos289.SignedD1G.venv_le`).
 
-This produces the (currently `sorry`-free at the level of this file) proof of
-`correctionDataS_exists`, matching the statement of the `sorry`ed
-`Erdos289.correctionDataS_exists` in `Erdos289/DescentS.lean`.
+This file proves `Erdos289.correctionDataS_exists` in full; it is the correction-data input
+consumed by `Erdos289.descentS` (`Erdos289/DescentS.lean`) and by the assembly
+(`Erdos289/AssemblyS2.lean`).
 -/
 
 namespace Erdos289

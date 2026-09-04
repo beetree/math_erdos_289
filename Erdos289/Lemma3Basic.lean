@@ -39,17 +39,17 @@ Theorem 2. It is organized as a chain of lemmas mirroring the paper's argument:
   injectively into boundedly many divisors of boundedly many integers.
 * `paper_steps_4_5`: the quantitative form of the paper's steps 4–5 (simultaneous
   approximation + the divisor-bound argument, paper's (3.2)): the active-coordinate product
-  `V` satisfies `V ≥ q^(1 - dε/8 - dε/500) / (16Cd)^d`. This is the one remaining `sorry` in
-  the file — see its docstring for exactly what is missing (a uniform-in-`d ≤ d₀` pigeonhole
-  box-count estimate) and what is proved instead (`hd1_and_big` inside `lemma3_core` derives
-  the paper's `d = 1` dichotomy and the final quantitative bound on `V` from this one
-  statement, in full, including all of the surrounding real-asymptotic bookkeeping).
+  `V` satisfies `V ≥ q^(1 - dε/8 - dε/500) / (16Cd)^d`. Proved in full in
+  `Erdos289/Lemma3Steps45.lean` (a uniform-in-`d ≤ d₀` pigeonhole box count plus the
+  divisor-count bound); `hd1_and_big` inside `lemma3_core` derives the paper's `d = 1`
+  dichotomy and the final quantitative bound on `V` from this one statement, including all of
+  the surrounding real-asymptotic bookkeeping. Note that this fixed-loss bound differs from
+  the paper's divisor-envelope display (paper (4.5)); both force rank one.
 * `lemma3_core`: assembles the pieces above into the full argument (paper's steps 2–6: active
-  coordinates, face counting (3.1), the `d = 1` dichotomy, and the final covering conclusion).
-  Every step is now proved in full except for the one `sorry` isolated inside
-  `paper_steps_4_5` above (threaded in as a black box).
+  coordinates, face counting, the `d = 1` dichotomy, and the final covering conclusion).
+  Every step is proved in full.
 
-`lemma3` itself is assembled from these pieces with no further `sorry`.
+`lemma3` and `lemma3_wide` are assembled from these pieces with no `sorry`.
 -/
 
 set_option maxRecDepth 100000

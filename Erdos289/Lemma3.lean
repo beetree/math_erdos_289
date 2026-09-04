@@ -39,17 +39,17 @@ Theorem 2. It is organized as a chain of lemmas mirroring the paper's argument:
   injectively into boundedly many divisors of boundedly many integers.
 * `paper_steps_4_5`: the quantitative form of the paper's steps 4–5 (simultaneous
   approximation + the divisor-bound argument, paper's (3.2)): the active-coordinate product
-  `V` satisfies `V ≥ q^(1 - dε/8 - dε/500) / (16Cd)^d`. This is the one remaining `sorry` in
-  the file — see its docstring for exactly what is missing (a uniform-in-`d ≤ d₀` pigeonhole
-  box-count estimate) and what is proved instead (`hd1_and_big` inside `lemma3_core` derives
-  the paper's `d = 1` dichotomy and the final quantitative bound on `V` from this one
-  statement, in full, including all of the surrounding real-asymptotic bookkeeping).
+  `V` satisfies `V ≥ q^(1 - dε/8 - dε/500) / (16Cd)^d`. Proved in full in
+  `Erdos289/Lemma3Steps45.lean` (a uniform-in-`d ≤ d₀` pigeonhole box count plus the
+  divisor-count bound); `hd1_and_big` inside `lemma3_core` derives the paper's `d = 1`
+  dichotomy and the final quantitative bound on `V` from this one statement, including all of
+  the surrounding real-asymptotic bookkeeping. Note that this fixed-loss bound differs from
+  the paper's divisor-envelope display (paper (4.5)); both force rank one.
 * `lemma3_core`: assembles the pieces above into the full argument (paper's steps 2–6: active
-  coordinates, face counting (3.1), the `d = 1` dichotomy, and the final covering conclusion).
-  Every step is now proved in full except for the one `sorry` isolated inside
-  `paper_steps_4_5` above (threaded in as a black box).
+  coordinates, face counting, the `d = 1` dichotomy, and the final covering conclusion).
+  Every step is proved in full.
 
-`lemma3` itself is assembled from these pieces with no further `sorry`.
+`lemma3` and `lemma3_wide` are assembled from these pieces with no `sorry`.
 -/
 
 set_option maxRecDepth 100000
@@ -91,8 +91,8 @@ coordinate vector `v` representing `0` …" to the end of the proof):
 
 * **The divisor-bound argument (paper's (3.2)).** For `j ∈ J`, the centered representative of
   `T * j mod q` has size `≤ R := 4 d q (V/q)^(1/d)`. Pairing it with `i ∈ I` such that
-  `j ≡ i⁻¹ (mod q)` produces `i * h = q * z + T` with `z` bounded and nonzero (`|i * h| ≤
-  q^(1+ε)`); the divisor bound `Erdos289.divisor_bound` shows each `z` arises from at most
+  `j ≡ i⁻¹ (mod q)` produces `i * h = q * z + T` with `z` bounded and `q * z + T ≠ 0` (`z = 0`
+  is allowed; `|i * h| ≤ q^(1+ε)`); the divisor bound `Erdos289.divisor_bound` shows each `z` arises from at most
   `q^(o(1))` pairs `(i, h)`, so counting pairs against `|J| ≥ m/2` forces
   `V ≥ q^(1 - d ε / 8 - o(1))`. For `d ≥ 2` this contradicts the face-counting bound above
   (since `(d-1)ε/2 - dε/8 = (3d-4)ε/8 > 0`), forcing `d = 1`.
@@ -130,15 +130,12 @@ inactive coordinate, an admissible *integer* point in the dilated (real-valued) 
 `hJsmall`, and threading `(GAP.dilate (c * s) P).set.Nonempty` (`hPne`) through from
 `cfhmpsv_structure`, matching what the concrete application actually supplies.
 
-**Remaining gap (round 3).** The quantitative form of the paper's steps 4–5 (simultaneous
-approximation combined with the divisor-bound argument, giving `(3.2)`) is isolated as the
-lemma `paper_steps_4_5` above, with a single `sorry` inside it; seeing why (uniformly
-controlling the multi-dimensional pigeonhole box count over `d ≤ d₀` needs the *actual*,
-generator-dependent upper bound on `V` from `(3.1)`, not merely `V < q`) and what remains true
-and provable is documented in that lemma's docstring. Every other step below — the coordinate
-extraction, face counting `(3.1)` itself, the `d = 1` dichotomy derived from `paper_steps_4_5`
-via a real-asymptotic argument uniform in `d ≤ d₀`, and the final one-dimensional covering
-argument — is proved in full. -/
+**Steps 4–5.** The quantitative form of the paper's steps 4–5 (simultaneous approximation
+combined with the divisor-bound argument) is the lemma `paper_steps_4_5`, proved in full in
+`Erdos289/Lemma3Steps45.lean` (the pigeonhole box count is controlled uniformly over `d ≤ d₀`
+using only `V < q`). Every step below — the coordinate extraction, face counting, the `d = 1`
+dichotomy derived from `paper_steps_4_5` via a real-asymptotic argument uniform in `d ≤ d₀`,
+and the final one-dimensional covering argument — is proved in full. -/
 lemma lemma3_core (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) (hc : 0 < c) (C : ℝ)
     (hC : 1 ≤ C) (d₀ : ℕ) :
     ∃ Q₀ : ℕ, ∀ q : ℕ, IsPrimePow q → Q₀ ≤ q →

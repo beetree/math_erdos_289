@@ -4,15 +4,14 @@ import Erdos289.ExternalAxioms
 /-!
 # External inputs from the published literature
 
-This file collects, as named `axiom`s, the results from published papers that
-`erdos_289_full_proof.pdf` uses as black boxes, together with the classical analytic
-number theory estimates it invokes. See Section 1, "The external theorem inputs", of the
-proof text.
-
-The literature inputs are declared as named axioms so that `#print axioms` on the
-terminal theorem lists exactly which external results are being trusted. Everything else
-in this file is proved. The statements are translations of the papers' theorems and must
-be audited against the papers; see the README.
+This file collects the classical analytic number theory estimates used by the proof and the
+places where the literature inputs enter. Historically the literature results were declared here
+as named `axiom`s; in the completed formalization every input used by the terminal theorem is a
+proved theorem: Chebyshev's bound is derived below from Mathlib, the prime-power count is proved
+below from it, and Mertens' second theorem, the divisor bound, the Liu–Sawhney theorem and the
+Conlon–Fox–Pham structure theorem are supplied by vendored proofs via `Erdos289/ExternalBridge.lean`
+and `Erdos289/CFPBridge.lean`. The terminal theorem `Erdos289.candidateStatement` reports only
+`[propext, Classical.choice, Quot.sound]`. Bourgain–Garaev and Erdős–Turán are not used.
 -/
 
 namespace Erdos289
@@ -99,12 +98,14 @@ We first check what Mathlib already supplies:
   Chebyshev-type upper bound `π ⌊x⌋₊ ≤ log 4 * x / log √x + √x`, from which the crude
   bound `primeCounting_le` below is derived (no `sorry` needed).
 * Mathlib has no Mertens' second theorem (no lemma name involving `Mertens`, and no
-  statement of `∑_{p ≤ x} 1/p = log log x + B₁ + o(1)`), so `mertens_second` is sorried.
+  statement of `∑_{p ≤ x} 1/p = log log x + B₁ + o(1)`); `mertens_second` is supplied by the
+  vendored proof `Erdos289.Ported.mertens_second` (see `ExternalBridge.lean`).
 * Mathlib has no uniform divisor bound `τ(n) = n^{o(1)}` (only the trivial
-  `Nat.card_divisors_le_self : n.divisors.card ≤ n`), so `divisor_bound` is sorried.
-* Mathlib has no bound on the count of prime powers up to `Y`; `primePow_count_le` is
-  sorried, though it is a routine consequence of `primeCounting_le` (a prime power `≤ Y`
-  is `p^k` with `p ≤ Y` and `k ≤ log₂ Y`, and for `k ≥ 2` already `p ≤ √Y`). -/
+  `Nat.card_divisors_le_self : n.divisors.card ≤ n`); `divisor_bound` is supplied by the
+  vendored proof `Erdos289.Ported.divisor_bound` (see `ExternalBridge.lean`).
+* Mathlib has no bound on the count of prime powers up to `Y`; `primePow_count_le` is proved
+  below from `primeCounting_le` (a prime power `≤ Y` is `p^k` with `p ≤ Y` and `k ≤ log₂ Y`,
+  and for `k ≥ 2` already `p ≤ √Y`). -/
 
 /-- **Chebyshev's upper bound** for the prime counting function. Proved here from
 `Chebyshev.pi_le_log4_mul_div` (Mathlib), using `log x ≤ 2 * (√x - 1) ≤ 2 √x` and
@@ -141,14 +142,12 @@ theorem primeCounting_le :
   rw [add_mul, e1] at hh
   linarith
 
--- `mertens_second` is now derived from the audited axiom module; see `ExternalBridge.lean`.
-
--- `divisor_bound` is now derived from the audited axiom module; see `ExternalBridge.lean`.
+-- `mertens_second` and `divisor_bound` are aliases of the vendored proofs; see `ExternalBridge.lean`.
 
 /-- The count of prime powers up to `Y` is `O(Y / log Y)`, uniformly in `Y`. This is a
 routine consequence of `primeCounting_le` (a prime power `p^k ≤ Y` has `p ≤ Y`, and for
-`k ≥ 2` already `p ≤ √Y`, while `k ≤ log₂ Y` always), but the counting argument is not
-carried out here. Taken as an unproved (though elementary) input. -/
+`k ≥ 2` already `p ≤ √Y`, while `k ≤ log₂ Y` always); the counting argument is carried out
+below. -/
 theorem primePow_count_le :
     ∃ C : ℝ, ∀ Y : ℕ, 2 ≤ Y →
       (((Finset.Icc 1 Y).filter (fun n => IsPrimePow n)).card : ℝ) ≤ C * (Y : ℝ) / Real.log Y := by
