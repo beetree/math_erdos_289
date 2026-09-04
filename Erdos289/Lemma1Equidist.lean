@@ -91,7 +91,7 @@ theorem rOf'_cast (U t : ℕ) [NeZero U] : ((rOf' U t : ℕ) : ZMod U) = ((t : �
 /-- The inverse modulo `U` reduces to the inverse modulo any divisor `m` of `U`. -/
 theorem inv_reduce {U m t : ℕ} (hm : 0 < m) (hdvd : m ∣ U) (hcop : Nat.Coprime t U) :
     ((rOf' U t : ℕ) : ZMod m) = ((t : ℕ) : ZMod m)⁻¹ := by
-  haveI : NeZero m := ⟨hm.ne'⟩
+  have : NeZero m := ⟨hm.ne'⟩
   have hval : ((rOf' U t * t : ℕ) : ZMod U) = ((1 : ℕ) : ZMod U) := by
     push_cast
     exact ZMod.val_inv_mul hcop
@@ -107,7 +107,7 @@ theorem inv_reduce {U m t : ℕ} (hm : 0 < m) (hdvd : m ∣ U) (hcop : Nat.Copri
 /-- Consequently `rOf' U t` and `rOf' m t` agree modulo `m`, for `m ∣ U`. -/
 theorem rOf'_dvd_sub {U m t : ℕ} (hm : 0 < m) (hdvd : m ∣ U) (hcop : Nat.Coprime t U) :
     (m : ℤ) ∣ (rOf' m t : ℤ) - (rOf' U t : ℤ) := by
-  haveI : NeZero m := ⟨hm.ne'⟩
+  have : NeZero m := ⟨hm.ne'⟩
   rw [← ZMod.intCast_zmod_eq_zero_iff_dvd]
   push_cast
   rw [rOf'_cast m t, inv_reduce hm hdvd hcop, sub_self]
@@ -315,7 +315,7 @@ theorem kloos_eq (m b T : ℕ) :
 /-- Two integers with the same residue give the same value of the additive character. -/
 theorem e_eq_of_zmod {m : ℕ} (hm : 0 < m) {x y : ℤ} (h : ((x : ZMod m)) = ((y : ZMod m))) :
     e m x = e m y := by
-  haveI : NeZero m := ⟨hm.ne'⟩
+  have : NeZero m := ⟨hm.ne'⟩
   refine e_modEq m ?_
   rw [← ZMod.intCast_zmod_eq_zero_iff_dvd]
   push_cast
@@ -333,7 +333,7 @@ theorem prefix_bound {c δ : ℝ} {m : ℕ}
   by_cases hcase : (m : ℝ) ^ c < (T : ℝ)
   · have := hBG T hcase hT b hb
     linarith
-  · push_neg at hcase
+  · push Not at hcase
     have htriv : ‖kloos m b T‖ ≤ (T : ℝ) := by
       calc ‖kloos m b T‖
           ≤ ∑ n ∈ (Finset.Icc 1 T).filter (fun n => Nat.Coprime n m),
@@ -358,7 +358,7 @@ theorem sum_reduce {U g m h b : ℕ} (hg : 0 < g) (hm : 0 < m) (hU : U = g * m) 
   refine Finset.sum_congr rfl fun t ht => ?_
   rw [e_reduce hg hm hU hh]
   refine e_eq_of_zmod hm ?_
-  haveI : NeZero m := ⟨hm.ne'⟩
+  have : NeZero m := ⟨hm.ne'⟩
   push_cast
   rw [rOf'_cast m t, inv_reduce hm hmU (hScop t ht)]
 
@@ -369,7 +369,7 @@ noncomputable def halfCoef (m b : ℕ) : ℕ := (((b : ℕ) : ZMod m) * ((2 : �
 
 theorem halfCoef_coprime {m b : ℕ} (hm : 0 < m) (h2 : Nat.Coprime 2 m) (hb : Nat.Coprime b m) :
     Nat.Coprime (halfCoef m b) m := by
-  haveI : NeZero m := ⟨hm.ne'⟩
+  have : NeZero m := ⟨hm.ne'⟩
   have hbu : IsUnit ((b : ℕ) : ZMod m) := (ZMod.isUnit_iff_coprime b m).2 hb
   have h2u : IsUnit (((2 : ℕ) : ZMod m)) := (ZMod.isUnit_iff_coprime 2 m).2 h2
   have h2iu : IsUnit (((2 : ℕ) : ZMod m)⁻¹) :=
@@ -383,7 +383,7 @@ theorem halfCoef_coprime {m b : ℕ} (hm : 0 < m) (h2 : Nat.Coprime 2 m) (hb : N
 theorem e_half {m b u : ℕ} (hm : 0 < m) (h2 : Nat.Coprime 2 m) (hu : Nat.Coprime u m) :
     e m ((b : ℤ) * ((rOf' m (2 * u) : ℕ) : ℤ))
       = e m ((halfCoef m b : ℤ) * ((rOf' m u : ℕ) : ℤ)) := by
-  haveI : NeZero m := ⟨hm.ne'⟩
+  have : NeZero m := ⟨hm.ne'⟩
   refine e_eq_of_zmod hm ?_
   have h2u : IsUnit (((2 : ℕ) : ZMod m)) := (ZMod.isUnit_iff_coprime 2 m).2 h2
   have huu : IsUnit ((u : ℕ) : ZMod m) := (ZMod.isUnit_iff_coprime u m).2 hu
@@ -541,7 +541,7 @@ theorem tendsto_natRpow {β : ℝ} (hβ : 0 < β) :
     Filter.Tendsto (fun q : ℕ => (q : ℝ) ^ β) atTop atTop :=
   (tendsto_rpow_atTop hβ).comp tendsto_natCast_atTop_atTop
 
-theorem ev_five_rpow_lt {ε : ℝ} (hε0 : 0 < ε) (hε1 : ε < 1) {K : ℝ} (hK : 0 < K) :
+theorem ev_five_rpow_lt {ε : ℝ} (_hε0 : 0 < ε) (hε1 : ε < 1) {K : ℝ} (hK : 0 < K) :
     ∀ᶠ q : ℕ in atTop, 5 * (q : ℝ) ^ ε < (q : ℝ) / K := by
   filter_upwards [(tendsto_natRpow (show (0:ℝ) < 1 - ε by linarith)).eventually_ge_atTop (6 * K),
     eventually_gt_atTop 0] with q hq hq0
@@ -718,7 +718,7 @@ theorem equidist_inverse' (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
     have hqleHm : q ≤ H * m := le_trans (Nat.le_of_dvd hUpos hqdvdU) hUleHm
     have hm0 : m₀ ≤ m := by
       by_contra hlt
-      push_neg at hlt
+      push Not at hlt
       have : H * m < H * m₀ := (Nat.mul_lt_mul_left hHpos).2 hlt
       omega
     have hmqH : (q : ℝ) / (H : ℝ) ≤ (m : ℝ) := by

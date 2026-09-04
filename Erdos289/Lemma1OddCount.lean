@@ -13,14 +13,14 @@ open Finset Filter Topology
 
 /-! ## Helpers about `rOf` (uniqueness of the inverse representative, lifting between moduli) -/
 
-theorem rOf_spec {U t : ℕ} (hU1 : 1 < U) (hcop : Nat.Coprime t U) :
+theorem rOf_spec {U t : ℕ} (_hU1 : 1 < U) (hcop : Nat.Coprime t U) :
     rOf U t * t ≡ 1 [MOD U] := by
   have hval : ((rOf U t * t : ℕ) : ZMod U) = ((1 : ℕ) : ZMod U) := by
     push_cast; exact ZMod.val_inv_mul hcop
   exact (ZMod.natCast_eq_natCast_iff _ _ _).1 hval
 
 theorem rOf_lt {U t : ℕ} (hU : 0 < U) : rOf U t < U := by
-  haveI : NeZero U := ⟨by omega⟩
+  have : NeZero U := ⟨by omega⟩
   exact ZMod.val_lt _
 
 theorem rOf_unique {U t r : ℕ} (hU1 : 1 < U) (hcop : Nat.Coprime t U) (hr : r < U)

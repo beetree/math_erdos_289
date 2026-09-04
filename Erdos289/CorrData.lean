@@ -60,7 +60,8 @@ theorem correctionData_exists : ∃ L₀ : ℕ, ∀ L, L₀ ≤ L → ∃ C : Co
       (∀ m ∈ Ifun q, Powersmooth (q / 2) (q * m + 1)) ∧
       (∀ r : ZMod q, ∃ S ⊆ Ifun q, S.card ≤ s q ∧ ∑ i ∈ S, ((i : ZMod q)⁻¹) = r) := by
     intro q hq hLq
-    have hEq : Ifun q = Classical.choose (key q hq hLq) := dif_pos ⟨hq, hLq⟩
+    have hEq : Ifun q = Classical.choose (key q hq hLq) :=
+      dite_eq_left_of_eq_true (eq_true ⟨hq, hLq⟩)
     rw [hEq]
     exact Classical.choose_spec (key q hq hLq)
   refine ⟨⟨L, A, Ifun, ?_, ?_, ?_, ?_, ?_⟩, rfl⟩

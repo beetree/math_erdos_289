@@ -733,7 +733,7 @@ lemma divisor_count_bound {q : ℕ} (hq2 : 2 ≤ q) (T : ℤ) (hT1 : 1 ≤ T) (h
     (hDdiv : ∀ n : ℕ, 1 ≤ n → (n.divisors.card : ℝ) ≤ D n) :
     (J.card : ℝ) ≤ (2 * (⌈Imax * R / q + 1⌉₊ : ℝ) + 1) *
       D ((q:ℝ) * ((⌈Imax * R / q + 1⌉₊ : ℝ) + 1)) := by
-  haveI : NeZero q := ⟨by omega⟩
+  have : NeZero q := ⟨by omega⟩
   have hqR : (0:ℝ) < q := by exact_mod_cast (by omega : 0 < q)
   set Z : ℕ := ⌈Imax * R / q + 1⌉₊ with hZdef
   have hZR : Imax * R / q + 1 ≤ (Z:ℝ) := Nat.le_ceil _
@@ -754,7 +754,7 @@ lemma divisor_count_bound {q : ℕ} (hq2 : 2 ≤ q) (T : ℤ) (hT1 : 1 ≤ T) (h
   set z : ℕ → ℤ := fun j => if hj : j ∈ J then (hex j hj).choose else 0 with hzdef
   have hzspec : ∀ j ∈ J, (i0 j:ℤ) * h j - T = q * z j := by
     intro j hj
-    simp only [hzdef, dif_pos hj]
+    simp only [hzdef, dite_eq_left_of_eq_true (eq_true hj)]
     exact (hex j hj).choose_spec
   have hzbound : ∀ j ∈ J, |(z j : ℝ)| ≤ (Z:ℝ) := by
     intro j hj

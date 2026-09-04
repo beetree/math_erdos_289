@@ -368,7 +368,7 @@ theorem log_mul_rpow_neg_le (c target : ℝ) (hc : 0 < c) (htarget : 0 < target)
 witness prime power `u = ℓ^b` kill at most one shared `m` across a fiber (via `unique_m_mod_u`).
 Needs only the upper bound `r < q/2` (not `factorization_bounds`'s tight range). -/
 theorem mOf_bound {q U t : ℕ} (hUdvd : q ∣ U) (hU1 : 1 < U) (hcop : Nat.Coprime t U)
-    (M : ℝ) (hMpos : 0 < M) (ht2 : (t:ℝ) ≤ 5 * M) (hr2 : 2 * rOf U t < q) :
+    (M : ℝ) (_hMpos : 0 < M) (ht2 : (t:ℝ) ≤ 5 * M) (hr2 : 2 * rOf U t < q) :
     (mOf q U t : ℝ) < 3 * M := by
   have hq0 : q ≠ 0 := by rintro rfl; simp at hUdvd; omega
   have hqR1 : (1:ℝ) ≤ (q:ℝ) := by exact_mod_cast (by omega : 1 ≤ q)
@@ -384,7 +384,7 @@ theorem mOf_bound {q U t : ℕ} (hUdvd : q ∣ U) (hU1 : 1 < U) (hcop : Nat.Copr
     have h1 : (rOf U t : ℝ) * t ≤ (q:ℝ)/2 * t := mul_le_mul_of_nonneg_right hrR.le htnn
     have h2 : (q:ℝ)/2 * t ≤ (q:ℝ)/2 * (5*M) := mul_le_mul_of_nonneg_left ht2 (by positivity)
     linarith
-  have hqm : (q:ℝ) * (mOf q U t : ℝ) < (q:ℝ) * (3 * M) := by nlinarith [heqR, hprod, hqRpos, hMpos]
+  have hqm : (q:ℝ) * (mOf q U t : ℝ) < (q:ℝ) * (3 * M) := by nlinarith [heqR, hprod, hqRpos]
   exact lt_of_mul_lt_mul_left hqm hqRpos.le
 
 /-- A witness prime power `ℓ^b ∣ q*m+1` (`b ≥ 1`) is automatically coprime to `q`: if `ℓ ∣ q`
@@ -409,7 +409,7 @@ theorem rOf_pos {q U t : ℕ} (hUdvd : q ∣ U) (hU1 : 1 < U) (hcop : Nat.Coprim
     0 < rOf U t := by
   have heq := mOf_spec hUdvd hU1 hcop
   by_contra h
-  push_neg at h
+  push Not at h
   have hr0 : rOf U t = 0 := by omega
   rw [hr0] at heq
   simp only [Nat.zero_mul] at heq
@@ -515,7 +515,7 @@ theorem sieveBad2_subset {q U Dn Bmax : ℕ} (hUdvd : q ∣ U) (hU1 : 1 < U)
   simp only [sieveBad2, noBigFactor, mem_filter] at ht
   obtain ⟨⟨htT, hnobig⟩, hnp⟩ := ht
   unfold Powersmooth at hnp
-  push_neg at hnp
+  push Not at hnp
   obtain ⟨ℓ, e, hℓ, he, hpe, hgt⟩ := hnp
   have hr0 : 0 < rOf U t := rOf_pos hUdvd hU1 (hTcop t htT)
   have heq : q * mOf q U t + 1 = rOf U t * t := mOf_spec hUdvd hU1 (hTcop t htT)
@@ -664,7 +664,7 @@ theorem bad2_bound (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (η : ℝ) (hη0 :
     calc ((sieveBad2 q U Dn T).card : ℝ)
         ≤ ((Grid'.biUnion (fun p => pkFiber q U T p.1 p.2)).card : ℝ) := by exact_mod_cast h1
       _ ≤ (∑ p ∈ Grid', (pkFiber q U T p.1 p.2).card : ℝ) := by exact_mod_cast h2
-      _ = ∑ p ∈ Grid', ((pkFiber q U T p.1 p.2).card : ℝ) := by push_cast; ring
+      _ = ∑ p ∈ Grid', ((pkFiber q U T p.1 p.2).card : ℝ) := by ring
   have hsumbound : ∑ p ∈ Grid', ((pkFiber q U T p.1 p.2).card : ℝ) ≤ (Grid'.card : ℝ) * (q:ℝ)^δ := by
     calc ∑ p ∈ Grid', ((pkFiber q U T p.1 p.2).card : ℝ) ≤ ∑ p ∈ Grid', (q:ℝ)^δ :=
           Finset.sum_le_sum hfiberbound
@@ -801,12 +801,12 @@ theorem sieve_powersmooth (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
     rw [Finset.mem_sdiff] at ht
     obtain ⟨htT, htBad⟩ := ht
     rw [hBaddef, Finset.mem_union] at htBad
-    push_neg at htBad
+    push Not at htBad
     obtain ⟨htBad1, htBad2⟩ := htBad
     have hnobig : ∀ ℓ, ℓ.Prime → ℓ ∣ t → ℓ ≤ Dn := by
       intro ℓ hℓ hℓt
       by_contra hcon
-      push_neg at hcon
+      push Not at hcon
       exact htBad1 (by rw [hBad1def, mem_filter]; exact ⟨htT, ℓ, hℓ, hcon, hℓt⟩)
     have htnbf : t ∈ noBigFactor Dn T := by
       rw [noBigFactor, mem_filter]; exact ⟨htT, hnobig⟩

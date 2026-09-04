@@ -306,7 +306,7 @@ theorem rpow_dominated (e1 e2 : ℝ) (he : e1 < e2) (ε : ℝ) (hε : 0 < ε) :
 theorem nat_sub_cast_ge (a b : ℕ) : (b : ℝ) + 1 - (a : ℝ) ≤ ((b + 1 - a : ℕ) : ℝ) := by
   by_cases h : a ≤ b + 1
   · rw [Nat.cast_sub h]; push_cast; linarith
-  · push_neg at h
+  · push Not at h
     have hz : b + 1 - a = 0 := by omega
     rw [hz]
     have hlt : (a : ℝ) > (b : ℝ) + 1 := by exact_mod_cast h
@@ -361,7 +361,7 @@ theorem exists_log_ge (M : ℝ) : ∃ Q : ℝ, 0 < Q ∧ ∀ q : ℝ, Q ≤ q �
 theorem nat_sub_one_cast_ge (n : ℕ) : (n : ℝ) - 1 ≤ ((n - 1 : ℕ) : ℝ) := by
   by_cases h : 1 ≤ n
   · rw [Nat.cast_sub h]; norm_num
-  · interval_cases n <;> norm_num
+  · interval_cases n; norm_num
 
 /-- The mathematical core of Lemma 5: for `q` a large enough prime power (larger than a fixed
 threshold `Q₀`, independent of `L`), given that all earlier stages `Prev q'` (`q' < q`) have
@@ -757,7 +757,7 @@ theorem stage_exists :
       unfold Iv.Sep Iv.pair
       simp only
       omega
-    · push_neg at hcase
+    · push Not at hcase
       unfold Iv.Sep Iv.pair
       simp only
       omega
@@ -808,7 +808,7 @@ noncomputable def Fconstr (L : ℕ) (q : ℕ) : Finset ℕ :=
       Classical.choose (stageQ₀_spec L q h.2.1 h.2.2 h.1
         (fun q' => if hlt : q' < q then (if (ih q' hlt).card ≤ s q' then ih q' hlt else ∅) else ∅)
         (fun q' hq' => by
-          rw [dif_pos hq']
+          rw [dite_eq_left_of_eq_true (eq_true hq')]
           exact truncate_card_le (ih q' hq') (s q')))
     else ∅)
 
@@ -816,10 +816,10 @@ theorem Fconstr_eq (L q : ℕ) :
     Fconstr L q =
       if h : IsPrimePow q ∧ L < q ∧ stageQ₀ ≤ q then
         Classical.choose (stageQ₀_spec L q h.2.1 h.2.2 h.1
-          (fun q' => if hlt : q' < q then
+          (fun q' => if _hlt : q' < q then
               (if (Fconstr L q').card ≤ s q' then Fconstr L q' else ∅) else ∅)
           (fun q' hq' => by
-            rw [dif_pos hq']
+            rw [dite_eq_left_of_eq_true (eq_true hq')]
             exact truncate_card_le (Fconstr L q') (s q')))
       else ∅ := by
   conv_lhs => rw [Fconstr]
@@ -831,7 +831,9 @@ theorem Fconstr_card_le (L q : ℕ) : (Fconstr L q).card ≤ s q := by
   · next h =>
     exact (Classical.choose_spec (stageQ₀_spec L q h.2.1 h.2.2 h.1
       (fun q' => if hlt : q' < q then (if (Fconstr L q').card ≤ s q' then Fconstr L q' else ∅) else ∅)
-      (fun q' hq' => by rw [dif_pos hq']; exact truncate_card_le (Fconstr L q') (s q')))).1.le
+      (fun q' hq' => by
+        rw [dite_eq_left_of_eq_true (eq_true hq')]
+        exact truncate_card_le (Fconstr L q') (s q')))).1.le
   · simp
 
 /-- The main specification of `Fconstr L q` at a valid stage. -/
@@ -847,31 +849,32 @@ theorem Fconstr_spec (L q : ℕ) (hqpp : IsPrimePow q) (hLq : L < q) (hQq : stag
   have hraw := Classical.choose_spec (stageQ₀_spec L q hLq hQq hqpp
     (fun q' => if hlt : q' < q then (if (Fconstr L q').card ≤ s q' then Fconstr L q' else ∅) else ∅)
     (fun q' hq' => by
-      rw [dif_pos hq']
+      rw [dite_eq_left_of_eq_true (eq_true hq')]
       exact truncate_card_le (Fconstr L q') (s q')))
   have heq : Fconstr L q = Classical.choose (stageQ₀_spec L q hLq hQq hqpp
       (fun q' => if hlt : q' < q then (if (Fconstr L q').card ≤ s q' then Fconstr L q' else ∅) else ∅)
       (fun q' hq' => by
-        rw [dif_pos hq']
+        rw [dite_eq_left_of_eq_true (eq_true hq')]
         exact truncate_card_le (Fconstr L q') (s q'))) := by
     rw [Fconstr_eq]
-    rw [dif_pos ⟨hqpp, hLq, hQq⟩]
+    rw [dite_eq_left_of_eq_true (eq_true (⟨hqpp, hLq, hQq⟩ : IsPrimePow q ∧ L < q ∧ stageQ₀ ≤ q))]
   rw [← heq] at hraw
   obtain ⟨hcard, hlower, hupper, hdvd, hsmoothlo, hsmoothhi, hsepcorr, hsepaux⟩ := hraw
   refine ⟨hcard, hlower, hupper, hdvd, hsmoothlo, hsmoothhi, hsepcorr, ?_⟩
   intro q' hq'lt a ha a' ha'
   have htrunc : (if hlt : q' < q then (if (Fconstr L q').card ≤ s q' then Fconstr L q' else ∅)
       else ∅) = Fconstr L q' := by
-    rw [dif_pos hq'lt, if_pos (Fconstr_card_le L q')]
+    rw [dite_eq_left_of_eq_true (eq_true hq'lt),
+      ite_eq_left_of_eq_true _ _ (eq_true (Fconstr_card_le L q'))]
   rw [← htrunc] at ha'
   exact hsepaux q' hq'lt a ha a' ha'
 
 /-- If `Fconstr L q` is nonempty, `q` must have already reached the threshold `stageQ₀`. -/
-theorem Fconstr_mem_imp (L q a : ℕ) (hqpp : IsPrimePow q) (hLq : L < q) (ha : a ∈ Fconstr L q) :
+theorem Fconstr_mem_imp (L q a : ℕ) (_hqpp : IsPrimePow q) (_hLq : L < q) (ha : a ∈ Fconstr L q) :
     stageQ₀ ≤ q := by
   by_contra hQq
   have hempty : Fconstr L q = ∅ := by
-    rw [Fconstr_eq, dif_neg (fun h => hQq h.2.2)]
+    rw [Fconstr_eq, dite_eq_right_of_eq_false (eq_false (fun h => hQq h.2.2))]
   rw [hempty] at ha
   exact absurd ha (Finset.notMem_empty a)
 

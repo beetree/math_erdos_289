@@ -436,7 +436,7 @@ lemma lemma3_core (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) (hc : 0 <
     have h1 : (Finset.Icc L' U').card = (U'+1-L').toNat := Int.card_Icc _ _
     have hle : L' ≤ U' := by
       by_contra hcon
-      push_neg at hcon
+      push Not at hcon
       have : (Finset.Icc L' U').card = 0 := by rw [Finset.Icc_eq_empty (by omega)]; simp
       rw [hcntdef, this] at hcount
       omega
@@ -456,7 +456,7 @@ lemma lemma3_core (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) (hc : 0 <
           _ ≤ ((L' + (t:ℤ) : ℤ):ℝ) := by push_cast; linarith [Nat.cast_nonneg (α := ℝ) t]
       · calc ((L' + (t:ℤ) : ℤ):ℝ) ≤ (U':ℝ) := by exact_mod_cast hLU
           _ ≤ (c*(s:ℝ)) * P.β i := by rw [hU'def]; exact Int.floor_le _
-    · simp only [if_neg hi]
+    · simp only [ite_eq_right_of_eq_false _ _ (eq_false hi)]
       exact hw i (by
         by_contra hcon
         have hiA : i ∈ Active := by simpa [hActive] using hcon
@@ -480,7 +480,7 @@ lemma lemma3_core (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) (hc : 0 <
       apply Finset.sum_congr rfl
       intro i hi
       simp only [Finset.mem_filter] at hi
-      rw [if_neg hi.2]
+      rw [ite_eq_right_of_eq_false _ _ (eq_false hi.2)]
     rw [h1, h2]
     ring
   have hxy_sub : ∀ t : ℕ, t < cnt → x + ((t:ℤ) * P.d i₁ + CONST) ∈ subsetSums J' :=

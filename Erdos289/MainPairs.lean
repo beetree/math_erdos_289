@@ -147,7 +147,7 @@ lemma gridGood_card_ge (y : ℕ) (a b : ℝ) (k : ℕ) (E : ℝ) (L U : ℕ) (ha
     intro x y
     by_cases h : y ≤ x
     · rw [Nat.cast_sub h]
-    · push_neg at h
+    · push Not at h
       rw [Nat.sub_eq_zero_of_le h.le]
       have : (x:ℝ) ≤ y := by exact_mod_cast h.le
       push_cast
@@ -248,7 +248,7 @@ lemma Q_lower (η : ℝ) (hη : 0 < η) :
         rw [← Real.rpow_add hkpos]; ring_nf
       rw [hsplit]
       nlinarith
-    · push_neg at hη45
+    · push Not at hη45
       have h1 : (k:ℝ) ^ ((4:ℝ)/5 - η) ≤ 1 :=
         Real.rpow_le_one_of_one_le_of_nonpos hk1 (by linarith)
       have h2 : (2:ℝ) ≤ (k:ℝ) ^ ((4:ℝ)/5) := by
@@ -274,7 +274,7 @@ lemma Q_lower (η : ℝ) (hη : 0 < η) :
 /-- For a rational band-scale `a>0` and slack `ε∈(0,γ)`, for large enough `k`, there is a finset
 of `Q k`-powersmooth grid pair starts confined to `[a*k, 2*a*k]` whose total reciprocal mass is
 at least `γ - ε`. -/
-lemma bandData (a : ℚ) (ha : 0 < a) (ε : ℝ) (hε : 0 < ε) (hεγ : ε < gam) :
+lemma bandData (a : ℚ) (ha : 0 < a) (ε : ℝ) (hε : 0 < ε) (_hεγ : ε < gam) :
     ∃ k₀ : ℕ, ∀ k : ℕ, k₀ ≤ k →
       ∃ G : Finset ℕ,
         (∀ n ∈ G, 3 ∣ n ∧ Powersmooth (Q k) n ∧ Powersmooth (Q k) (n + 1) ∧
@@ -489,7 +489,7 @@ lemma sep_of_mult3 {a a' : ℕ} (h3 : 3 ∣ a) (h3' : 3 ∣ a') (hne : a ≠ a')
 the smallest band-scale used so far) and `G`'s elements lie in `[a'*k, 2*a'*k] = [a'*k, a*k]`
 (`a = 2*a'`, the next smaller band), then `A` and `G` are disjoint and `A ∪ G`'s elements are
 all `≥ a'*k`. -/
-lemma bandStep (k : ℕ) (a a' : ℚ) (ha' : 0 < a') (hrel : a = 2*a')
+lemma bandStep (k : ℕ) (a a' : ℚ) (_ha' : 0 < a') (hrel : a = 2*a')
     (A G : Finset ℕ)
     (hlbA : ∀ n ∈ A, a * (k:ℚ) ≤ (n:ℚ))
     (hG : ∀ n ∈ G, a' * (k:ℚ) ≤ (n:ℚ) ∧ (n:ℚ) + 1 ≤ 2 * (a' * (k:ℚ))) :
@@ -505,7 +505,7 @@ lemma bandStep (k : ℕ) (a a' : ℚ) (ha' : 0 < a') (hrel : a = 2*a')
     rcases Finset.mem_union.mp hn with h | h
     · have h1 := hlbA n h
       rw [hrel] at h1
-      nlinarith [h1, ha']
+      nlinarith [h1]
     · exact (hG n h).1
 
 set_option maxHeartbeats 4000000 in

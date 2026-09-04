@@ -506,7 +506,8 @@ theorem descent' (C : CorrectionData) (hL : 4 ≤ C.L) :
       have hHmono : (H : ℝ) ^ ((11 : ℝ) / 10) ≤ ((H : ℝ) + 1) ^ ((11 : ℝ) / 10) := by
         apply Real.rpow_le_rpow (by positivity) (by linarith) (by norm_num)
       refine ⟨Pq ∪ P', ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
-      · rw [Finset.card_union_of_disjoint hdisj, hPq_card, hP'_card, CH_succ C.L H hH, if_pos hpp]
+      · rw [Finset.card_union_of_disjoint hdisj, hPq_card, hP'_card, CH_succ C.L H hH,
+          ite_eq_left_of_eq_true _ _ (eq_true hpp)]
         omega
       · intro I hI
         rw [Finset.mem_union] at hI
@@ -549,7 +550,8 @@ theorem descent' (C : CorrectionData) (hL : 4 ≤ C.L) :
                   2 * (s q : ℝ) * (q : ℝ) ^ (-(11 : ℝ) / 10)) +
                 2 * (s (H + 1) : ℝ) * ((H : ℝ) + 1) ^ (-(11 : ℝ) / 10) := by
           simp only [Finset.sum_filter]
-          rw [Finset.sum_Icc_succ_top (by omega : C.L + 1 ≤ H + 1), if_pos hpp]
+          rw [Finset.sum_Icc_succ_top (by omega : C.L + 1 ≤ H + 1),
+            ite_eq_left_of_eq_true _ _ (eq_true hpp)]
           push_cast
           ring
         rw [hsum_succ]
@@ -567,7 +569,7 @@ theorem descent' (C : CorrectionData) (hL : 4 ≤ C.L) :
       have hHmono : (H : ℝ) ^ ((11 : ℝ) / 10) ≤ ((H : ℝ) + 1) ^ ((11 : ℝ) / 10) := by
         apply Real.rpow_le_rpow (by positivity) (by linarith) (by norm_num)
       refine ⟨P', ?_, ?_, ?_, ?_, hP'_sep, ?_, hP'_DB⟩
-      · rw [hP'_card, CH_succ C.L H hH, if_neg hpp, add_zero]
+      · rw [hP'_card, CH_succ C.L H hH, ite_eq_right_of_eq_false _ _ (eq_false hpp), add_zero]
       · intro I hI
         obtain ⟨q', hq', hLq'', hqH', hsp'⟩ := hP'_mem I hI
         exact ⟨q', hq', hLq'', by omega, hsp'⟩

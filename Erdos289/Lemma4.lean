@@ -36,7 +36,7 @@ lemma card_filter_dvd_Icc_le (A B d : ℕ) (hd : 0 < d) (hAB : A ≤ B) :
     exact mem_Icc.mpr ⟨Nat.div_le_div_right hA, Nat.div_le_div_right hB⟩
   have hinj : Set.InjOn (fun n => n / d) ((Icc A B).filter (d ∣ ·) : Finset ℕ) := by
     intro n1 hn1 n2 hn2 heq
-    simp only [Finset.coe_filter, Set.mem_setOf_eq, mem_Icc] at hn1 hn2
+    simp only [Finset.coe_filter, Set.mem_ofPred_eq, mem_Icc] at hn1 hn2
     obtain ⟨_, hd1⟩ := hn1
     obtain ⟨_, hd2⟩ := hn2
     have e1 : n1 = d * (n1 / d) := (Nat.mul_div_cancel' hd1).symm
@@ -88,7 +88,7 @@ lemma notSmooth_subset (y : ℕ) (a b x : ℝ) (hax : 0 < a * x) :
   obtain ⟨⟨hnA, hnB⟩, hnp⟩ := hn
   have hn0 : 0 < n := lt_of_lt_of_le (Nat.ceil_pos.mpr hax) hnA
   unfold Powersmooth at hnp
-  push_neg at hnp
+  push Not at hnp
   obtain ⟨p, e, hp, he, hpe, hgt⟩ := hnp
   rw [Finset.mem_union]
   by_cases hpy : p ≤ y
@@ -100,7 +100,7 @@ lemma notSmooth_subset (y : ℕ) (a b x : ℝ) (hax : 0 < a * x) :
     have hple : p ^ Nat.log p y ≤ y := Nat.pow_log_le_self p hy0
     have hlogsucc : Nat.log p y + 1 ≤ e := by
       by_contra hcon
-      push_neg at hcon
+      push Not at hcon
       have hcon' : e ≤ Nat.log p y := by omega
       have : p ^ e ≤ p ^ Nat.log p y := Nat.pow_le_pow_right hp.one_lt.le hcon'
       omega

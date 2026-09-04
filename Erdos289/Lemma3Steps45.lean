@@ -115,7 +115,7 @@ steps 4-5). The proof:
 
 All four "large `q`" thresholds are independent of `P`, `v`, `J` and of `d`, so the single
 `Q₀` produced here is uniform over the finitely many ranks `d ≤ d₀`. -/
-lemma paper_steps_4_5 (ε c : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (hc : 0 < c) (d₀ : ℕ) :
+lemma paper_steps_4_5 (ε c : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (_hc : 0 < c) (d₀ : ℕ) :
     ∃ Q₀ : ℕ, ∀ q : ℕ, 2 ≤ q → Q₀ ≤ q →
       ∀ (P : GAP) (v : Fin P.D → ℤ) (J : Finset ℕ),
         P.D ≤ d₀ →

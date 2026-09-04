@@ -14,7 +14,7 @@ set_option maxHeartbeats 1000000
 /-! ## Helper lemmas about `rOf` and `invCand` used to relate moduli `U ∣ U'` -/
 
 /-- The defining congruence for `rOf`: `rOf U t` is a genuine inverse of `t` mod `U`. -/
-theorem evenCount_rOf_spec {U t : ℕ} (hU1 : 1 < U) (hcop : Nat.Coprime t U) :
+theorem evenCount_rOf_spec {U t : ℕ} (_hU1 : 1 < U) (hcop : Nat.Coprime t U) :
     rOf U t * t ≡ 1 [MOD U] := by
   have hval : ((rOf U t * t : ℕ) : ZMod U) = ((1 : ℕ) : ZMod U) := by
     push_cast; exact ZMod.val_inv_mul hcop

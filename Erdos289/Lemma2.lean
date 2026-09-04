@@ -16,7 +16,7 @@ namespace Erdos289
 and `0 < m < p ^ a`. This says that the largest prime-power divisor of `p ^ a * m` is
 (uniquely) `p ^ a`. -/
 theorem primePow_dvd_mul_le {p a m : ℕ} (hp : p.Prime) (hpm : ¬ p ∣ m) (hm : m < p ^ a)
-    (hm0 : 0 < m) {ℓ e : ℕ} (hℓ : ℓ.Prime) (he : 0 < e) (hdvd : ℓ ^ e ∣ p ^ a * m) :
+    (hm0 : 0 < m) {ℓ e : ℕ} (hℓ : ℓ.Prime) (_he : 0 < e) (hdvd : ℓ ^ e ∣ p ^ a * m) :
     ℓ ^ e ≤ p ^ a := by
   by_cases hlp : ℓ = p
   · subst hlp
