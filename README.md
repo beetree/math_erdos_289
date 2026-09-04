@@ -4,8 +4,10 @@ This repository formalizes, in Lean 4 with Mathlib, the candidate proof in
 `erdos_289_full_proof.pdf` (revised nonadjacent version, 4 September 2026) of a
 strengthened form of Erdős Problem 289.
 
-**Status: work in progress. No kernel-checked, axiom-clean proof of the terminal
-theorem exists yet.** See "Current status" below for exactly what is and is not proved.
+**Status: conditional certificate achieved.** The terminal theorem builds with no `sorry`,
+and its axiom report is exactly the three standard axioms plus the six audited literature
+axioms. The unconditional certificate (no literature axioms) is not achieved. See "Current
+status" below.
 
 ## How to read this repository
 
@@ -549,9 +551,9 @@ The formalization is organized as follows (paper section → Lean file).
 | Bridge `Statement k → FamilyWitness k` | `Target.lean` | proved |
 | Separated family → ordered statement | `Sorting.lean` | proved |
 | §1 literature inputs (Liu–Sawhney; Conlon–Fox–He–Mubayi–Pham–Suk–Verstraëte Thm 3; Bourgain–Garaev; Mertens; divisor bound; Erdős–Turán) | `External.lean`, `ErdosTuran.lean` | **named axioms** (Chebyshev's bound and the prime-power count are proved) |
-| §2 Lemma 1 (powersmooth fibers) | `Lemma1.lean` | arithmetic core and assembly proved; analytic sub-lemmas (equidistribution via Bourgain–Garaev and Erdős–Turán, case counts, sieve) in progress |
+| §2 Lemma 1 (powersmooth fibers) | `Lemma1*.lean` | proved (equidistribution follows the author's blueprint) |
 | §2 Lemma 2 (separation of correction pairs) | `Lemma2.lean` | proved |
-| §3 Lemma 3 (sparse inverse covering) | `Lemma3.lean` | setup, face count (3.1), and endgame proved; steps 4–5 (approximation and divisor bound) in progress |
+| §3 Lemma 3 (sparse inverse covering) | `Lemma3*.lean` | proved |
 | §4 Lemma 4 (powersmooth supply) | `Lemma4.lean` | proved |
 | §4 cancellation identity (4.6) | `Cancel.lean`, `DenBound.lean` | proved |
 | §4 Lemma 5 (auxiliary pairs), (4.2), (4.5) | `Lemma5.lean` | proved |
@@ -559,15 +561,14 @@ The formalization is organized as follows (paper section → Lean file).
 | §5 Lemma 6 and the core | `Lemma6.lean`, `Core.lean`, `Harmonic.lean` | proved (Lemma 6 from the Liu–Sawhney axiom) |
 | §6 main pairs | `MainPairs.lean`, `Greedy.lean` | proved |
 | §7 assembly | `Assembly.lean` | proved |
-| Terminal theorem `candidateStatement` | `Main.lean` | compiles; axiom report currently includes `sorryAx` from Lemmas 1 and 3 |
+| Terminal theorem `candidateStatement` | `Main.lean` | proved; axiom report = 3 standard + 6 audited axioms, no `sorryAx` |
 | Audited six-axiom module | `ExternalAxioms.lean` | audited, unchanged |
-| Bridge from our input statements to the audited axioms | `ExternalBridge.lean` | in progress |
+| Bridge from our input statements to the audited axioms | `ExternalBridge.lean` | proved (all six) |
 | Ported elementary lemmas from the author's starter | `Expert.lean` | proved |
 
-"Proved" means the file compiles with no `sorry`; its dependency chain may still pass
-through the six axioms or through lemmas still in progress. Until every row is proved, the
-terminal theorem depends on `sorryAx` and not even the conditional certificate exists; until
-the six axioms are replaced by proofs, the unconditional certificate does not exist.
+Every row is proved; the only non-standard axioms in the terminal theorem's report are the
+six audited ones. Until those are replaced by proofs, the unconditional certificate does not
+exist.
 
 The literature inputs are the largest remaining obligation. Under the statement of
 faithfulness, citing them is not enough: they must be supplied as checked Lean proofs.
