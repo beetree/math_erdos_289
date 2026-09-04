@@ -24,3 +24,15 @@ import Erdos289.Lemma3Basic
 import Erdos289.Lemma3Steps45
 import Erdos289.Lemma1Equidist
 import Erdos289.Compat
+import Erdos289.SignedDefs
+import Erdos289.SignedTail
+import Erdos289.SignedCancel
+import Erdos289.SignedF1
+import Erdos289.SignedF2
+import Erdos289.SignedD1
+import Erdos289.Lemma5S
+import Erdos289.CoreS
+import Erdos289.DescentS
+import Erdos289.CorrDataS
+import Erdos289.AssemblyS2
+import Erdos289.CFPBridge

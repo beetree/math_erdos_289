@@ -642,12 +642,6 @@ theorem descentS' (C : CorrectionDataS ((1 : ℝ) / 10)) (hL : 4 ≤ C.L) :
           · intro i _ _; positivity
         linarith [hP'_mass, hmono]
 
-/-- Correction data exists for every sufficiently large cutoff `L` and every `H ≥ L`
-(from Lemmas F1, F2, D1, `lemma5S`, and `lemma3_wide` with `C = 8`, all at `ε = 1/10`). -/
-theorem correctionDataS_exists :
-    ∃ L₀ : ℕ, ∀ L, L₀ ≤ L → ∀ H, L ≤ H →
-      ∃ C : CorrectionDataS ((1 : ℝ) / 10), C.L = L ∧ C.H = H := by
-  sorry
 
 /-- **The signed correction procedure** (docs Section 4). Mirrors `Erdos289.descent`:
 exactly `C_H` pairs, each a retained signed correction pair or an auxiliary pair, with both

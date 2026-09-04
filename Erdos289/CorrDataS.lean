@@ -24,7 +24,7 @@ cutoff `L` and every `H ≥ L`, from:
   `Erdos289.SignedD1G.venv_le`).
 
 This produces the (currently `sorry`-free at the level of this file) proof of
-`correctionDataS_exists'`, matching the statement of the `sorry`ed
+`correctionDataS_exists`, matching the statement of the `sorry`ed
 `Erdos289.correctionDataS_exists` in `Erdos289/DescentS.lean`.
 -/
 
@@ -51,7 +51,7 @@ def SignedFiber.empty (ε : ℝ) (q : ℕ) : SignedFiber ε q where
 
 /-- **Correction data exists** for every sufficiently large cutoff `L` and every `H ≥ L`
 (from Lemmas F1, F2, D1, `lemma5S`, and `lemma3_wide` with `C = 8`, all at `ε = 1/10`). -/
-theorem correctionDataS_exists' :
+theorem correctionDataS_exists :
     ∃ L₀ : ℕ, ∀ L, L₀ ≤ L → ∀ H, L ≤ H →
       ∃ C : CorrectionDataS ((1 : ℝ) / 10), C.L = L ∧ C.H = H := by
   classical
