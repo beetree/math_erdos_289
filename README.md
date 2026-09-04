@@ -141,6 +141,7 @@ This audit applies to `Erdos289/Intervals.lean`, with SHA-256:
 ```
 
 The toolchain is Lean `v4.34.0-rc2` with Mathlib `v4.34.0-rc2` (revision `85e3a25e`, pinned in `lake-manifest.json`). A completed certificate must identify the final source revision, resolved dependency revisions, checked terminal theorem, and its axiom report. Changes to the target or its definitions require this correspondence to be checked again. **This certificate: tag `v1.0-unconditional-certificate` (commit `6de963b`); terminal theorem `Erdos289.candidateStatement : Erdos289.CandidateStatement`; axiom report `[propext, Classical.choice, Quot.sound]`.**
+
 ---
 
 ## Terminal theorem and verification procedure
