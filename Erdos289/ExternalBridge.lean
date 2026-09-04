@@ -66,7 +66,7 @@ theorem bridge_divisor_bound (ε : ℝ) (hε : 0 < ε) :
   rw [Filter.eventually_atTop]
   exact ⟨n₀, fun n hn => h n hn⟩
 
-/-! ## Shared periodicity lemma for the Erdős–Turán and Bourgain–Garaev bridges.
+/-! ## Shared periodicity lemma for the historical Erdős–Turán and Bourgain–Garaev bridges.
 
 Both `expPhase U w` (the author's character, using the canonical `ZMod U` representative) and
 `e U n` (our character, using an arbitrary integer representative) are `Complex.exp` of
@@ -130,9 +130,10 @@ theorem bridge_bourgain_garaev :
   rw [heq] at hkey
   exact hkey
 
-/-! ## The CFHMPSV structure bridge.
+/-! ## The CFHMPSV structure bridge (active: from the proved `Ported.cfhmpsv_structure_audited`)
 
-`Erdos289.External.Assumed.cfhmpsv_structure` and `Erdos289.cfhmpsv_structure` package the same
+The audited proposition `Erdos289.External.CFHMPSVStructureStatement` (proved as
+`Erdos289.Ported.cfhmpsv_structure_audited` in `CFPBridge.lean`) and `Erdos289.cfhmpsv_structure` package the same
 mathematical content (Conlon–Fox–Pham Theorem 1.5 / CFHMPSV Theorem 3) with the *same* logarithm
 convention (`Erdos289.External.logTwo`, base-two, in both the threshold `s ≤ c * m / logTwo m`
 and the cardinality-loss bound `m - c⁻¹ * s * logTwo m ≤ |J|`) and hence the *same* reported
@@ -150,8 +151,8 @@ reconciled are purely about the data representation:
   correspondence.
 
 Since the dilation scale `c * s` and the threshold/cardinality bounds now agree on the nose (no
-rescaling needed), every field of the conclusion transfers directly from the author's axiom;
-nothing is left as `sorry`. -/
+rescaling needed), every field of the conclusion transfers directly from the proved audited-form
+theorem. -/
 
 private theorem toNat_injOn_nonneg {S : Finset ℤ} (hS : ∀ x ∈ S, 0 ≤ x) :
     Set.InjOn Int.toNat (S : Set ℤ) := by
@@ -279,7 +280,7 @@ theorem bridge_cfhmpsv_structure (β : ℝ) (hβ : 1 < β) (η : ℝ) (hη0 : 0 
     exact hIntSubsetSums_sub (hz y hy')
 
 
-/-! ## The six input statements, now theorems derived from the audited axioms -/
+/-! ## Working literature inputs and the historical Bourgain–Garaev alias -/
 
 /-- **Liu–Sawhney**, *On further questions regarding unit fractions*, Theorem 1.3.
 

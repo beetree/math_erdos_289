@@ -15,7 +15,7 @@ case `C = 2`. This is what the elementary replacement argument of
 `docs/elementary_replacements.md` (Corollary C4) requires, its correction multipliers ranging
 over `[R(q), 8 q^ε]`.
 
-The proof follows Section 3 of `erdos_289_full_proof.pdf` ("Sparse modular inverse subsets
+The proof follows Section 4 of `erdos_289_full_proof.pdf` ("Sparse modular inverse subsets
 cover all residues"), a sparse extension of Conlon–Fox–He–Mubayi–Pham–Suk–Verstraëte,
 Theorem 2. It is organized as a chain of lemmas mirroring the paper's argument:
 
@@ -32,13 +32,13 @@ Theorem 2. It is organized as a chain of lemmas mirroring the paper's argument:
 * `ap_unit_covers`, `gap_active_repr`, `gap_active_nonempty`, `gap_dilate_face_count`,
   `gap_interval_count_ge`: reusable pieces of the additive-combinatorial core (paper's steps
   2, 3, and the final covering paragraph): coordinate extraction, existence of an active
-  coordinate, the face-counting cardinality bound (3.1), and dilated-interval integer counts.
+  coordinate, the face-counting cardinality bound (4.3), and dilated-interval integer counts.
   These are proved in full.
 * `divisor_count_bound`: the divisor-counting cardinality bound (paper's step 5), proved in
   full: pairing each `j` with a bounded witness and a small modular inverse embeds `J`
   injectively into boundedly many divisors of boundedly many integers.
 * `paper_steps_4_5`: the quantitative form of the paper's steps 4–5 (simultaneous
-  approximation + the divisor-bound argument, paper's (3.2)): the active-coordinate product
+  approximation + the divisor-bound argument, paper's (4.6)): the active-coordinate product
   `V` satisfies `V ≥ q^(1 - dε/8 - dε/500) / (16Cd)^d`. Proved in full in
   `Erdos289/Lemma3Steps45.lean` (a uniform-in-`d ≤ d₀` pigeonhole box count plus the
   divisor-count bound); `hd1_and_big` inside `lemma3_core` derives the paper's `d = 1`
@@ -67,7 +67,7 @@ GAP `P` of rank `≤ d₀` with `J ∪ {0} ⊆ P.set`, `|J| ≥ m/2` (`m` the am
 and a translate `x + (c s) • P ⊆ subsetSums J'` — the conclusion is that the subset sums of
 `J'` cover every residue class mod `q`.
 
-This packages the remainder of the paper's argument (Section 3, from "Choose an integer
+This packages the remainder of the paper's argument (Section 4.2, from "Choose an integer
 coordinate vector `v` representing `0` …" to the end of the proof):
 
 * **Coordinates.** Pick an integer vector `v` representing `0` in `P`. Set `ℓ i = ⌈α i⌉`,
@@ -77,25 +77,26 @@ coordinate vector `v` representing `0` …" to the end of the proof):
   active coordinates. Every `j ∈ J` is `∑ (n i - v i) * d i` over active `i`, with
   `|n i - v i| ≤ a i`.
 
-* **Face counting (paper's (3.1)).** Fixing the inactive coordinates at any admissible value
+* **Face counting (paper's (4.3)).** Fixing the inactive coordinates at any admissible value
   produces a face of the dilate `(c s) • P`; for each active coordinate the corresponding
   dilated interval contains at least `(c s / 2) * a i` integers, so the face has at least
   `(c s / 2) ^ d * V` points. These points are pairwise distinct (this needs the *dilate* to
-  be proper — see the caveat below) and all lie in `subsetSums J' ⊆ [0, s * q]`
-  (`Erdos289.subsetSums`), giving `(c s / 2) ^ d * V ≤ s * q + 1`, i.e.
-  `V ≪_ε q * s ^ (1 - d)`.
+  be proper — see the caveat below). After applying the supplied translation `x`, they are
+  distinct subset sums of `J'`, which lie in `[0, s * q]` (`Erdos289.subsetSums`), giving the
+  stated cardinality bound `(c s / 2) ^ d * V ≤ s * q + 1`, i.e. `V ≪_ε q * s ^ (1 - d)`.
 
 * **Simultaneous approximation.** If `V < q`, apply `simultaneous_approx` (above) to the
   generators `d i` of the active coordinates with `B i := (4 q / a i) * (V / q) ^ (1/d)`,
   giving `1 ≤ T < q` and `e i ≡ T * d i (mod q)` with `|e i| ≤ B i`.
 
-* **The divisor-bound argument (paper's (3.2)).** For `j ∈ J`, the centered representative of
-  `T * j mod q` has size `≤ R := 4 d q (V/q)^(1/d)`. Pairing it with `i ∈ I` such that
-  `j ≡ i⁻¹ (mod q)` produces `i * h = q * z + T` with `z` bounded and `q * z + T ≠ 0` (`z = 0`
-  is allowed; `|i * h| ≤ q^(1+ε)`); the divisor bound `Erdos289.divisor_bound` shows each `z` arises from at most
-  `q^(o(1))` pairs `(i, h)`, so counting pairs against `|J| ≥ m/2` forces
-  `V ≥ q^(1 - d ε / 8 - o(1))`. For `d ≥ 2` this contradicts the face-counting bound above
-  (since `(d-1)ε/2 - dε/8 = (3d-4)ε/8 > 0`), forcing `d = 1`.
+* **The divisor-bound argument (paper's (4.5)-(4.6)).** For `j ∈ J`, the centered
+  representative of `T * j mod q` has size `≤ R := 4 d q (V/q)^(1/d)`. Pairing it with the
+  witness `i ≤ C q^ε` such that `j ≡ i⁻¹ (mod q)` produces `i * h = q * z + T` with `z` bounded
+  and `q * z + T ≠ 0` (`z = 0` is allowed; `|i * h| ≤ (C/2) q^(1+ε)`); the divisor bound
+  `Erdos289.divisor_bound` shows each `z` arises from at most `q^(o(1))` pairs `(i, h)`, so
+  counting pairs against `|J| ≥ m/2` forces `V ≥ q^(1 - d ε / 8 - o(1))` (formally, the
+  fixed-loss bound of `paper_steps_4_5`). For `d ≥ 2` this contradicts the face-counting bound
+  above (since `(d-1)ε/2 - dε/8 = (3d-4)ε/8 > 0`), forcing `d = 1`.
 
 * **Conclusion when `d = 1`.** Every `j ∈ J` is then a multiple of the single active
   generator `d 1`; since these `j` are units mod `q`, so is `d 1`. The one-dimensional face
@@ -122,8 +123,8 @@ as the hypothesis `(GAP.dilate (c * s) P).Proper` below.
 **Further gaps discovered while formalizing this lemma (round 2).** Three additional facts,
 each true in the *concrete* application (`lemma3_structure_apply`/`lemma3`) but not derivable
 from `lemma3_core`'s hypotheses in the abstract, were needed: (1) the face-counting bound
-`(3.1)` needs `subsetSums J'` confined to an interval of length `O(s q)`, which needs elements
-of `J'` bounded by (roughly) `q`; (2) the divisor-count bound `(3.2)` needs, for each `j ∈ J`,
+`(4.3)` needs `subsetSums J'` confined to an interval of length `O(s q)`, which needs elements
+of `J'` bounded by (roughly) `q`; (2) the divisor-count bound `(4.6)` needs, for each `j ∈ J`,
 a bound `((j:ZMod q)⁻¹).val ≤ C q^ε`; (3) the face-counting construction needs, for each
 inactive coordinate, an admissible *integer* point in the dilated (real-valued) interval
 `[t α i, t β i]`. All three are now resolved (round 3) by adding the hypotheses `hJlt`,
@@ -160,7 +161,7 @@ lemma lemma3_core (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) (hc : 0 <
   have hCpos : (0:ℝ) < C := lt_of_lt_of_le one_pos hC
   obtain ⟨Q₁, hQ₁⟩ := paper_steps_4_5 ε c C hε0 hε1 hc hC d₀
   -- for the `d ≥ 2` rejection: `q` large enough that `q^(2·373ε/1000 - ε/2)` beats the
-  -- constants arising from `(cs/2)^d ≥ (c/4)^d q^(dε/2)` combined with `(3.2)`, uniformly over
+  -- constants arising from `(cs/2)^d ≥ (c/4)^d q^(dε/2)` combined with `(4.6)`, uniformly over
   -- `d ≤ d₀`.
   have hSbig2 : ∀ᶠ q:ℕ in atTop,
       (2:ℝ) * (64 * C * (d₀:ℝ) * (1 + 1/c)) ^ d₀ < (q:ℝ)^(123*ε/500) := by
@@ -262,10 +263,10 @@ lemma lemma3_core (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) (hc : 0 <
     have := gap_dilate_face_count P (c * (s:ℝ)) ht2 hPdil w hw (subsetSums J') x 0
       ((J'.card:ℤ)*q) (mul_nonneg (Int.natCast_nonneg _) (Int.natCast_nonneg _)) hJ'bound hxspec
     simpa [hActive, hddef, hVdef] using this
-  -- GAP 2 + steps 4–5 (simultaneous approximation, divisor-bound argument (3.2)), combined
-  -- with the face-count bound `hFace` above (paper's (3.1)), to force `d = 1` and get a
+  -- GAP 2 + steps 4–5 (simultaneous approximation, divisor-bound argument (4.6)), combined
+  -- with the face-count bound `hFace` above (paper's (4.3)), to force `d = 1` and get a
   -- quantitative lower bound on `V` exceeding `q` after scaling by `s`. See lemma3_core's
-  -- docstring, item (2), and Section 3 of the paper (steps 4–5).
+  -- docstring, item (2), and Section 4 of the paper (steps 4–5).
   have hd1_and_big : d = 1 ∧ (c * (s:ℝ) / 2) * (V:ℝ) > q := by
     have hdd0 : d ≤ d₀ := by
       have h1 : Active.card ≤ Fintype.card (Fin P.D) := Finset.card_le_univ Active

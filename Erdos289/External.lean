@@ -21,13 +21,14 @@ open scoped BigOperators
 
 /-! ## 1. Liu–Sawhney: dense subsets of `[1,N]` contain a unit-fraction sum to `1`. -/
 
--- `liu_sawhney` is now derived from the audited axiom module; see `ExternalBridge.lean`.
+-- `liu_sawhney` is supplied by the vendored proof `Erdos289.Ported.liu_sawhney` through
+-- `ExternalBridge.lean` (audited form: `Erdos289.Ported.liu_sawhney_audited`).
 
 /-! ## 2. Conlon–Fox–He–Mubayi–Pham–Suk–Verstraëte: structure in bounded subset sums.
 
 To state this theorem we first need a notion of a (proper) generalized arithmetic
 progression (GAP) of bounded rank, and its dilates, following the conventions spelled
-out in the proof text (Section 1, lines 63-81): a GAP of rank `D` is given by integer
+out in the proof text (Section 2.1): a GAP of rank `D` is given by integer
 generators `d : Fin D → ℤ` together with real coordinate bounds `α β : Fin D → ℝ`; its
 underlying set consists of the integer combinations `∑ i, n i * d i` with each integer
 coordinate `n i` inside `[α i, β i]`. It is *proper* when this coordinate-to-value map is
@@ -81,14 +82,16 @@ integers: `{∑ x ∈ T, (x : ℤ) | T ⊆ J}`. -/
 def subsetSums (J : Finset ℕ) : Set ℤ :=
   {x | ∃ T ⊆ J, x = ∑ i ∈ T, (i : ℤ)}
 
--- `cfhmpsv_structure` is now derived from the audited axiom module; see `ExternalBridge.lean`.
+-- `cfhmpsv_structure` is `bridge_cfhmpsv_structure` in `ExternalBridge.lean`, proved from the
+-- vendored `Erdos289.Ported.cfhmpsv_structure_audited` (`CFPBridge.lean`).
 
-/-! ## 3. Bourgain–Garaev: short sums of modular inverses. -/
+/-! ## 3. Bourgain–Garaev: short sums of modular inverses (historical; not used by the terminal theorem). -/
 
 /-- The additive character `e_m(x) = exp(2πix/m)`. -/
 noncomputable def e (m : ℕ) (x : ℤ) : ℂ := Complex.exp (2 * Real.pi * Complex.I * x / m)
 
--- `bourgain_garaev` is now derived from the audited axiom module; see `ExternalBridge.lean`.
+-- `bourgain_garaev` (historical alias in `ExternalBridge.lean`) is derived from the archived axiom
+-- module; it is not in the dependency chain of `Erdos289.candidateStatement`.
 
 /-! ## 4. Classical estimates.
 

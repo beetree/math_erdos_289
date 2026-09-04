@@ -45,7 +45,7 @@ found 69,117 constants and no axiom other than those three.
 
 All 258 modules of the import closure, ported from the identified snapshot with the edits listed
 below, preserving module paths (`ErdosProblems/...`):
-90,434 lines after the edits below (91,108 before). Not one module was dropped; see
+about 90,400 lines after the edits below (about 91,100 before). Not one module was dropped; see
 `PRUNING_NOTES.md` for the proof-term data showing that 22 of them are unused and why pruning
 was not applied.
 
@@ -58,8 +58,8 @@ was not applied.
    `f.normDet_ne_zero_tfae.out 0 4` → `f.normDet_ne_zero_tfae.out 1 5`
    (`List.TFAE.out` became 1-indexed). See `docs/provenance/CFP/PORT_LOG_cfp_w1a.md`.
 
-That is the complete diff: `diff -r` against the source shows only the removed command lines
-and this one line.
+That was the complete diff at the standalone-port stage: `diff -r` against the source then showed
+only the removed command lines and this one line. Subsequent integration edits are listed below.
 
 ## Bridge and axiom check
 
@@ -85,8 +85,8 @@ repository the library is built by `lake build` (library `ErdosProblems` in `lak
 
 - At 13 sites (listed by `git log -p` of this file's integration commit), the deprecated tactic
   `push_neg` was replaced by its documented replacement `push Not`, to keep the project's build
-  warning-free. No other change to any ported file. Linters that would otherwise fire on the
-  verbatim code are disabled for this library in `lakefile.toml`.
+  warning-free. Linters that would otherwise fire on the ported code are disabled for this
+  library in `lakefile.toml`.
 - In `ErdosProblems/Erdos186/CFP/RandomPartition.lean` and `ErdosProblems/Erdos186/CFP/RandomPartitionSharp.lean`,
   merged consecutive `intro` lines into explicit `intro B hBpart hlarge hzeroB d hd hdRank P hsteps hvolume hcontained`
   to eliminate "Try this" suggestions.

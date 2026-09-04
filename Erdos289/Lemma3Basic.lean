@@ -15,7 +15,7 @@ case `C = 2`. This is what the elementary replacement argument of
 `docs/elementary_replacements.md` (Corollary C4) requires, its correction multipliers ranging
 over `[R(q), 8 q^ε]`.
 
-The proof follows Section 3 of `erdos_289_full_proof.pdf` ("Sparse modular inverse subsets
+The proof follows Section 4 of `erdos_289_full_proof.pdf` ("Sparse modular inverse subsets
 cover all residues"), a sparse extension of Conlon–Fox–He–Mubayi–Pham–Suk–Verstraëte,
 Theorem 2. It is organized as a chain of lemmas mirroring the paper's argument:
 
@@ -32,13 +32,13 @@ Theorem 2. It is organized as a chain of lemmas mirroring the paper's argument:
 * `ap_unit_covers`, `gap_active_repr`, `gap_active_nonempty`, `gap_dilate_face_count`,
   `gap_interval_count_ge`: reusable pieces of the additive-combinatorial core (paper's steps
   2, 3, and the final covering paragraph): coordinate extraction, existence of an active
-  coordinate, the face-counting cardinality bound (3.1), and dilated-interval integer counts.
+  coordinate, the face-counting cardinality bound (4.3), and dilated-interval integer counts.
   These are proved in full.
 * `divisor_count_bound`: the divisor-counting cardinality bound (paper's step 5), proved in
   full: pairing each `j` with a bounded witness and a small modular inverse embeds `J`
   injectively into boundedly many divisors of boundedly many integers.
 * `paper_steps_4_5`: the quantitative form of the paper's steps 4–5 (simultaneous
-  approximation + the divisor-bound argument, paper's (3.2)): the active-coordinate product
+  approximation + the divisor-bound argument, paper's (4.6)): the active-coordinate product
   `V` satisfies `V ≥ q^(1 - dε/8 - dε/500) / (16Cd)^d`. Proved in full in
   `Erdos289/Lemma3Steps45.lean` (a uniform-in-`d ≤ d₀` pigeonhole box count plus the
   divisor-count bound); `hd1_and_big` inside `lemma3_core` derives the paper's `d = 1`
@@ -571,7 +571,7 @@ lemma gap_active_nonempty (P : GAP) (v : Fin P.D → ℤ)
   simp at hjeq
   exact hjne hjeq
 
-/-- **Face counting (3.1)**. Fixing the inactive coordinates of the dilate `t • P`
+/-- **Face counting (4.3)**. Fixing the inactive coordinates of the dilate `t • P`
 (`t = c * s`) at an admissible vector `w`, and letting the active coordinates range over
 their dilated intervals, produces (via properness of the dilate) an injective map into any
 set `S` containing `x + (dilate).set` and bounded in `[L, U]`; comparing cardinalities gives

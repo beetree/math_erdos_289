@@ -1,7 +1,7 @@
 # Pruning data (not applied)
 
-The port keeps the full 258-module import closure of `Erdos186.CFP.nonemptyIntegerTheorem15`
-verbatim. A proof-term walk (run on the original v4.33 build, `ClosureConsts.lean`) shows that
+The port keeps every module of the full 258-module import closure of
+`Erdos186.CFP.nonemptyIntegerTheorem15`, with the edits documented in `PROVENANCE.md`. A proof-term walk (run on the original v4.33 build, `ClosureConsts.lean`) shows that
 only 236 of the modules and roughly 64,000 of the 91,000 lines are used by the proof:
 
 - `docs/provenance/CFP/kept_modules.txt` / `dropped_modules.txt`: the 236 used / 22 unused modules. The unused

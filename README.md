@@ -175,16 +175,25 @@ or, after the build, with a check file `AxiomCheck.lean` containing
 
 ```lean
 import Erdos289.Main
+
 #check (Erdos289.candidateStatement : Erdos289.CandidateStatement)
 #print axioms Erdos289.candidateStatement
+
+#print axioms Erdos289.Ported.cfhmpsv_structure_audited
+#print axioms Erdos289.Ported.liu_sawhney_audited
+#print axioms Erdos289.Ported.mertens_second_audited
+#print axioms Erdos289.Ported.divisor_bound_audited
 ```
 
-run `lake env lean AxiomCheck.lean`. Use the lowercase theorem name; `Erdos289.CandidateStatement`
+run `lake env lean AxiomCheck.lean`; each line should report exactly `[propext, Classical.choice,
+Quot.sound]`. The first report is the essential check; the last four are diagnostics for the
+retained theorem interfaces. Use the lowercase theorem name; `Erdos289.CandidateStatement`
 is the proposition, not the proof. For the unconditional certificate described in the statement of faithfulness, the axiom
 report must list only `propext`, `Classical.choice`, and `Quot.sound`.
 
-At tag `v1.0-unconditional-certificate` (commit `6de963b`) this is the case: the build is
-warning-free and its single info line is that report. The module `Erdos289/ExternalAxioms.lean`
+The tag `v1.0-unconditional-certificate` (commit `6de963b`) records an earlier certificate for
+the same terminal target; the transcript at the top identifies the later checked revision. At
+both, the build is warning-free and its single info line is that report. The module `Erdos289/ExternalAxioms.lean`
 (the author's audited declarations of six literature results as axioms) is kept unchanged for the
 record; none of its axioms is in the terminal theorem's dependency chain.
 

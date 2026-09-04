@@ -4,12 +4,13 @@ import Erdos289.ExternalBridge
 /-!
 # Lemma 3: steps 4-5
 
-The simultaneous-approximation / divisor-bound step (3.2) of Section 3 of
-`erdos_289_full_proof.pdf`, isolated for parallel work. Both lemmas here are proved in
-full; there is no `sorry` in this file.
+The simultaneous-approximation / divisor-bound step of the wide covering argument
+(`erdos_289_full_proof.pdf`, Section 4: Proposition 2 and the lower bound for `V_GAP`, displays
+(4.5)-(4.6)). Both lemmas here are proved in full; there is no `sorry` in this file.
 
-* `box_prod_lt`: the pigeonhole box count of the paper (Section 3, lines 238-252).
-* `paper_steps_4_5`: the quantitative form of the paper's steps 4-5, i.e. `(3.2)`.
+* `box_prod_lt`: the pigeonhole box count of the paper (Section 4.1, Proposition 2).
+* `paper_steps_4_5`: the quantitative form of the paper's steps 4-5, with the fixed-loss
+  bound stated in the paper's Appendix A.3.
 -/
 
 set_option maxRecDepth 100000
@@ -19,7 +20,7 @@ namespace Erdos289
 
 open Finset Filter Real Topology
 
-/-- **Pigeonhole box count** (paper, Section 3, lines 238-252). If the reals `u i`,
+/-- **Pigeonhole box count** (paper, Section 4.1, Proposition 2). If the reals `u i`,
 `i ∈ A`, all exceed `1/4` and their product is exactly `q / 4 ^ |A|`, then the number of
 boxes `∏ i ∈ A, ⌈u i⌉₊` is `< q`.
 
@@ -86,14 +87,15 @@ lemma box_prod_lt {q : ℕ} (hq2 : 2 ≤ q) {D : ℕ} (A : Finset (Fin D))
       _ = (1 / 2) * (q : ℝ) := by rw [← e3, e4]
       _ < (q : ℝ) := by linarith
 
-/-- **Paper's steps 4-5, quantitative form (`(3.2)`).** For a proper GAP `P` representing `0`
+/-- **Paper's steps 4-5, quantitative form.** For a proper GAP `P` representing `0`
 via `v` and every `j ∈ J` (`J` a set of naturals `< q`, each with a small modular-inverse
 witness `i j ≤ C q^ε` for a fixed `C ≥ 1`, `|J| ≥ q^(7ε/8)/2`), the active-coordinate count
 `d ≥ 1` and product `V` of active extents satisfy `V ≥ q^(1 - dε/8 - dε/500) / (16Cd)^d`.
-(The paper's Lemma 3 is the case `C = 2`, where the constant is the stated `(32d)^d`.)
 
-This is the paper's simultaneous-approximation / divisor-bound argument (Section 3,
-steps 4-5). The proof:
+This implements the wide covering argument of Section 4 of the paper (general fixed `C`,
+constant `(16Cd)^d`), using the fixed-loss lower bound stated in its Appendix A.3. The paper's
+divisor-envelope presentation (display (4.5), from `|J| ≥ 3m/4`) and this formal estimate have
+different intermediate bounds but give the same covering conclusion. The proof:
 
 * If `V ≥ q` the bound is trivial (the exponent is `≤ 1` and `(16Cd)^d ≥ 1`), so assume
   `V < q` and put `ρ := (V/q)^(1/d) ∈ (0,1)`.
