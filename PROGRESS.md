@@ -25,15 +25,14 @@ Bookkeeping sorries that do not block anything once S1–S3 close:
 
 | Declaration | File | Note |
 |---|---|---|
-| `bridge_cfhmpsv_structure` (3 conjuncts) | `ExternalBridge.lean` | Our statement used natural logs with one constant; the audited axiom uses base-2 logs. Sonnet (`realign`) is restating ours in the audited form and closing the bridge. |
+| (none) | `ExternalBridge.lean` | All six bridges closed; our input statements are now provable from the audited axioms. The swap that removes our own six axiom declarations is scheduled for when the running agents finish (they import the current input file). |
 | variant files `Lemma1EquidistB/C.lean`, `Lemma3Steps45B.lean` | | competitors' working copies; deleted or merged when a winner is chosen |
 
 ### B. The six axioms (block the unconditional certificate)
 
 All six are declared in the author's audited module `ExternalAxioms.lean` (SHA-256
 `6a4affa2…`), and separately in our `External.lean`/`ErdosTuran.lean` in our own encoding.
-`ExternalBridge.lean` proves ours from the audited ones (5 of 6 done; the sixth is the
-realignment above). When the bridge is complete, our six declarations become theorems and
+`ExternalBridge.lean` proves ours from the audited ones (all 6 done). When the bridge is complete, our six declarations become theorems and
 the axiom report names exactly `Erdos289.External.Assumed.*`.
 
 | # | Axiom | Source | Used by | Prospects for removal |
@@ -63,7 +62,7 @@ shows only the three standard axioms.
 | `oddcount` | `claude-leet`, Sonnet, high | `Lemma1OddCount.lean` | S2 | running |
 | `steps45` | `claude-johan`, Opus, high | `Lemma3Steps45.lean` | S3 | running |
 | `steps45B` | `agy`, Gemini 3.8 Flash high | `Lemma3Steps45B.lean` (new) | S3, competitor | running |
-| `realign` | `claude-leet`, Sonnet, high | `External.lean`, `Lemma3Basic.lean`, `ExternalBridge.lean` | base-2 realignment + sixth bridge | running |
+| `realign` | `claude-leet`, Sonnet, high | `External.lean`, `Lemma3Basic.lean`, `ExternalBridge.lean` | base-2 realignment + sixth bridge | done |
 
 Rules: one agent per file; competitors work on renamed copies; the orchestrator (this session)
 merges winners, splits files, fixes interfaces, commits only compiling states.
