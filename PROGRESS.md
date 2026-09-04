@@ -4,13 +4,14 @@ Last updated: 2026-09-03 23:20 PDT. Live view: `scripts/status.sh`.
 
 ## One-line status
 
-**The conditional certificate is achieved, and two of the six axioms are already
-discharged.** `Erdos289.candidateStatement : CandidateStatement` builds with no `sorry`
-anywhere in its dependency chain, and `scripts/Axioms.lean` reports exactly `propext`,
-`Classical.choice`, `Quot.sound`, and **four** audited axioms: `liu_sawhney`,
-`cfhmpsv_structure`, `bourgain_garaev`, `erdos_turan`. The divisor bound and Mertens' second
-theorem are proved via verbatim ports from the `plby/lean-proofs` corpus (`SolveMath/`,
-`Erdos289/Ported.lean`). Removing the remaining four gives the **unconditional certificate**.
+**Three audited axioms remain.** `Erdos289.candidateStatement : CandidateStatement` builds
+with no `sorry` anywhere in its dependency chain, and `scripts/Axioms.lean` reports exactly
+`propext`, `Classical.choice`, `Quot.sound`, and **three** audited axioms:
+`cfhmpsv_structure`, `bourgain_garaev`, `erdos_turan`. The divisor bound, Mertens' second
+theorem, and Liu–Sawhney are proved via verbatim ports from the `plby/lean-proofs` corpus
+(`SolveMath/`, 41 modules, ≈ 30,700 lines; `Erdos289/Ported.lean`). Removing the remaining
+three gives the **unconditional certificate**. `Erdos289/Compat.lean` also derives the
+corpus/FormalConjectures-style statement `erdos_289_statement` from ours.
 
 ## What has to be removed
 
@@ -87,3 +88,4 @@ Basic (setup, pigeonhole, face count, endgame), core assembly.
 6. Author's Lemma 1 equidistribution blueprint arrived (20 explicit lemmas with constants); fed to the agents on S1.
 7. S1 (Opus), S2 (Sonnet), S3 (Opus and Gemini independently) closed; competitor files removed; axioms routed through the bridge. Conditional certificate achieved at commit `38b270a`.
 8. Ported axiom-clean proofs of the divisor bound and Mertens (from `plby/lean-proofs` via `solve-math`) integrated; four audited axioms remain.
+9. Liu–Sawhney port integrated; three audited axioms remain (commit `80ec5f7`).
