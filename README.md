@@ -1,5 +1,28 @@
 # Erdős Problem 289: Lean 4 formalization
 
+## Verification transcript
+
+A fresh clone at tag `v1.0-unconditional-certificate` (commit `6de963b`), built from source
+with only the pinned Mathlib cache downloaded, produces no errors and no warnings; the single
+Lean info line is the axiom report of the terminal theorem, printed by `Erdos289/Main.lean`:
+
+```console
+$ git clone https://github.com/beetree/math_erdos_289.git && cd math_erdos_289
+$ git checkout v1.0-unconditional-certificate
+$ lake exe cache get
+$ lake build
+ℹ [9101/9104] Built Erdos289.Main (2.8s)
+info: Erdos289/Main.lean:21:0: 'Erdos289.candidateStatement' depends on axioms: [propext, Classical.choice, Quot.sound]
+✔ [9102/9104] Built Erdos289.Compat (2.9s)
+✔ [9103/9104] Built Erdos289 (2.6s)
+Build completed successfully (9104 jobs).
+```
+
+`propext`, `Classical.choice`, and `Quot.sound` are Lean's standard foundational axioms.
+No `sorryAx`, no `Lean.ofReduceBool`, and no project-declared axiom appears: the theorem
+`Erdos289.candidateStatement : Erdos289.CandidateStatement` is proved from Mathlib alone.
+Toolchain: Lean `v4.34.0-rc2`, Mathlib `v4.34.0-rc2` (revision `85e3a25e`).
+
 This repository formalizes, in Lean 4 with Mathlib, the candidate proof in
 `erdos_289_full_proof.pdf` (revised nonadjacent version, 4 September 2026) of a
 strengthened form of Erdős Problem 289.
