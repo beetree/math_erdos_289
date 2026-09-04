@@ -98,11 +98,8 @@ theorem const_le_mul_log_eventually (c η : ℝ) (hη : 0 < η) :
   rw [div_le_iff₀ hη] at hq
   linarith
 
-/-- `c ≤ q^ε` eventually, for fixed `c` and `ε > 0`. -/
-theorem rpow_ge_eventually (ε : ℝ) (hε : 0 < ε) (c : ℝ) :
-    ∀ᶠ q : ℕ in atTop, c ≤ (q:ℝ)^ε := by
-  have h := (tendsto_rpow_atTop hε).comp tendsto_natCast_atTop_atTop
-  exact h.eventually_ge_atTop c
+-- `rpow_ge_eventually` is provided by the `Erdos289.Lemma1OddCount` import (avoids a
+-- duplicate declaration in the same `Erdos289` namespace).
 
 open Classical in
 /-- The set of `t` in `Icc A B` with a prime factor exceeding `Dn`. -/
