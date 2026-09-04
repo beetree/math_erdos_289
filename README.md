@@ -47,12 +47,11 @@ Do not edit it. Any change to it invalidates the audit.
 
 ## Statement of faithfulness
 
-The following is the statement supplied by the author of the proof, reproduced verbatim
-as supplied by the author (the source file is kept outside the repository). (Its remarks about the
-toolchain and about the uncompiled starter refer to the author's original starter
-project, whose `Intervals.lean` is the audited file used here. The toolchain named there,
-Lean 4.19, is out of date: this repository pins Lean and Mathlib `v4.34.0-rc2`, on which the
-audited file compiles unchanged.)
+The following statement, supplied by the author of the proof, is reproduced verbatim except
+that its title is demoted to a subheading for layout. Its remarks about the toolchain and the
+uncompiled starter refer to the author's original starter project, whose `Intervals.lean` is the
+audited file used here; the toolchain named there (Lean 4.19) is out of date, as this repository
+pins Lean and Mathlib `v4.34.0-rc2`, on which the audited file compiles unchanged.
 
 ---
 
