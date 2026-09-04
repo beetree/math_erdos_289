@@ -293,13 +293,6 @@ theorem bridge_cfhmpsv_structure (β : ℝ) (hβ : 1 < β) (η : ℝ) (hη0 : 0 
     have hy' : y ∈ P.carrierAt (c * (s : ℝ)) := by rw [carrierAt_eq]; exact hy
     exact hIntSubsetSums_sub (hz y hy')
 
-#print axioms bridge_liu_sawhney
-#print axioms bridge_mertens_second
-#print axioms bridge_divisor_bound
-#print axioms bridge_erdos_turan
-#print axioms bridge_bourgain_garaev
-#print axioms bridge_cfhmpsv_structure
-
 
 /-! ## The six input statements, now theorems derived from the audited axioms -/
 
