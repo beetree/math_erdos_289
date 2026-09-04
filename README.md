@@ -6,13 +6,14 @@
 report of the terminal theorem, printed by `Erdos289/Main.lean`:
 
 ```console
-johan@DESKTOP-9NEKHDK:~/math_erdos_289$ cat lean-toolchain
+$ cat lean-toolchain
 leanprover/lean4:v4.34.0-rc2
-johan@DESKTOP-9NEKHDK:~/math_erdos_289$ lake build
+$ lake exe cache get
+$ lake build
 ℹ [9101/9104] Replayed Erdos289.Main
 info: Erdos289/Main.lean:21:0: 'Erdos289.candidateStatement' depends on axioms: [propext, Classical.choice, Quot.sound]
 Build completed successfully (9104 jobs).
-johan@DESKTOP-9NEKHDK:~/math_erdos_289$
+$
 ```
 
 `propext`, `Classical.choice`, and `Quot.sound` are Lean's standard foundational axioms.
