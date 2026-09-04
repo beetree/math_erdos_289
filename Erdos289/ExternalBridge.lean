@@ -5,6 +5,7 @@ import SolveMath.Ported.DivisorBound
 import SolveMath.Ported.MertensSecond
 import SolveMath.Ported.LiuSawhney
 import SolveMath.Ported.ErdosTuranFinite
+import Erdos289.CFPBridge
 
 /-!
 # Bridging the author's audited external axioms to our statements
@@ -225,7 +226,7 @@ theorem bridge_cfhmpsv_structure (β : ℝ) (hβ : 1 < β) (η : ℝ) (hη0 : 0 
             (∀ x ∈ J, (x : ℤ) ∈ P.set) ∧ (0 : ℤ) ∈ P.set ∧
             J'.card ≤ s ∧
             ∃ x : ℤ, ∀ y ∈ (GAP.dilate (c * (s : ℝ)) P).set, x + y ∈ subsetSums J' := by
-  obtain ⟨c, hc, d₀, m₀, hm₀, h⟩ := Erdos289.External.Assumed.cfhmpsv_structure β η hβ hη0 hη1
+  obtain ⟨c, hc, d₀, m₀, hm₀, h⟩ := Erdos289.Ported.cfhmpsv_structure_audited β η hβ hη0 hη1
   refine ⟨c, hc, d₀, ?_⟩
   rw [Filter.eventually_atTop]
   refine ⟨m₀, fun m hm n hn A hAsub hAcard s hsη hsc => ?_⟩
@@ -324,7 +325,7 @@ for the face count in the proof of Lemma 3). The logarithm here is the source-na
 `CFHMPSVStructureStatement` in `ExternalAxioms.lean` on the nose, so that the bridge in
 `ExternalBridge.lean` can use the very same constant `c`.
 
-Derived from the audited axiom `Erdos289.External.Assumed.cfhmpsv_structure` via the bridge above. -/
+Derived from the ported theorem `Erdos289.Ported.cfhmpsv_structure_audited` (Conlon–Fox–Pham, vendored in `ErdosProblems/`) via the bridge above. -/
 alias cfhmpsv_structure := bridge_cfhmpsv_structure
 
 /-- **Bourgain–Garaev**, *Kloosterman sums in residue rings*, Theorem 5.
