@@ -34,7 +34,7 @@ Do not edit it. Any change to it invalidates the audit.
 ## Statement of faithfulness
 
 The following is the statement supplied by the author of the proof, reproduced verbatim
-from `expert_input/erdos_289_statement_of_faithfulness.md`. (Its remarks about the
+as supplied by the author (the source file is kept outside the repository). (Its remarks about the
 toolchain and about the uncompiled starter refer to the author's original starter
 project, whose `Intervals.lean` is the audited file used here.)
 
@@ -181,6 +181,6 @@ faithfulness, citing them is not enough: they must be supplied as checked Lean p
 ## Layout
 
 - `erdos_289_full_proof.pdf`: the manuscript being formalized.
-- `expert_input/`: the author's statement of faithfulness, status note, and starter project.
+- The author's statement of faithfulness is reproduced above; the audited `Intervals.lean` is included unchanged.
 - `Erdos289/`: the Lean sources. `lakefile.toml` pins Mathlib to tag `v4.34.0-rc2`.
 - `FORMALIZATION_PLAN.md`: the file map and order of work.
