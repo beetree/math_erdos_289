@@ -56,7 +56,7 @@ audited file compiles unchanged.)
 
 ---
 
-# Statement of faithfulness: Erdős Problem 289
+### Statement of faithfulness: Erdős Problem 289
 
 **Version: 4 September 2026. Status: statement audit; formal proof incomplete and uncompiled.**
 
