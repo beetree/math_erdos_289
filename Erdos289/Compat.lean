@@ -47,4 +47,3 @@ theorem erdos_289 : erdos_289_statement := candidateStatement_implies_erdos_289 
 
 end Erdos289
 
-#print axioms Erdos289.erdos_289
