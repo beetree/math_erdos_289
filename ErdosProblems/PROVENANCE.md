@@ -81,3 +81,6 @@ and this one line.
 - In `ErdosProblems/Erdos186/CFP/RandomPartition.lean` and `ErdosProblems/Erdos186/CFP/RandomPartitionSharp.lean`,
   merged consecutive `intro` lines into explicit `intro B hBpart hlarge hzeroB d hd hdRank P hsteps hvolume hcontained`
   to eliminate "Try this" suggestions.
+- In `ErdosProblems/Erdos186/CFP/Bilu/Section6DistortingHalfCell.lean` (three sites) and
+  `ErdosProblems/Erdos186/CFP/NoCarryEmbedding.lean` (one site), `ring` calls that only succeeded by
+  falling back to `ring_nf` (emitting a "Try this" info on every build) were replaced by `ring_nf`.
