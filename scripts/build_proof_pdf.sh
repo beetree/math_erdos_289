@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Compile expert_input/erdos_289_full_proof.tex into erdos_289_full_proof.pdf at the repo root.
+# Compile erdos_289_full_proof.tex into erdos_289_full_proof.pdf at the repo root.
 # Requires pdflatex + latexmk (texlive-latex-extra, texlive-fonts-recommended, latexmk).
 set -euo pipefail
 repo="$(cd "$(dirname "$0")/.." && pwd)"
-src="$repo/expert_input/erdos_289_full_proof.tex"
+src="$repo/erdos_289_full_proof.tex"
 out="$repo/erdos_289_full_proof.pdf"
 build="${TMPDIR:-/tmp}/erdos289-pdf-build"
 mkdir -p "$build"
