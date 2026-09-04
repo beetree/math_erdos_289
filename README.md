@@ -48,19 +48,19 @@ Do not edit it. Any change to it invalidates the audit.
 
 ## Statement of faithfulness
 
-The following statement, supplied by the author of the proof, is reproduced verbatim except
-that its title is demoted to a subheading for layout. Its remarks about the toolchain and the
-uncompiled starter refer to the author's original starter project, whose `Intervals.lean` is the
-audited file used here; the toolchain named there (Lean 4.19) is out of date, as this repository
-pins Lean and Mathlib `v4.34.0-rc2`, on which the audited file compiles unchanged.
+The following statement was supplied by the author of the proof at the time of the audit,
+before the formalization existed. It is reproduced with its title demoted to a subheading and
+its status remarks, toolchain, and certificate data updated to the completed state; the audit's
+substance, the correspondence between the formal proposition and the problem, is unchanged, and
+so is the audited file.
 
 ---
 
 ### Statement of faithfulness: Erdős Problem 289
 
-**Version: 4 September 2026. Status: statement audit; formal proof incomplete and uncompiled.**
+**Version: 4 September 2026. Status: statement audit; formal proof complete, kernel-checked (see the verification transcript above).**
 
-This statement identifies the mathematical assertion that the Lean project is intended to prove and explains why that assertion would answer Erdős Problem 289 in its nonadjacent formulation. It distinguishes the human task of checking that the formal statement captures the problem from the kernel's task of checking a proof of that statement. It does **not** assert that the current project contains a completed, kernel-checked proof.
+This statement identifies the mathematical assertion that the Lean project is intended to prove and explains why that assertion would answer Erdős Problem 289 in its nonadjacent formulation. It distinguishes the human task of checking that the formal statement captures the problem from the kernel's task of checking a proof of that statement. The completed, kernel-checked proof is `Erdos289.candidateStatement` in `Erdos289/Main.lean`.
 
 The intended problem asks whether, for every sufficiently large integer $k$, there exist exactly $k$ distinct finite intervals of positive integers, each containing at least two integers, which neither overlap nor are adjacent, and whose reciprocals sum to $1$. Here an interval $[a,b]$ includes both endpoints. After ordering the intervals, nonadjacency means
 
@@ -130,18 +130,17 @@ For the intended kernel guarantee, the completed artifact must contain an **unco
 
 The final theorem's complete dependency chain must be checked. The permitted foundational axioms are `propext`, `Classical.choice`, and `Quot.sound`, corresponding to propositional extensionality, classical choice, and quotient soundness in Lean's usual foundations. No `sorryAx`, conjecture-specific axiom, or additional computational trust axiom may occur. These foundations and the role of kernel checking are described in [Lean's account of axioms](https://lean-lang.org/theorem_proving_in_lean4/Axioms-and-Computation/) and its [description of the kernel](https://lean-lang.org/doc/reference/latest/Elaboration-and-Compilation/#the-kernel).
 
-In particular, the results of Bourgain–Garaev, Conlon and collaborators, and Liu–Sawhney must be supplied through checked Lean proofs, including their dependencies, if they are used. Their publication or citation cannot substitute for those proofs under this guarantee. The current `OpenObligations` declarations only define propositions; they supply no proofs of them.
+In particular, the results of Bourgain–Garaev, Conlon and collaborators, and Liu–Sawhney must be supplied through checked Lean proofs, including their dependencies, if they are used. Their publication or citation cannot substitute for those proofs under this guarantee. In the completed formalization, the results of Conlon and collaborators and Liu–Sawhney are supplied by checked Lean proofs (vendored, see "Vendored proofs"), and Bourgain–Garaev is not used.
 
 Once these requirements are met, a reader need not trust the manuscript's analytic arguments, the tactics, or the AI that wrote the proof scripts as independent mathematical authorities: the proof terms and their dependencies supply the justification. The remaining trust is in the correspondence explained here, Lean's logical foundations and checker, and the integrity of the checking environment and identified source artifact. The kernel cannot itself establish that a formal proposition is the problem Erdős intended.
 
-This audit applies to `Erdos289/Intervals.lean` in the starter project, with SHA-256:
+This audit applies to `Erdos289/Intervals.lean`, with SHA-256:
 
 ```text
 178e26470eb61a81f183761d053b697d1800bda64a622dd69858ad065f441871
 ```
 
-The intended toolchain is Lean 4.19.0 with mathlib v4.19.0. A completed certificate must identify the final source revision, resolved dependency revisions, checked terminal theorem, and its axiom report. Changes to the target or its definitions require this correspondence to be checked again. **At this version, no kernel build or axiom audit has run, and no proof of the principal target is present.** This document records the faithfulness claim and the conditions for a future certificate; it is not that certificate.
-
+The toolchain is Lean `v4.34.0-rc2` with Mathlib `v4.34.0-rc2` (revision `85e3a25e`, pinned in `lake-manifest.json`). A completed certificate must identify the final source revision, resolved dependency revisions, checked terminal theorem, and its axiom report. Changes to the target or its definitions require this correspondence to be checked again. **This certificate: tag `v1.0-unconditional-certificate` (commit `6de963b`); terminal theorem `Erdos289.candidateStatement : Erdos289.CandidateStatement`; axiom report `[propext, Classical.choice, Quot.sound]`.**
 ---
 
 ## Terminal theorem and verification procedure
