@@ -16,3 +16,7 @@ import Erdos289.Target
 import Erdos289.ExternalAxioms
 import Erdos289.ExternalBridge
 import Erdos289.Main
+import Erdos289.Lemma1Basic
+import Erdos289.Lemma1EquidistStmt
+import Erdos289.Lemma1EvenCount
+import Erdos289.Lemma1OddCount
