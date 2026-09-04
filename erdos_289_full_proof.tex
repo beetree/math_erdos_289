@@ -206,7 +206,7 @@ The \emph{mass} of a set of pairwise disjoint intervals is the sum of the recipr
 
 \subsection{Formal verification}\label{sec:formal}
 
-The theorem has been formalized in Lean~4 using Mathlib. The certificate is recorded at tag \texttt{v1.0-unconditional-certificate} of the accompanying repository \cite{Repo}, at commit \texttt{6de963b} (full hash in Appendix~\ref{app:meta}). The terminal declaration \texttt{Erdos289.candidateStatement} has type \texttt{Erdos289.CandidateStatement}. Its transitive axiom report contains only \texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound}, the usual foundational axioms; no custom analytic axiom occurs.
+The theorem has been formalized in Lean~4 using Mathlib. The certificate is recorded in the accompanying repository \cite{Repo} at commit \texttt{61f54d7} of its main branch (full hash in Appendix~\ref{app:meta}); the tag \texttt{v1.0-unconditional-certificate} marks an earlier snapshot with the same Lean sources up to comment edits and one filename. The terminal declaration \texttt{Erdos289.candidateStatement} has type \texttt{Erdos289.CandidateStatement}. Its transitive axiom report contains only \texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound}, the usual foundational axioms; no custom analytic axiom occurs.
 
 The formal proof uses the signed-fiber construction and the progression-based inverse-covering argument presented in this paper. The structure theorem, the Liu--Sawhney theorem, Mertens' theorem and the divisor bound are supplied by formal proofs, with bridges to the statements used here; Chebyshev's bound comes from Mathlib. Bourgain--Garaev and Erd\H{o}s--Tur\'an are not used. The original module containing six assumed inputs is retained in the repository as an archival specification, but none of its assumed declarations belongs to the terminal theorem's dependency chain.
 
@@ -891,8 +891,8 @@ Here \texttt{NatInterval} is a pair of natural-number endpoints \texttt{lo}, \te
 \begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}p{12.4cm}@{}}
 \toprule
 Repository & \url{https://github.com/beetree/math_erdos_289}\\
-Tag & \texttt{v1.0-unconditional-certificate}\\
-Commit & \texttt{6de963b7572b9ea27aa3339de85dc7254744687f}\\
+Commit & \texttt{61f54d7ba430b3869854bb51ccefb16e48e5c11d} (branch \texttt{main})\\
+Earlier snapshot & tag \texttt{v1.0-unconditional-certificate}, commit \texttt{6de963b7572b9ea27aa3339de85dc7254744687f}; its Lean sources differ from the commit above only by comment edits and the renaming of one vendored file to an ASCII name\\
 Lean toolchain & \texttt{leanprover/lean4:v4.34.0-rc2} (the file \texttt{lean-toolchain})\\
 Mathlib & \texttt{v4.34.0-rc2}, resolved revision \texttt{85e3a25e006c35636f0e53b0e9296caca2685bc0}\\
 Other Lake dependencies & as resolved in \texttt{lake-manifest.json} at the tag: batteries \texttt{d54dddc5}, aesop \texttt{18889deb}, Qq \texttt{507746ab}, proofwidgets \texttt{a8acbfd8}, importGraph \texttt{d8823026}, LeanSearchClient \texttt{ba67e212}, plausible \texttt{d9598f07}, Cli \texttt{ab3a82db}. The manifest at the tag has SHA-256 \texttt{119e31567cce06a9f16a6fe8dd2fab7636ce8483c1a2687efc38ced5bc53e773}.\\
@@ -903,17 +903,15 @@ Terminal type & \texttt{Erdos289.CandidateStatement}\\
 Target file & \texttt{Erdos289/Intervals.lean}, SHA-256 \texttt{178e26470eb61a81f183761d053b697d1800bda64a622dd69858ad065f441871}, unchanged since the statement audit\\
 Archival specification & \texttt{Erdos289/ExternalAxioms.lean}, SHA-256 \texttt{6a4affa2cecb731c87ec21433305842bd3c0c92bc7c62a8ca86f410f3647c5d7}; its six assumed declarations are not in the dependency chain\\
 Axioms & \texttt{[propext, Classical.choice, Quot.sound]}\\
-Build & warning-free \texttt{lake build} at the tag from a fresh clone, with the axiom report printed by \texttt{Erdos289/Main.lean}; transcript below\\
+Build & warning-free \texttt{lake build}, with the axiom report printed by \texttt{Erdos289/Main.lean}; transcript below\\
 \bottomrule
 \end{tabular}
 \end{center}
 
-The following transcript (long lines wrapped for the page) was recorded on 4 September 2026 from a fresh clone of the repository checked out at the tag, with the pinned toolchain and the existing lockfile; the Mathlib oleans came from \texttt{lake exe cache get}, and every module of the three project libraries was compiled from source in the fresh clone.
+The following transcript (long lines wrapped for the page) was recorded on 4 September 2026 in the maintainer's working copy at the commit above, with a clean status, the pinned toolchain and the existing lockfile; \texttt{lake build} replays the up-to-date modules from the build cache.
 \begin{verbatim}
 $ git rev-parse HEAD
-6de963b7572b9ea27aa3339de85dc7254744687f
-$ git rev-parse 'v1.0-unconditional-certificate^{commit}'
-6de963b7572b9ea27aa3339de85dc7254744687f
+61f54d7ba430b3869854bb51ccefb16e48e5c11d
 $ cat lean-toolchain
 leanprover/lean4:v4.34.0-rc2
 $ sha256sum Erdos289/Intervals.lean lake-manifest.json
@@ -921,10 +919,9 @@ $ sha256sum Erdos289/Intervals.lean lake-manifest.json
   Erdos289/Intervals.lean
 119e31567cce06a9f16a6fe8dd2fab7636ce8483c1a2687efc38ced5bc53e773
   lake-manifest.json
-$ lake exe cache get
 $ lake build
-i [9101/9104] Built Erdos289.Main (3.2s)
-info: Erdos289/Main.lean:21:0: 'Erdos289.candidateStatement' depends on
+i [9101/9104] Replayed Erdos289.Main
+info: Erdos289/Main.lean:25:0: 'Erdos289.candidateStatement' depends on
   axioms: [propext, Classical.choice, Quot.sound]
 Build completed successfully (9104 jobs).
 $ lake env lean AxiomCheck.lean
@@ -950,9 +947,9 @@ import Erdos289.Main
 #print axioms Erdos289.Ported.mertens_second_audited
 #print axioms Erdos289.Ported.divisor_bound_audited
 \end{verbatim}
-whose output is shown; the last four reports are diagnostics for the retained theorem interfaces, and the terminal report is the essential gate. The build produced no errors and no warnings.
+whose output is shown; the last four reports are diagnostics for the retained theorem interfaces, and the terminal report is the essential gate. The build produced no errors and no warnings. Earlier the same day a from-scratch build in a fresh clone of the tagged snapshot (\texttt{lake exe cache get} for Mathlib, every project module compiled from source) produced the same reports.
 
-\emph{Audit scope.} The transcript above was produced on the author's side, on the maintainer's machine, from a fresh checkout; it is not a reproduction by an independent third party, and no such reproduction has yet been reported. A reviewer who audited the source tree of this revision without a Lean toolchain confirmed the hashes and the import structure but could not run the build. To reproduce, start from a fresh checkout of the pinned tag with its existing lockfile, do not update dependency revisions, and run the commands above. The exact target type and the complete axiom report of the lowercase theorem \texttt{Erdos289.candidateStatement} are the relevant mathematical checks; printing the axioms of the proposition \texttt{Erdos289.CandidateStatement} is not the proof audit, and a warning-free build is hygiene. An unused axiom declaration elsewhere in the repository does not make the terminal theorem conditional.
+\emph{Audit scope.} The transcript above was produced on the author's side, on the maintainer's machine; it is not a reproduction by an independent third party, and no such reproduction has yet been reported. A reviewer who audited the source tree of this revision without a Lean toolchain confirmed the hashes and the import structure but could not run the build. To reproduce, start from a fresh checkout of the commit above with its existing lockfile, do not update dependency revisions, run \texttt{lake exe cache get} and then the commands above. The exact target type and the complete axiom report of the lowercase theorem \texttt{Erdos289.candidateStatement} are the relevant mathematical checks; printing the axioms of the proposition \texttt{Erdos289.CandidateStatement} is not the proof audit, and a warning-free build is hygiene. An unused axiom declaration elsewhere in the repository does not make the terminal theorem conditional.
 
 \subsection{Correspondence between the paper and the formalization}\label{app:corr}
 
@@ -1008,7 +1005,7 @@ which at $d=2$ is $\varepsilon(1/4-1/250)$ and increases with $d$; for $d=1$ the
 
 \bibitem[Al]{plby} B.~Alexeev, \emph{lean-proofs}, \url{https://github.com/plby/lean-proofs}, commit \texttt{61fce10e}, 2026.
 
-\bibitem[Repo]{Repo} J.~Land, \emph{Erd\H{o}s Problem 289: Lean formalization}, \url{https://github.com/beetree/math_erdos_289}, tag \texttt{v1.0-unconditional-certificate}, 2026.
+\bibitem[Repo]{Repo} J.~Land, \emph{Erd\H{o}s Problem 289: Lean formalization}, \url{https://github.com/beetree/math_erdos_289}, commit \texttt{61f54d7}, 2026.
 
 \end{thebibliography}
 
