@@ -20,3 +20,5 @@ import Erdos289.Lemma1Basic
 import Erdos289.Lemma1EquidistStmt
 import Erdos289.Lemma1EvenCount
 import Erdos289.Lemma1OddCount
+import Erdos289.Lemma3Basic
+import Erdos289.Lemma3Steps45
