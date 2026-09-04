@@ -1,7 +1,11 @@
 import Erdos289.Lemma1Basic
+import Erdos289.Lemma1Equidist
 
 /-!
-# Lemma 1: the equidistribution statement (open)
+# Lemma 1: the equidistribution statement
+
+Proved in `Lemma1Equidist.lean` (namespace `Erdos289.Equidist`) from `bourgain_garaev` and
+`erdos_turan`, following the author's blueprint; restated here in terms of `rOf`/`invCand`.
 -/
 
 namespace Erdos289
@@ -27,6 +31,7 @@ theorem equidist_inverse (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
             |((invCand U T₁ T₂ α ℓ).card : ℝ)
                 - (Nat.totient U : ℝ) / (U : ℝ) * (((T₂ - T₁ : ℕ) : ℝ)) * (ℓ : ℝ) / (U : ℝ)|
               ≤ κ * (q : ℝ) ^ ε := by
-  sorry
+  have h := Equidist.equidist_inverse' ε hε0 hε1
+  simpa [Equidist.invCand', Equidist.rOf', invCand, rOf] using h
 
 end Erdos289
