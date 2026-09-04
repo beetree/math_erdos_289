@@ -9,6 +9,12 @@ For fixed `0 < ε < 1` and every sufficiently large prime power `q`: if
 `I ⊆ [q^ε, 2q^ε]` consists of integers coprime to `q` and `|I| ≥ q^(7ε/8)`, then every residue
 modulo `q` is a sum of inverses of at most `q^(ε/2)` distinct members of `I`.
 
+Everything below is proved for an arbitrary fixed constant `C ≥ 1` in place of the `2`, and
+with no lower endpoint restriction: `I ⊆ [1, C q^ε]` (`lemma3_wide`). `lemma3` itself is the
+case `C = 2`. This is what the elementary replacement argument of
+`docs/elementary_replacements.md` (Corollary C4) requires, its correction multipliers ranging
+over `[R(q), 8 q^ε]`.
+
 The proof follows Section 3 of `erdos_289_full_proof.pdf` ("Sparse modular inverse subsets
 cover all residues"), a sparse extension of Conlon–Fox–He–Mubayi–Pham–Suk–Verstraëte,
 Theorem 2. It is organized as a chain of lemmas mirroring the paper's argument:
@@ -33,7 +39,7 @@ Theorem 2. It is organized as a chain of lemmas mirroring the paper's argument:
   injectively into boundedly many divisors of boundedly many integers.
 * `paper_steps_4_5`: the quantitative form of the paper's steps 4–5 (simultaneous
   approximation + the divisor-bound argument, paper's (3.2)): the active-coordinate product
-  `V` satisfies `V ≥ q^(1 - dε/8 - dε/500) / (32d)^d`. This is the one remaining `sorry` in
+  `V` satisfies `V ≥ q^(1 - dε/8 - dε/500) / (16Cd)^d`. This is the one remaining `sorry` in
   the file — see its docstring for exactly what is missing (a uniform-in-`d ≤ d₀` pigeonhole
   box-count estimate) and what is proved instead (`hd1_and_big` inside `lemma3_core` derives
   the paper's `d = 1` dichotomy and the final quantitative bound on `V` from this one
@@ -264,28 +270,33 @@ lemma eventually_log_le_rpow (a K : ℝ) (ha : 0 < a) (hK : 0 < K) :
   rwa [Real.norm_eq_abs, Real.norm_eq_abs, abs_of_nonneg hlog_nn, abs_of_nonneg hrpow_nn] at hq
 
 /-- The "for sufficiently large `q`" real-asymptotic estimates from the proof of Lemma 3:
-`2 q^ε < q` (so that `I`'s elements are `< q`), and, for `m` in the admissible range
-`[q^(7ε/8), 2q^ε]` (i.e. `m = |I|`, using the interval and cardinality hypotheses on `I`),
+`C q^ε < q` (so that `I`'s elements are `< q`), and, for `m` in the admissible range
+`[q^(7ε/8), C q^ε]` (i.e. `m = |I|`, using the interval and cardinality hypotheses on `I`),
 writing `s := ⌊q^(ε/2)⌋₊`: `q ≤ m^(2/ε)`, `m^(1/3) ≤ s`, and `s ≤ c m / log m`, matching
-exactly the hypotheses `cfhmpsv_structure` needs for `β = 2/ε`, `η = 1/3`. -/
-lemma lemma3_growth_bounds (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) (hc : 0 < c) :
+exactly the hypotheses `cfhmpsv_structure` needs for `β = 2/ε`, `η = 1/3`.
+
+Here `C ≥ 1` is an arbitrary fixed constant (the paper's Lemma 3 is the case `C = 2`); since
+`C` is fixed, all four estimates still hold for sufficiently large `q`. -/
+lemma lemma3_growth_bounds (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) (hc : 0 < c)
+    (C : ℝ) (hC : 1 ≤ C) :
     ∃ Q₀ : ℕ, ∀ q : ℕ, Q₀ ≤ q →
-      2 * (q:ℝ) ^ ε < q ∧
-      ∀ m : ℕ, (q:ℝ) ^ (7*ε/8) ≤ m → (m:ℝ) ≤ 2*(q:ℝ)^ε →
+      C * (q:ℝ) ^ ε < q ∧
+      ∀ m : ℕ, (q:ℝ) ^ (7*ε/8) ≤ m → (m:ℝ) ≤ C*(q:ℝ)^ε →
         (q:ℝ) ≤ (m:ℝ) ^ (2/ε) ∧
         (m:ℝ) ^ ((1:ℝ)/3) ≤ (⌊(q:ℝ)^(ε/2)⌋₊ : ℝ) ∧
         (⌊(q:ℝ)^(ε/2)⌋₊ : ℝ) ≤ c * m / Real.log m := by
-  have hA : ∀ᶠ q : ℕ in atTop, 3 * (q:ℝ)^ε + 0 ≤ (q:ℝ)^(1:ℝ) :=
-    eventually_rpow_dominates ε 1 3 0 hε0 hε1
+  have hCpos : (0:ℝ) < C := lt_of_lt_of_le one_pos hC
+  have hA : ∀ᶠ q : ℕ in atTop, (C + 1) * (q:ℝ)^ε + 0 ≤ (q:ℝ)^(1:ℝ) :=
+    eventually_rpow_dominates ε 1 (C + 1) 0 hε0 hε1
   have hB : ∀ᶠ q : ℕ in atTop,
-      (2:ℝ)^((1:ℝ)/3) * (q:ℝ)^(ε/3) + 1 ≤ (q:ℝ)^(ε/2) :=
-    eventually_rpow_dominates (ε/3) (ε/2) (2^((1:ℝ)/3)) 1 (by linarith) (by linarith)
-  have hC : ∀ᶠ q : ℕ in atTop, Real.log 2 + ε * Real.log q ≤ c * (q:ℝ)^(3*ε/8) := by
+      C^((1:ℝ)/3) * (q:ℝ)^(ε/3) + 1 ≤ (q:ℝ)^(ε/2) :=
+    eventually_rpow_dominates (ε/3) (ε/2) (C^((1:ℝ)/3)) 1 (by linarith) (by linarith)
+  have hCe : ∀ᶠ q : ℕ in atTop, Real.log C + ε * Real.log q ≤ c * (q:ℝ)^(3*ε/8) := by
     have h1 := eventually_log_le_rpow (3*ε/8) (c / (2*ε)) (by linarith) (by positivity)
     have h2 : Tendsto (fun q : ℕ => (q:ℝ)^(3*ε/8)) atTop atTop :=
       (tendsto_rpow_atTop (by linarith)).comp tendsto_natCast_atTop_atTop
-    filter_upwards [h1, h2.eventually_ge_atTop (2 * Real.log 2 / c)] with q hq1 hq2
-    have h3 : Real.log 2 ≤ c/2 * (q:ℝ)^(3*ε/8) := by
+    filter_upwards [h1, h2.eventually_ge_atTop (2 * Real.log C / c)] with q hq1 hq2
+    have h3 : Real.log C ≤ c/2 * (q:ℝ)^(3*ε/8) := by
       have h3' := (div_le_iff₀ hc).mp hq2
       nlinarith
     have hlog : ε * Real.log q ≤ c/2 * (q:ℝ)^(3*ε/8) := by
@@ -297,7 +308,7 @@ lemma lemma3_growth_bounds (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) 
     have h2 : Tendsto (fun q : ℕ => (q:ℝ)^(7*ε/8)) atTop atTop :=
       (tendsto_rpow_atTop (by linarith)).comp tendsto_natCast_atTop_atTop
     exact h2.eventually_ge_atTop 2
-  have hQ0 := (hA.and (hB.and (hC.and hD)))
+  have hQ0 := (hA.and (hB.and (hCe.and hD)))
   rw [eventually_atTop] at hQ0
   obtain ⟨Q₀, hQ₀⟩ := hQ0
   refine ⟨max Q₀ 2, fun q hq => ?_⟩
@@ -325,10 +336,10 @@ lemma lemma3_growth_bounds (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) 
                 (by exact_mod_cast (by omega : 1 ≤ q)) (by norm_num)
       rw [step2, step3] at step1
       linarith
-    · calc (m:ℝ)^((1:ℝ)/3) ≤ (2*(q:ℝ)^ε)^((1:ℝ)/3) :=
+    · calc (m:ℝ)^((1:ℝ)/3) ≤ (C*(q:ℝ)^ε)^((1:ℝ)/3) :=
             Real.rpow_le_rpow (by positivity) hm2 (by positivity)
-        _ = (2:ℝ)^((1:ℝ)/3) * (q:ℝ)^(ε/3) := by
-            rw [Real.mul_rpow (by norm_num) (by positivity), ← Real.rpow_mul hqR.le]
+        _ = C^((1:ℝ)/3) * (q:ℝ)^(ε/3) := by
+            rw [Real.mul_rpow hCpos.le (by positivity), ← Real.rpow_mul hqR.le]
             congr 2
             ring
         _ ≤ ⌊(q:ℝ)^(ε/2)⌋₊ := by
@@ -336,10 +347,10 @@ lemma lemma3_growth_bounds (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) 
             linarith
     · -- ⌊q^(ε/2)⌋₊ ≤ c * m / log m
       have hlogm_pos : 0 < Real.log (m:ℝ) := Real.log_pos hm1
-      have hlogm_le : Real.log (m:ℝ) ≤ Real.log 2 + ε * Real.log q := by
-        calc Real.log (m:ℝ) ≤ Real.log (2*(q:ℝ)^ε) := Real.log_le_log hmR hm2
-          _ = Real.log 2 + Real.log ((q:ℝ)^ε) := Real.log_mul (by norm_num) hqEps.ne'
-          _ = Real.log 2 + ε * Real.log q := by rw [Real.log_rpow hqR]
+      have hlogm_le : Real.log (m:ℝ) ≤ Real.log C + ε * Real.log q := by
+        calc Real.log (m:ℝ) ≤ Real.log (C*(q:ℝ)^ε) := Real.log_le_log hmR hm2
+          _ = Real.log C + Real.log ((q:ℝ)^ε) := Real.log_mul (ne_of_gt hCpos) hqEps.ne'
+          _ = Real.log C + ε * Real.log q := by rw [Real.log_rpow hqR]
       have key : (q:ℝ)^(ε/2) * Real.log (m:ℝ) ≤ c * (m:ℝ) := by
         calc (q:ℝ)^(ε/2) * Real.log (m:ℝ)
             ≤ (q:ℝ)^(ε/2) * (c*(q:ℝ)^(3*ε/8)) :=
@@ -359,11 +370,14 @@ that theorem; then for all sufficiently large prime powers `q` and all finite `I
 the hypotheses of Lemma 3, writing `φ` for the modular-inverse-value map, `A := I.image φ`
 and `m := A.card`, and `s := ⌊q ^ (ε/2)⌋₊`: there are `J ⊆ A`, a proper GAP `P` of rank
 `≤ d₀`, and `J' ⊆ J` with `J'.card ≤ s`, `(m:ℝ)/2 ≤ J.card`, every `x ∈ J` and `0` lying in
-`P.set`, and a translate of the dilate `(c * s) • P` contained in the subset sums of `J'`. -/
-lemma lemma3_structure_apply (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
+`P.set`, and a translate of the dilate `(c * s) • P` contained in the subset sums of `J'`.
+
+The hypothesis on `I` is the general one, `I ⊆ [1, C q^ε]` for a fixed `C ≥ 1` (no lower
+endpoint restriction); the paper's Lemma 3 is the case `C = 2`. -/
+lemma lemma3_structure_apply (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (C : ℝ) (hC : 1 ≤ C) :
     ∃ c : ℝ, 0 < c ∧ ∃ d₀ : ℕ, ∃ Q₀ : ℕ, ∀ q : ℕ, IsPrimePow q → Q₀ ≤ q →
       ∀ I : Finset ℕ,
-        (∀ i ∈ I, (q : ℝ) ^ ε ≤ i ∧ (i : ℝ) ≤ 2 * (q : ℝ) ^ ε) →
+        (∀ i ∈ I, 0 < i ∧ (i : ℝ) ≤ C * (q : ℝ) ^ ε) →
         (∀ i ∈ I, Nat.Coprime i q) →
         (q : ℝ) ^ (7 * ε / 8) ≤ I.card →
         ∃ (J J' : Finset ℕ) (P : GAP),
@@ -380,7 +394,8 @@ lemma lemma3_structure_apply (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
   obtain ⟨M₀, hM₀⟩ := hstruct
   have hlog2 : (0:ℝ) < Real.log 2 := Real.log_pos (by norm_num)
   have hcl2 : (0:ℝ) < c * Real.log 2 := mul_pos hc hlog2
-  obtain ⟨Q₁, hQ₁⟩ := lemma3_growth_bounds ε hε0 hε1 (c * Real.log 2 / 2) (by positivity)
+  have hCpos : (0:ℝ) < C := lt_of_lt_of_le one_pos hC
+  obtain ⟨Q₁, hQ₁⟩ := lemma3_growth_bounds ε hε0 hε1 (c * Real.log 2 / 2) (by positivity) C hC
   have hMtend : Tendsto (fun q : ℕ => (q:ℝ)^(7*ε/8)) atTop atTop :=
     (tendsto_rpow_atTop (by linarith)).comp tendsto_natCast_atTop_atTop
   obtain ⟨Q₂, hQ₂⟩ := Filter.eventually_atTop.mp (hMtend.eventually_ge_atTop (max (M₀:ℝ) 2))
@@ -431,21 +446,19 @@ lemma lemma3_structure_apply (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
     exact_mod_cast this
   have hm2R : (2:ℝ) ≤ (m:ℝ) := le_trans (le_max_right (M₀:ℝ) 2) hmM0
   have hm1 : (1:ℝ) < (m:ℝ) := by linarith
-  have hm2q : (m:ℝ) ≤ 2*(q:ℝ)^ε := by
-    have hIsub : I ⊆ Finset.Icc 1 ⌊2*(q:ℝ)^ε⌋₊ := by
+  have hm2q : (m:ℝ) ≤ C*(q:ℝ)^ε := by
+    have hqε : (0:ℝ) < (q:ℝ)^ε := Real.rpow_pos_of_pos hqR ε
+    have hCqnn : (0:ℝ) ≤ C*(q:ℝ)^ε := mul_nonneg hCpos.le hqε.le
+    have hIsub : I ⊆ Finset.Icc 1 ⌊C*(q:ℝ)^ε⌋₊ := by
       intro i hi
       have h1 := (hI1 i hi).1
       have h2 := (hI1 i hi).2
-      have hqε : (0:ℝ) < (q:ℝ)^ε := Real.rpow_pos_of_pos hqR ε
-      have hipos : 0 < i := by
-        have : (0:ℝ) < (i:ℝ) := lt_of_lt_of_le hqε h1
-        exact_mod_cast this
       simp only [Finset.mem_Icc]
-      refine ⟨hipos, Nat.le_floor h2⟩
+      exact ⟨h1, Nat.le_floor h2⟩
     have := Finset.card_le_card hIsub
     rw [Nat.card_Icc] at this
-    have hfloor_le : (⌊2*(q:ℝ)^ε⌋₊ : ℝ) ≤ 2*(q:ℝ)^ε := Nat.floor_le (by positivity)
-    have : (m:ℝ) ≤ ((⌊2*(q:ℝ)^ε⌋₊ + 1 - 1 : ℕ) : ℝ) := by exact_mod_cast this
+    have hfloor_le : (⌊C*(q:ℝ)^ε⌋₊ : ℝ) ≤ C*(q:ℝ)^ε := Nat.floor_le hCqnn
+    have : (m:ℝ) ≤ ((⌊C*(q:ℝ)^ε⌋₊ + 1 - 1 : ℕ) : ℝ) := by exact_mod_cast this
     simp only [Nat.add_sub_cancel] at this
     linarith
   obtain ⟨hq_mB, hm13, hslog⟩ := hbounds m hm7 hm2q

@@ -9,6 +9,12 @@ For fixed `0 < ε < 1` and every sufficiently large prime power `q`: if
 `I ⊆ [q^ε, 2q^ε]` consists of integers coprime to `q` and `|I| ≥ q^(7ε/8)`, then every residue
 modulo `q` is a sum of inverses of at most `q^(ε/2)` distinct members of `I`.
 
+Everything below is proved for an arbitrary fixed constant `C ≥ 1` in place of the `2`, and
+with no lower endpoint restriction: `I ⊆ [1, C q^ε]` (`lemma3_wide`). `lemma3` itself is the
+case `C = 2`. This is what the elementary replacement argument of
+`docs/elementary_replacements.md` (Corollary C4) requires, its correction multipliers ranging
+over `[R(q), 8 q^ε]`.
+
 The proof follows Section 3 of `erdos_289_full_proof.pdf` ("Sparse modular inverse subsets
 cover all residues"), a sparse extension of Conlon–Fox–He–Mubayi–Pham–Suk–Verstraëte,
 Theorem 2. It is organized as a chain of lemmas mirroring the paper's argument:
@@ -33,7 +39,7 @@ Theorem 2. It is organized as a chain of lemmas mirroring the paper's argument:
   injectively into boundedly many divisors of boundedly many integers.
 * `paper_steps_4_5`: the quantitative form of the paper's steps 4–5 (simultaneous
   approximation + the divisor-bound argument, paper's (3.2)): the active-coordinate product
-  `V` satisfies `V ≥ q^(1 - dε/8 - dε/500) / (32d)^d`. This is the one remaining `sorry` in
+  `V` satisfies `V ≥ q^(1 - dε/8 - dε/500) / (16Cd)^d`. This is the one remaining `sorry` in
   the file — see its docstring for exactly what is missing (a uniform-in-`d ≤ d₀` pigeonhole
   box-count estimate) and what is proved instead (`hd1_and_big` inside `lemma3_core` derives
   the paper's `d = 1` dichotomy and the final quantitative bound on `V` from this one
@@ -118,7 +124,7 @@ each true in the *concrete* application (`lemma3_structure_apply`/`lemma3`) but 
 from `lemma3_core`'s hypotheses in the abstract, were needed: (1) the face-counting bound
 `(3.1)` needs `subsetSums J'` confined to an interval of length `O(s q)`, which needs elements
 of `J'` bounded by (roughly) `q`; (2) the divisor-count bound `(3.2)` needs, for each `j ∈ J`,
-a bound `((j:ZMod q)⁻¹).val ≤ 2 q^ε`; (3) the face-counting construction needs, for each
+a bound `((j:ZMod q)⁻¹).val ≤ C q^ε`; (3) the face-counting construction needs, for each
 inactive coordinate, an admissible *integer* point in the dilated (real-valued) interval
 `[t α i, t β i]`. All three are now resolved (round 3) by adding the hypotheses `hJlt`,
 `hJsmall`, and threading `(GAP.dilate (c * s) P).set.Nonempty` (`hPne`) through from
@@ -133,7 +139,8 @@ and provable is documented in that lemma's docstring. Every other step below —
 extraction, face counting `(3.1)` itself, the `d = 1` dichotomy derived from `paper_steps_4_5`
 via a real-asymptotic argument uniform in `d ≤ d₀`, and the final one-dimensional covering
 argument — is proved in full. -/
-lemma lemma3_core (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) (hc : 0 < c) (d₀ : ℕ) :
+lemma lemma3_core (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) (hc : 0 < c) (C : ℝ)
+    (hC : 1 ≤ C) (d₀ : ℕ) :
     ∃ Q₀ : ℕ, ∀ q : ℕ, IsPrimePow q → Q₀ ≤ q →
       ∀ (m : ℕ) (J J' : Finset ℕ) (P : GAP),
         P.Proper → (GAP.dilate (c * (⌊(q:ℝ)^(ε/2)⌋₊:ℝ)) P).Proper →
@@ -142,7 +149,7 @@ lemma lemma3_core (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) (hc : 0 <
         (∀ x ∈ J, (x:ℤ) ∈ P.set) → (0:ℤ) ∈ P.set →
         (∀ j ∈ J, IsUnit ((j:ℕ):ZMod q)) →
         (∀ j ∈ J, j < q) →
-        (∀ j ∈ J, ∃ i : ℕ, 0 < i ∧ (i:ℝ) ≤ 2 * (q:ℝ)^ε ∧ (i:ZMod q) * (j:ZMod q) = 1) →
+        (∀ j ∈ J, ∃ i : ℕ, 0 < i ∧ (i:ℝ) ≤ C * (q:ℝ)^ε ∧ (i:ZMod q) * (j:ZMod q) = 1) →
         J'.card ≤ ⌊(q:ℝ)^(ε/2)⌋₊ →
         (q:ℝ)^(7*ε/8) ≤ (m:ℝ) →
         (∃ x : ℤ, ∀ y ∈ (GAP.dilate (c * (⌊(q:ℝ)^(ε/2)⌋₊:ℝ)) P).set, x + y ∈ subsetSums J') →
@@ -153,16 +160,18 @@ lemma lemma3_core (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) (hc : 0 <
     exact h2.eventually_ge_atTop (max (2/c+1) 2)
   rw [eventually_atTop] at hSbig
   obtain ⟨Q₀, hQ₀⟩ := hSbig
-  obtain ⟨Q₁, hQ₁⟩ := paper_steps_4_5 ε c hε0 hε1 hc d₀
+  have hCpos : (0:ℝ) < C := lt_of_lt_of_le one_pos hC
+  obtain ⟨Q₁, hQ₁⟩ := paper_steps_4_5 ε c C hε0 hε1 hc hC d₀
   -- for the `d ≥ 2` rejection: `q` large enough that `q^(2·373ε/1000 - ε/2)` beats the
   -- constants arising from `(cs/2)^d ≥ (c/4)^d q^(dε/2)` combined with `(3.2)`, uniformly over
   -- `d ≤ d₀`.
-  have hSbig2 : ∀ᶠ q:ℕ in atTop, (2:ℝ) * (128 * (d₀:ℝ) * (1 + 1/c)) ^ d₀ < (q:ℝ)^(123*ε/500) := by
+  have hSbig2 : ∀ᶠ q:ℕ in atTop,
+      (2:ℝ) * (64 * C * (d₀:ℝ) * (1 + 1/c)) ^ d₀ < (q:ℝ)^(123*ε/500) := by
     have h2 : Tendsto (fun q:ℕ => (q:ℝ)^(123*ε/500)) atTop atTop :=
       (tendsto_rpow_atTop (by positivity)).comp tendsto_natCast_atTop_atTop
     exact h2.eventually_gt_atTop _
-  -- for the `d = 1` conclusion: `q` large enough that `q^(373ε/1000)` beats `128/c`.
-  have hSbig3 : ∀ᶠ q:ℕ in atTop, (128:ℝ)/c < (q:ℝ)^(373*ε/1000) := by
+  -- for the `d = 1` conclusion: `q` large enough that `q^(373ε/1000)` beats `64C/c`.
+  have hSbig3 : ∀ᶠ q:ℕ in atTop, (64:ℝ)*C/c < (q:ℝ)^(373*ε/1000) := by
     have h2 : Tendsto (fun q:ℕ => (q:ℝ)^(373*ε/1000)) atTop atTop :=
       (tendsto_rpow_atTop (by positivity)).comp tendsto_natCast_atTop_atTop
     exact h2.eventually_gt_atTop _
@@ -269,7 +278,7 @@ lemma lemma3_core (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) (hc : 0 <
     have hd1' : 1 ≤ (Finset.univ.filter (fun i => ⌈P.α i⌉ < ⌊P.β i⌋)).card := by
       rw [← hActive]; exact hd1
     have hVraw := hQ₁ q hq2 hqQ1 P v J hPD hv hv0 hJmem hJlt hJsmall hJcardbig hd1'
-    have hVbound : (q:ℝ) ^ (1 - (d:ℝ)*ε/8 - (d:ℝ)*ε/500) / (32*(d:ℝ))^d ≤ (V:ℝ) := by
+    have hVbound : (q:ℝ) ^ (1 - (d:ℝ)*ε/8 - (d:ℝ)*ε/500) / (16*C*(d:ℝ))^d ≤ (V:ℝ) := by
       simpa [hActive, hddef, hVdef] using hVraw
     have hFaceR : (c * (s:ℝ) / 2) ^ d * (V:ℝ) ≤ (s:ℝ)*(q:ℝ) + 1 := by
       have h1 : (J'.card:ℝ) ≤ (s:ℝ) := by exact_mod_cast hJ'card
@@ -292,34 +301,34 @@ lemma lemma3_core (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) (hc : 0 <
       linarith [hSQ1, hqexp_ge1]
     rcases eq_or_ne d 1 with hd1eq | hdne1
     · refine ⟨hd1eq, ?_⟩
-      have hVbound1 : (q:ℝ)^(1 - ε/8 - ε/500) / 32 ≤ (V:ℝ) := by
+      have hVbound1 : (q:ℝ)^(1 - ε/8 - ε/500) / (16*C) ≤ (V:ℝ) := by
         have h := hVbound
         rw [hd1eq] at h
-        norm_num at h
-        exact h
+        simpa using h
       have step1 : (c/4)*(q:ℝ)^(ε/2) * (V:ℝ) ≤ (c*(s:ℝ)/2) * (V:ℝ) :=
         mul_le_mul_of_nonneg_right hcs_lb (by positivity)
-      have step2 : (c/4)*(q:ℝ)^(ε/2) * ((q:ℝ)^(1-ε/8-ε/500)/32)
+      have step2 : (c/4)*(q:ℝ)^(ε/2) * ((q:ℝ)^(1-ε/8-ε/500)/(16*C))
           ≤ (c/4)*(q:ℝ)^(ε/2) * (V:ℝ) :=
         mul_le_mul_of_nonneg_left hVbound1 (by positivity)
-      have step3 : (c/4)*(q:ℝ)^(ε/2) * ((q:ℝ)^(1-ε/8-ε/500)/32)
-          = (c/128) * (q:ℝ)^(1+ε*(373/1000)) := by
-        rw [show (c/4)*(q:ℝ)^(ε/2) * ((q:ℝ)^(1-ε/8-ε/500)/32)
-            = (c/128) * ((q:ℝ)^(ε/2) * (q:ℝ)^(1-ε/8-ε/500)) by ring,
+      have step3 : (c/4)*(q:ℝ)^(ε/2) * ((q:ℝ)^(1-ε/8-ε/500)/(16*C))
+          = (c/(64*C)) * (q:ℝ)^(1+ε*(373/1000)) := by
+        rw [show (c/4)*(q:ℝ)^(ε/2) * ((q:ℝ)^(1-ε/8-ε/500)/(16*C))
+            = (c/(64*C)) * ((q:ℝ)^(ε/2) * (q:ℝ)^(1-ε/8-ε/500)) by
+              field_simp; ring,
           ← Real.rpow_add hqR]
         congr 2
         ring
-      have step4 : (128:ℝ)/c < (q:ℝ)^(373*ε/1000) := hQ₃ q hqQ3
-      have step5 : (q:ℝ) < (c/128) * (q:ℝ)^(1+ε*(373/1000)) := by
+      have step4 : (64:ℝ)*C/c < (q:ℝ)^(373*ε/1000) := hQ₃ q hqQ3
+      have step5 : (q:ℝ) < (c/(64*C)) * (q:ℝ)^(1+ε*(373/1000)) := by
         have hqR1 : (q:ℝ)^(1+ε*(373/1000)) = (q:ℝ) * (q:ℝ)^(373*ε/1000) := by
           rw [show (1:ℝ)+ε*(373/1000) = 373*ε/1000 + 1 by ring, Real.rpow_add hqR, Real.rpow_one]
           ring
         rw [hqR1]
-        have h2 : (q:ℝ) * ((128:ℝ)/c) < (q:ℝ) * (q:ℝ)^(373*ε/1000) :=
+        have h2 : (q:ℝ) * ((64:ℝ)*C/c) < (q:ℝ) * (q:ℝ)^(373*ε/1000) :=
           mul_lt_mul_of_pos_left step4 hqR
-        have h7 : c/128 * ((q:ℝ)*((128:ℝ)/c)) < c/128 * ((q:ℝ)*(q:ℝ)^(373*ε/1000)) :=
+        have h7 : c/(64*C) * ((q:ℝ)*((64:ℝ)*C/c)) < c/(64*C) * ((q:ℝ)*(q:ℝ)^(373*ε/1000)) :=
           mul_lt_mul_of_pos_left h2 (by positivity)
-        have h8 : c/128 * ((q:ℝ)*((128:ℝ)/c)) = q := by field_simp
+        have h8 : c/(64*C) * ((q:ℝ)*((64:ℝ)*C/c)) = q := by field_simp
         linarith [h7, h8]
       linarith [step1, step2, step3, step5]
     · exfalso
@@ -328,7 +337,8 @@ lemma lemma3_core (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) (hc : 0 <
         pow_le_pow_left₀ (by positivity) hcs_lb d
       have hcsd_eq : ((c/4)*(q:ℝ)^(ε/2))^d = (c/4)^d * (q:ℝ)^(ε/2*d) := by
         rw [mul_pow, hpow_eq]
-      have hstep1 : (c/4)^d * (q:ℝ)^(ε/2*d) * ((q:ℝ)^(1 - (d:ℝ)*ε/8 - (d:ℝ)*ε/500)/(32*(d:ℝ))^d)
+      have hstep1 : (c/4)^d * (q:ℝ)^(ε/2*d)
+            * ((q:ℝ)^(1 - (d:ℝ)*ε/8 - (d:ℝ)*ε/500)/(16*C*(d:ℝ))^d)
           ≤ (c*(s:ℝ)/2)^d * (V:ℝ) := by
         rw [← hcsd_eq]
         refine mul_le_mul hcsd_lb hVbound ?_ ?_
@@ -338,36 +348,42 @@ lemma lemma3_core (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) (hc : 0 <
       have hexp_eq : (q:ℝ)^(ε/2*d) * (q:ℝ)^(1 - (d:ℝ)*ε/8 - (d:ℝ)*ε/500)
           = (q:ℝ)^(1 + (d:ℝ)*ε*(373/1000)) := by
         rw [← Real.rpow_add hqR]; congr 1; ring
-      have hstep3 : (c/4)^d/(32*(d:ℝ))^d * (q:ℝ)^(1 + (d:ℝ)*ε*(373/1000)) ≤ (s:ℝ)*(q:ℝ)+1 := by
-        have heq2 : (c/4)^d * (q:ℝ)^(ε/2*d) * ((q:ℝ)^(1 - (d:ℝ)*ε/8 - (d:ℝ)*ε/500)/(32*(d:ℝ))^d)
-            = (c/4)^d/(32*(d:ℝ))^d * ((q:ℝ)^(ε/2*d) * (q:ℝ)^(1 - (d:ℝ)*ε/8 - (d:ℝ)*ε/500)) := by
+      have hstep3 : (c/4)^d/(16*C*(d:ℝ))^d * (q:ℝ)^(1 + (d:ℝ)*ε*(373/1000))
+          ≤ (s:ℝ)*(q:ℝ)+1 := by
+        have heq2 : (c/4)^d * (q:ℝ)^(ε/2*d)
+              * ((q:ℝ)^(1 - (d:ℝ)*ε/8 - (d:ℝ)*ε/500)/(16*C*(d:ℝ))^d)
+            = (c/4)^d/(16*C*(d:ℝ))^d
+              * ((q:ℝ)^(ε/2*d) * (q:ℝ)^(1 - (d:ℝ)*ε/8 - (d:ℝ)*ε/500)) := by
           ring
         rw [heq2, hexp_eq] at hstep1
         exact le_trans hstep1 hFaceR
       have hd0pos : 0 < d₀ := lt_of_lt_of_le hd1 hdd0
       have hd0R : (0:ℝ) < (d₀:ℝ) := by exact_mod_cast hd0pos
       have hd0R1 : (1:ℝ) ≤ (d₀:ℝ) := by exact_mod_cast hd0pos
-      set K : ℝ := (128*(d₀:ℝ)*(1+1/c))^d₀ with hKdef
+      set K : ℝ := (64*C*(d₀:ℝ)*(1+1/c))^d₀ with hKdef
       have hKpos : 0 < K := by rw [hKdef]; positivity
-      have hconst_bound : K⁻¹ ≤ (c/4)^d/(32*(d:ℝ))^d := by
-        have hbase_le : (128*(d:ℝ))/c ≤ 128*(d₀:ℝ)*(1+1/c) := by
+      have hconst_bound : K⁻¹ ≤ (c/4)^d/(16*C*(d:ℝ))^d := by
+        have hbase_le : (64*C*(d:ℝ))/c ≤ 64*C*(d₀:ℝ)*(1+1/c) := by
           have h1 : (d:ℝ) ≤ (d₀:ℝ) := by exact_mod_cast hdd0
-          have h2 : (128:ℝ)*(d:ℝ)/c ≤ 128*(d₀:ℝ)/c := by
-            apply div_le_div_of_nonneg_right (by nlinarith [h1]) hc.le
-          have h3 : (128:ℝ)*(d₀:ℝ)/c ≤ 128*(d₀:ℝ)*(1+1/c) := by
-            have heq : (128:ℝ)*(d₀:ℝ)/c = 128*(d₀:ℝ)*(1/c) := by ring
+          have h2 : (64:ℝ)*C*(d:ℝ)/c ≤ 64*C*(d₀:ℝ)/c := by
+            apply div_le_div_of_nonneg_right (by nlinarith [h1, hCpos]) hc.le
+          have h3 : (64:ℝ)*C*(d₀:ℝ)/c ≤ 64*C*(d₀:ℝ)*(1+1/c) := by
+            have heq : (64:ℝ)*C*(d₀:ℝ)/c = 64*C*(d₀:ℝ)*(1/c) := by ring
             rw [heq]
-            have hd0pos : (0:ℝ) ≤ (d₀:ℝ) := by positivity
-            nlinarith [hd0pos, hc]
+            have hd0nn : (0:ℝ) ≤ (d₀:ℝ) := by positivity
+            nlinarith [hd0nn, hc, hCpos]
           linarith
-        have hpow_le : ((128*(d:ℝ))/c)^d ≤ K := by
+        have hpow_le : ((64*C*(d:ℝ))/c)^d ≤ K := by
           rw [hKdef]
-          have hstepA : ((128*(d:ℝ))/c)^d ≤ (128*(d₀:ℝ)*(1+1/c))^d :=
+          have hstepA : ((64*C*(d:ℝ))/c)^d ≤ (64*C*(d₀:ℝ)*(1+1/c))^d :=
             pow_le_pow_left₀ (by positivity) hbase_le d
-          have hstepB : (128*(d₀:ℝ)*(1+1/c))^d ≤ (128*(d₀:ℝ)*(1+1/c))^d₀ :=
-            pow_le_pow_right₀ (by nlinarith [hc, hd0R1, one_div_pos.mpr hc]) hdd0
+          have hstepB : (64*C*(d₀:ℝ)*(1+1/c))^d ≤ (64*C*(d₀:ℝ)*(1+1/c))^d₀ := by
+            refine pow_le_pow_right₀ ?_ hdd0
+            have hCd0 : (1:ℝ) ≤ C * (d₀:ℝ) := by nlinarith [hC, hd0R1]
+            have hcinv : (0:ℝ) < 1/c := one_div_pos.mpr hc
+            nlinarith [hCd0, hcinv]
           linarith
-        have hinv : (c/4)^d/(32*(d:ℝ))^d = ((128*(d:ℝ)/c))⁻¹ ^ d := by
+        have hinv : (c/4)^d/(16*C*(d:ℝ))^d = ((64*C*(d:ℝ)/c))⁻¹ ^ d := by
           rw [← div_pow]
           congr 1
           field_simp
@@ -384,17 +400,17 @@ lemma lemma3_core (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) (hc : 0 <
       have hexp_mono : (q:ℝ)^(123*ε/500) ≤ (q:ℝ)^((d:ℝ)*ε*(373/1000) - ε/2) :=
         Real.rpow_le_rpow_of_exponent_le (by exact_mod_cast (by omega : 1 ≤ q)) hmargin
       have hbig2K : 2*K < (q:ℝ)^((d:ℝ)*ε*(373/1000) - ε/2) := lt_of_lt_of_le hqbig hexp_mono
-      have hfinal2 : (s:ℝ)*(q:ℝ)+1 < (c/4)^d/(32*(d:ℝ))^d * (q:ℝ)^(1 + (d:ℝ)*ε*(373/1000)) := by
+      have hfinal2 : (s:ℝ)*(q:ℝ)+1 < (c/4)^d/(16*C*(d:ℝ))^d * (q:ℝ)^(1 + (d:ℝ)*ε*(373/1000)) := by
         rw [hexp_split]
         calc (s:ℝ)*(q:ℝ)+1 ≤ 2*(q:ℝ)^(1+ε/2) := hSQ
           _ = K⁻¹ * (q:ℝ)^(1+ε/2) * (2*K) := by field_simp
           _ < K⁻¹ * (q:ℝ)^(1+ε/2) * (q:ℝ)^((d:ℝ)*ε*(373/1000) - ε/2) := by
               apply mul_lt_mul_of_pos_left hbig2K
               positivity
-          _ ≤ ((c/4)^d/(32*(d:ℝ))^d) * (q:ℝ)^(1+ε/2) * (q:ℝ)^((d:ℝ)*ε*(373/1000) - ε/2) := by
+          _ ≤ ((c/4)^d/(16*C*(d:ℝ))^d) * (q:ℝ)^(1+ε/2) * (q:ℝ)^((d:ℝ)*ε*(373/1000) - ε/2) := by
               apply mul_le_mul_of_nonneg_right _ (by positivity)
               apply mul_le_mul_of_nonneg_right hconst_bound (by positivity)
-          _ = (c/4)^d/(32*(d:ℝ))^d * ((q:ℝ)^(1+ε/2) * (q:ℝ)^((d:ℝ)*ε*(373/1000) - ε/2)) := by
+          _ = (c/4)^d/(16*C*(d:ℝ))^d * ((q:ℝ)^(1+ε/2) * (q:ℝ)^((d:ℝ)*ε*(373/1000) - ε/2)) := by
               ring
       linarith [hstep3, hfinal2]
   obtain ⟨hd1eq, hbig⟩ := hd1_and_big
@@ -499,18 +515,24 @@ lemma lemma3_core (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (c : ℝ) (hc : 0 <
   rw [← hTeq]
   exact heq
 
-/-- **Lemma 3** of the paper. -/
-theorem lemma3 (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
+/-- **Lemma 3, wide form.** The covering statement for an arbitrary fixed constant `C ≥ 1` and
+with no lower endpoint restriction: `I ⊆ [1, C q^ε]`.
+
+This is what the elementary replacement argument of `docs/elementary_replacements.md`
+(Corollary C4) needs: the correction multipliers there satisfy `R(q) ≤ m ≤ 8 q^ε`, so the
+covering lemma must accept `I ⊆ [1, 8 q^ε]`. The paper's `lemma3` is the case `C = 2` (its
+lower bound `q^ε ≤ i` is only used there to get `0 < i`). -/
+theorem lemma3_wide (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (C : ℝ) (hC : 1 ≤ C) :
     ∃ Q₀ : ℕ, ∀ q : ℕ, IsPrimePow q → Q₀ ≤ q →
       ∀ I : Finset ℕ,
-        (∀ i ∈ I, (q : ℝ) ^ ε ≤ i ∧ (i : ℝ) ≤ 2 * (q : ℝ) ^ ε) →
+        (∀ i ∈ I, 0 < i ∧ (i : ℝ) ≤ C * (q : ℝ) ^ ε) →
         (∀ i ∈ I, Nat.Coprime i q) →
         (q : ℝ) ^ (7 * ε / 8) ≤ I.card →
         ∀ r : ZMod q, ∃ S ⊆ I, (S.card : ℝ) ≤ (q : ℝ) ^ (ε / 2) ∧
           ∑ i ∈ S, ((i : ZMod q)⁻¹) = r := by
-  obtain ⟨c, hc, d₀, Q₁, hQ₁⟩ := lemma3_structure_apply ε hε0 hε1
-  obtain ⟨Q₂, hQ₂⟩ := lemma3_core ε hε0 hε1 c hc d₀
-  obtain ⟨Q₃, hQ₃⟩ := lemma3_growth_bounds ε hε0 hε1 1 (by norm_num)
+  obtain ⟨c, hc, d₀, Q₁, hQ₁⟩ := lemma3_structure_apply ε hε0 hε1 C hC
+  obtain ⟨Q₂, hQ₂⟩ := lemma3_core ε hε0 hε1 c hc C hC d₀
+  obtain ⟨Q₃, hQ₃⟩ := lemma3_growth_bounds ε hε0 hε1 1 (by norm_num) C hC
   refine ⟨max (max Q₁ Q₂) Q₃, fun q hqpp hq I hI1 hI2 hI3 => ?_⟩
   have hqQ1 : Q₁ ≤ q := le_trans (le_max_left _ _) (le_trans (le_max_left _ _) hq)
   have hqQ2 : Q₂ ≤ q := le_trans (le_max_right _ _) (le_trans (le_max_left _ _) hq)
@@ -532,24 +554,18 @@ theorem lemma3 (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
     intro j hj
     obtain ⟨i, hi, rfl⟩ := Finset.mem_image.mp (hJA hj)
     exact ZMod.val_lt _
-  have hJsmall : ∀ j ∈ J, ∃ i : ℕ, 0 < i ∧ (i:ℝ) ≤ 2 * (q:ℝ)^ε ∧ (i:ZMod q) * (j:ZMod q) = 1 := by
+  have hJsmall : ∀ j ∈ J, ∃ i : ℕ, 0 < i ∧ (i:ℝ) ≤ C * (q:ℝ)^ε ∧ (i:ZMod q) * (j:ZMod q) = 1 := by
     intro j hj
     obtain ⟨i, hi, rfl⟩ := Finset.mem_image.mp (hJA hj)
     have hcop := hI2 i hi
     have hui : IsUnit (i:ZMod q) := (ZMod.isUnit_iff_coprime i q).2 hcop
-    have hipos : 0 < i := by
-      have h1 := (hI1 i hi).1
-      have hqεpos : (0:ℝ) < (q:ℝ)^ε :=
-        Real.rpow_pos_of_pos (by exact_mod_cast (by omega : 0 < q)) ε
-      have : (0:ℝ) < (i:ℝ) := lt_of_lt_of_le hqεpos h1
-      exact_mod_cast this
-    refine ⟨i, hipos, (hI1 i hi).2, ?_⟩
+    refine ⟨i, (hI1 i hi).1, (hI1 i hi).2, ?_⟩
     have hcast : (((i:ZMod q)⁻¹).val : ZMod q) = (i:ZMod q)⁻¹ := ZMod.natCast_rightInverse _
     rw [hcast]
     exact ZMod.mul_inv_of_unit _ hui
   have hcover := hQ₂ q hqpp hqQ2 I.card J J' P hPproper hPdil hPne hPD hJ'J hJcard hJmem h0mem
     hunits hJlt hJsmall hJ'card hI3 ⟨x, hxdilate⟩
-  have hA_qlt : 2 * (q:ℝ) ^ ε < q := (hQ₃ q hqQ3).1
+  have hA_qlt : C * (q:ℝ) ^ ε < q := (hQ₃ q hqQ3).1
   have hlt : ∀ i ∈ I, i < q := by
     intro i hi
     have hi2 := (hI1 i hi).2
@@ -561,5 +577,23 @@ theorem lemma3 (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
     calc (J'.card:ℝ) ≤ (⌊(q:ℝ)^(ε/2)⌋₊:ℝ) := by exact_mod_cast hJ'card
       _ ≤ (q:ℝ)^(ε/2) := Nat.floor_le (by positivity)
   exact exists_S_of_covering hq0 hInj hJ'A ((q:ℝ)^(ε/2)) hBs hcover
+
+/-- **Lemma 3** of the paper: the case `C = 2` of `lemma3_wide` (the lower endpoint
+restriction `q^ε ≤ i` is only used to see that `i` is positive). -/
+theorem lemma3 (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) :
+    ∃ Q₀ : ℕ, ∀ q : ℕ, IsPrimePow q → Q₀ ≤ q →
+      ∀ I : Finset ℕ,
+        (∀ i ∈ I, (q : ℝ) ^ ε ≤ i ∧ (i : ℝ) ≤ 2 * (q : ℝ) ^ ε) →
+        (∀ i ∈ I, Nat.Coprime i q) →
+        (q : ℝ) ^ (7 * ε / 8) ≤ I.card →
+        ∀ r : ZMod q, ∃ S ⊆ I, (S.card : ℝ) ≤ (q : ℝ) ^ (ε / 2) ∧
+          ∑ i ∈ S, ((i : ZMod q)⁻¹) = r := by
+  obtain ⟨Q₀, hQ₀⟩ := lemma3_wide ε hε0 hε1 2 (by norm_num)
+  refine ⟨Q₀, fun q hqpp hq I hI1 hI2 hI3 => hQ₀ q hqpp hq I (fun i hi => ⟨?_, (hI1 i hi).2⟩)
+    hI2 hI3⟩
+  have hqpos : 0 < q := by have := hqpp.two_le; omega
+  have hqεpos : (0:ℝ) < (q:ℝ)^ε := Real.rpow_pos_of_pos (by exact_mod_cast hqpos) ε
+  have hiR : (0:ℝ) < (i:ℝ) := lt_of_lt_of_le hqεpos (hI1 i hi).1
+  exact_mod_cast hiR
 
 end Erdos289

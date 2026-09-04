@@ -88,13 +88,14 @@ lemma box_prod_lt {q : ℕ} (hq2 : 2 ≤ q) {D : ℕ} (A : Finset (Fin D))
 
 /-- **Paper's steps 4-5, quantitative form (`(3.2)`).** For a proper GAP `P` representing `0`
 via `v` and every `j ∈ J` (`J` a set of naturals `< q`, each with a small modular-inverse
-witness `i j ≤ 2 q^ε`, `|J| ≥ q^(7ε/8)/2`), the active-coordinate count `d ≥ 1` and product
-`V` of active extents satisfy `V ≥ q^(1 - dε/8 - dε/500) / (32d)^d`.
+witness `i j ≤ C q^ε` for a fixed `C ≥ 1`, `|J| ≥ q^(7ε/8)/2`), the active-coordinate count
+`d ≥ 1` and product `V` of active extents satisfy `V ≥ q^(1 - dε/8 - dε/500) / (16Cd)^d`.
+(The paper's Lemma 3 is the case `C = 2`, where the constant is the stated `(32d)^d`.)
 
 This is the paper's simultaneous-approximation / divisor-bound argument (Section 3,
 steps 4-5). The proof:
 
-* If `V ≥ q` the bound is trivial (the exponent is `≤ 1` and `(32d)^d ≥ 1`), so assume
+* If `V ≥ q` the bound is trivial (the exponent is `≤ 1` and `(16Cd)^d ≥ 1`), so assume
   `V < q` and put `ρ := (V/q)^(1/d) ∈ (0,1)`.
 * Apply `simultaneous_approx` with the paper's box sizes `B i := (4q/a i) ρ` on the active
   coordinates and `B i := q` on the inactive ones (whose constraint is then vacuous, the
@@ -106,31 +107,34 @@ steps 4-5). The proof:
   `gap_active_repr` writes `j = ∑ (n i - v i) d i` over the active coordinates with
   `|n i - v i| ≤ a i`, so `h j := ∑ (n i - v i) e i` satisfies `h j ≡ T j (mod q)` and
   `|h j| ≤ ∑ a i B i = 4 d q ρ =: R`.
-* `divisor_count_bound`, with `Imax := 2 q^ε` and the divisor majorant
+* `divisor_count_bound`, with `Imax := C q^ε` and the divisor majorant
   `x ↦ max n₀ (x^(ε/4000))` coming from `divisor_bound`, then gives
-  `|J| ≤ (16 d q^ε ρ + 5) · q^(ε/2000)` for large `q` (using `q(Z+1) ≤ q²`).
+  `|J| ≤ (8 C d q^ε ρ + 5) · q^(ε/2000)` for large `q` (using `q(Z+1) ≤ q²`).
 * Comparing with `|J| ≥ q^(7ε/8)/2` and absorbing the additive `5` (the slack
   `q^(3ε/2000) ≥ 2` and `q^(7ε/8 - ε/500) ≥ 10` is what the choice `ε/4000 < ε/1000` buys)
-  yields `32 d ρ ≥ q^(-ε/8 - ε/500)`, i.e. `V = q ρ^d ≥ q^(1 - dε/8 - dε/500)/(32d)^d`.
+  yields `16 C d ρ ≥ q^(-ε/8 - ε/500)`, i.e. `V = q ρ^d ≥ q^(1 - dε/8 - dε/500)/(16Cd)^d`.
 
-All four "large `q`" thresholds are independent of `P`, `v`, `J` and of `d`, so the single
-`Q₀` produced here is uniform over the finitely many ranks `d ≤ d₀`. -/
-lemma paper_steps_4_5 (ε c : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (_hc : 0 < c) (d₀ : ℕ) :
+All four "large `q`" thresholds are independent of `P`, `v`, `J` and of `d` (they do depend
+on the fixed constants `ε`, `C`, `d₀`), so the single `Q₀` produced here is uniform over the
+finitely many ranks `d ≤ d₀`. -/
+lemma paper_steps_4_5 (ε c C : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (_hc : 0 < c) (hC : 1 ≤ C)
+    (d₀ : ℕ) :
     ∃ Q₀ : ℕ, ∀ q : ℕ, 2 ≤ q → Q₀ ≤ q →
       ∀ (P : GAP) (v : Fin P.D → ℤ) (J : Finset ℕ),
         P.D ≤ d₀ →
         (∀ i, P.α i ≤ (v i:ℝ) ∧ (v i:ℝ) ≤ P.β i) → (∑ i, v i * P.d i = 0) →
         (∀ j ∈ J, (j:ℤ) ∈ P.set) → (∀ j ∈ J, j < q) →
-        (∀ j ∈ J, ∃ i : ℕ, 0 < i ∧ (i:ℝ) ≤ 2 * (q:ℝ)^ε ∧ (i:ZMod q) * (j:ZMod q) = 1) →
+        (∀ j ∈ J, ∃ i : ℕ, 0 < i ∧ (i:ℝ) ≤ C * (q:ℝ)^ε ∧ (i:ZMod q) * (j:ZMod q) = 1) →
         (q:ℝ)^(7*ε/8) / 2 ≤ (J.card:ℝ) →
         1 ≤ (Finset.univ.filter (fun i => ⌈P.α i⌉ < ⌊P.β i⌋)).card →
         ((∏ i ∈ Finset.univ.filter (fun i => ⌈P.α i⌉ < ⌊P.β i⌋), (⌊P.β i⌋ - ⌈P.α i⌉).toNat : ℕ)
               : ℝ)
           ≥ (q:ℝ) ^ (1 - ((Finset.univ.filter (fun i => ⌈P.α i⌉ < ⌊P.β i⌋)).card : ℝ) * ε / 8
                 - ((Finset.univ.filter (fun i => ⌈P.α i⌉ < ⌊P.β i⌋)).card : ℝ) * ε / 500)
-            / (32 * ((Finset.univ.filter (fun i => ⌈P.α i⌉ < ⌊P.β i⌋)).card : ℝ)) ^
+            / (16 * C * ((Finset.univ.filter (fun i => ⌈P.α i⌉ < ⌊P.β i⌋)).card : ℝ)) ^
                 (Finset.univ.filter (fun i => ⌈P.α i⌉ < ⌊P.β i⌋)).card := by
   classical
+  have hCpos : (0:ℝ) < C := lt_of_lt_of_le one_pos hC
   -- The divisor-bound majorant `Dfun`.
   have hε'0 : (0:ℝ) < ε / 4000 := by positivity
   obtain ⟨n₀, hn₀⟩ := Filter.eventually_atTop.mp (divisor_bound (ε / 4000) hε'0)
@@ -157,12 +161,12 @@ lemma paper_steps_4_5 (ε c : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (_hc : 0 < c)
   -- The four "for sufficiently large `q`" estimates.
   have hEv : ∀ᶠ q : ℕ in atTop,
       ((n₀ : ℝ) ≤ (q : ℝ) ^ (ε / 2000)) ∧
-      ((8 * (d₀ : ℝ) + 3) * (q : ℝ) ^ (1 + ε) ≤ (q : ℝ) ^ (2 : ℝ)) ∧
+      ((4 * C * (d₀ : ℝ) + 3) * (q : ℝ) ^ (1 + ε) ≤ (q : ℝ) ^ (2 : ℝ)) ∧
       ((2 : ℝ) ≤ (q : ℝ) ^ (3 * ε / 2000)) ∧
       ((10 : ℝ) ≤ (q : ℝ) ^ (7 * ε / 8 - ε / 500)) := by
     have k1 := eventually_rpow_dominates (ε / 4000) (ε / 2000) 0 (n₀ : ℝ)
       (by positivity) (by linarith)
-    have k2 := eventually_rpow_dominates (1 + ε) 2 (8 * (d₀ : ℝ) + 3) 0
+    have k2 := eventually_rpow_dominates (1 + ε) 2 (4 * C * (d₀ : ℝ) + 3) 0
       (by linarith) (by linarith)
     have k3 := eventually_rpow_dominates (3 * ε / 4000) (3 * ε / 2000) 0 2
       (by positivity) (by linarith)
@@ -203,6 +207,12 @@ lemma paper_steps_4_5 (ε c : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (_hc : 0 < c)
   have hV1 : 1 ≤ V := by rw [hVa]; exact Finset.one_le_prod' ha1
   have hd1' : 1 ≤ A.card := hd1
   have hdR1 : (1:ℝ) ≤ (A.card : ℝ) := by exact_mod_cast hd1'
+  -- The constant `16 C d` of the conclusion is `≥ 1` (and in particular positive).
+  have hCd1 : (1:ℝ) ≤ C * (A.card : ℝ) := by
+    have := mul_le_mul hC hdR1 zero_le_one (le_trans zero_le_one hC)
+    linarith [this]
+  have hden1 : (1:ℝ) ≤ 16 * C * (A.card : ℝ) := by linarith
+  have hden_pos : (0:ℝ) < 16 * C * (A.card : ℝ) := by linarith
   rcases le_or_gt (q:ℝ) (V:ℝ) with hVge | hVlt
   · -- Trivial case `V ≥ q`.
     have hexp : (q:ℝ) ^ (1 - (A.card:ℝ) * ε / 8 - (A.card:ℝ) * ε / 500) ≤ (q:ℝ) := by
@@ -210,8 +220,8 @@ lemma paper_steps_4_5 (ε c : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (_hc : 0 < c)
         refine Real.rpow_le_rpow_of_exponent_le hq1 ?_
         nlinarith
       simpa using h1
-    have hden : (1:ℝ) ≤ (32 * (A.card:ℝ)) ^ A.card := one_le_pow₀ (by linarith)
-    rw [ge_iff_le, div_le_iff₀ (by positivity)]
+    have hden : (1:ℝ) ≤ (16 * C * (A.card:ℝ)) ^ A.card := one_le_pow₀ hden1
+    rw [ge_iff_le, div_le_iff₀ (pow_pos hden_pos _)]
     nlinarith
   · -- Main case `V < q`.
     have hVR0 : (0:ℝ) < (V:ℝ) := by exact_mod_cast (by omega : 0 < V)
@@ -319,48 +329,60 @@ lemma paper_steps_4_5 (ε c : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (_hc : 0 < c)
       · exact ⟨0, fun hcc => absurd hcc hjJ⟩
     choose hfun hfunspec using hkey
     have hkey2 : ∀ j : ℕ, ∃ i0 : ℕ, j ∈ J →
-        (0 < i0 ∧ (i0 : ℝ) ≤ 2 * (q:ℝ) ^ ε ∧ ((i0 : ZMod q) * (j : ZMod q) = 1)) := by
+        (0 < i0 ∧ (i0 : ℝ) ≤ C * (q:ℝ) ^ ε ∧ ((i0 : ZMod q) * (j : ZMod q) = 1)) := by
       intro j
       by_cases hjJ : j ∈ J
       · obtain ⟨i0, h1, h2, h3⟩ := hJinv j hjJ
         exact ⟨i0, fun _ => ⟨h1, h2, h3⟩⟩
       · exact ⟨1, fun hcc => absurd hcc hjJ⟩
     choose i0 hi0spec using hkey2
+    have hCqnn : (0:ℝ) ≤ C * (q:ℝ) ^ ε := mul_nonneg hCpos.le (Real.rpow_nonneg hq0.le ε)
     have hdcb := divisor_count_bound hq2 T hT1 hTq (4 * (A.card : ℝ) * (q:ℝ) * ρ)
-      (2 * (q:ℝ) ^ ε) (by positivity) (by positivity) J hJq hfun hfunspec i0
+      (C * (q:ℝ) ^ ε) (by positivity) hCqnn J hJq hfun hfunspec i0
       (fun j hj => (hi0spec j hj).1) (fun j hj => (hi0spec j hj).2.1)
       (fun j hj => (hi0spec j hj).2.2) Dfun hDmono hDdiv
-    have hyeq : 2 * (q:ℝ) ^ ε * (4 * (A.card : ℝ) * (q:ℝ) * ρ) / (q:ℝ)
-        = 8 * (A.card : ℝ) * (q:ℝ) ^ ε * ρ := by
-      field_simp; ring
+    have hyeq : C * (q:ℝ) ^ ε * (4 * (A.card : ℝ) * (q:ℝ) * ρ) / (q:ℝ)
+        = 4 * C * (A.card : ℝ) * (q:ℝ) ^ ε * ρ := by
+      field_simp
     rw [hyeq] at hdcb
-    set Z : ℕ := ⌈8 * (A.card : ℝ) * (q:ℝ) ^ ε * ρ + 1⌉₊ with hZdef
-    have hZle : (Z : ℝ) ≤ 8 * (A.card : ℝ) * (q:ℝ) ^ ε * ρ + 2 := by
+    set Z : ℕ := ⌈4 * C * (A.card : ℝ) * (q:ℝ) ^ ε * ρ + 1⌉₊ with hZdef
+    have hZnn : (0:ℝ) ≤ 4 * C * (A.card : ℝ) * (q:ℝ) ^ ε * ρ := by
+      have h1 : (0:ℝ) ≤ (A.card : ℝ) := by positivity
+      have h2 : (0:ℝ) ≤ (q:ℝ) ^ ε := Real.rpow_nonneg hq0.le ε
+      have h3 : (0:ℝ) ≤ 4 * C := by linarith
+      have h4 : (0:ℝ) ≤ 4 * C * (A.card : ℝ) := mul_nonneg h3 h1
+      have h5 : (0:ℝ) ≤ 4 * C * (A.card : ℝ) * (q:ℝ) ^ ε := mul_nonneg h4 h2
+      exact mul_nonneg h5 hρpos.le
+    have hZle : (Z : ℝ) ≤ 4 * C * (A.card : ℝ) * (q:ℝ) ^ ε * ρ + 2 := by
       rw [hZdef]
-      have hnn : (0:ℝ) ≤ 8 * (A.card : ℝ) * (q:ℝ) ^ ε * ρ + 1 := by positivity
+      have hnn : (0:ℝ) ≤ 4 * C * (A.card : ℝ) * (q:ℝ) ^ ε * ρ + 1 := by linarith
       linarith [Nat.ceil_lt_add_one hnn]
     clear_value Z
     have hqZ : (q:ℝ) * ((Z:ℝ) + 1) ≤ (q:ℝ) ^ (2:ℝ) := by
       have hqe : (0:ℝ) ≤ (q:ℝ) ^ ε := by positivity
       have hcardR : (A.card : ℝ) ≤ (d₀ : ℝ) := by exact_mod_cast hdcard
-      have hA0 : (0:ℝ) ≤ 8 * (A.card : ℝ) * (q:ℝ) ^ ε := by positivity
-      have h1 : 8 * (A.card : ℝ) * (q:ℝ) ^ ε * ρ ≤ 8 * (d₀ : ℝ) * (q:ℝ) ^ ε := by
-        have hstep : 8 * (A.card : ℝ) * (q:ℝ) ^ ε * ρ ≤ 8 * (A.card : ℝ) * (q:ℝ) ^ ε * 1 :=
+      have hcard0 : (0:ℝ) ≤ (A.card : ℝ) := by positivity
+      have hA0 : (0:ℝ) ≤ 4 * C * (A.card : ℝ) * (q:ℝ) ^ ε :=
+        mul_nonneg (mul_nonneg (by linarith) hcard0) hqe
+      have h1 : 4 * C * (A.card : ℝ) * (q:ℝ) ^ ε * ρ ≤ 4 * C * (d₀ : ℝ) * (q:ℝ) ^ ε := by
+        have hstep : 4 * C * (A.card : ℝ) * (q:ℝ) ^ ε * ρ
+            ≤ 4 * C * (A.card : ℝ) * (q:ℝ) ^ ε * 1 :=
           mul_le_mul_of_nonneg_left hρlt1.le hA0
-        have hstep2 : 8 * (A.card : ℝ) * (q:ℝ) ^ ε ≤ 8 * (d₀ : ℝ) * (q:ℝ) ^ ε := by
-          have : 8 * (A.card : ℝ) ≤ 8 * (d₀ : ℝ) := by linarith
-          exact mul_le_mul_of_nonneg_right this hqe
+        have hstep2 : 4 * C * (A.card : ℝ) * (q:ℝ) ^ ε ≤ 4 * C * (d₀ : ℝ) * (q:ℝ) ^ ε := by
+          have hbase : 4 * C * (A.card : ℝ) ≤ 4 * C * (d₀ : ℝ) := by nlinarith
+          exact mul_le_mul_of_nonneg_right hbase hqe
         linarith
-      have h2 : (q:ℝ) * ((Z:ℝ) + 1) ≤ (q:ℝ) * (8 * (d₀ : ℝ) * (q:ℝ) ^ ε + 3) :=
+      have h2 : (q:ℝ) * ((Z:ℝ) + 1) ≤ (q:ℝ) * (4 * C * (d₀ : ℝ) * (q:ℝ) ^ ε + 3) :=
         mul_le_mul_of_nonneg_left (by linarith) hq0.le
-      have h3 : (q:ℝ) * (8 * (d₀ : ℝ) * (q:ℝ) ^ ε + 3)
-          = 8 * (d₀ : ℝ) * ((q:ℝ) ^ (1 + ε)) + 3 * (q:ℝ) := by
+      have h3 : (q:ℝ) * (4 * C * (d₀ : ℝ) * (q:ℝ) ^ ε + 3)
+          = 4 * C * (d₀ : ℝ) * ((q:ℝ) ^ (1 + ε)) + 3 * (q:ℝ) := by
         rw [Real.rpow_add hq0, Real.rpow_one]; ring
       have h4 : (q:ℝ) ≤ (q:ℝ) ^ (1 + ε) := by
         have := Real.rpow_le_rpow_of_exponent_le hq1 (by linarith : (1:ℝ) ≤ 1 + ε)
         simpa using this
       have hd₀nn : (0:ℝ) ≤ (d₀:ℝ) := by positivity
-      linarith [hEv2]
+      have h5 : (0:ℝ) ≤ 4 * C * (d₀ : ℝ) := mul_nonneg (by linarith) hd₀nn
+      nlinarith [hEv2]
     have hDb : Dfun ((q:ℝ) * ((Z:ℝ) + 1)) ≤ (q:ℝ) ^ (ε / 2000) := by
       rw [hDval]
       refine max_le hEv1 ?_
@@ -372,10 +394,10 @@ lemma paper_steps_4_5 (ε c : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (_hc : 0 < c)
         ring
       linarith
     have hJ2 : (J.card : ℝ)
-        ≤ (16 * (A.card : ℝ) * (q:ℝ) ^ ε * ρ + 5) * (q:ℝ) ^ (ε / 2000) := by
+        ≤ (8 * C * (A.card : ℝ) * (q:ℝ) ^ ε * ρ + 5) * (q:ℝ) ^ (ε / 2000) := by
       refine le_trans hdcb ?_
-      have hc1 : 2 * (Z:ℝ) + 1 ≤ 16 * (A.card : ℝ) * (q:ℝ) ^ ε * ρ + 5 := by linarith [hZle]
-      exact mul_le_mul hc1 hDb (hDnn _) (by positivity)
+      have hc1 : 2 * (Z:ℝ) + 1 ≤ 8 * C * (A.card : ℝ) * (q:ℝ) ^ ε * ρ + 5 := by linarith [hZle]
+      exact mul_le_mul hc1 hDb (hDnn _) (by linarith)
     -- Solve for `ρ`.
     have hs : (q:ℝ) ^ (7 * ε / 8)
         = (q:ℝ) ^ (7 * ε / 8 - ε / 500) * (q:ℝ) ^ (ε / 2000) * (q:ℝ) ^ (3 * ε / 2000) := by
@@ -387,36 +409,38 @@ lemma paper_steps_4_5 (ε c : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (_hc : 0 < c)
       rw [hs]
       have hnn : (0:ℝ) ≤ (q:ℝ) ^ (7 * ε / 8 - ε / 500) * (q:ℝ) ^ (ε / 2000) := by positivity
       nlinarith [hEv3]
-    have hstep2 : (q:ℝ) ^ (7 * ε / 8 - ε / 500) ≤ 16 * (A.card : ℝ) * (q:ℝ) ^ ε * ρ + 5 := by
+    have hstep2 : (q:ℝ) ^ (7 * ε / 8 - ε / 500)
+        ≤ 8 * C * (A.card : ℝ) * (q:ℝ) ^ ε * ρ + 5 := by
       have h1 : (q:ℝ) ^ (7 * ε / 8 - ε / 500) * (q:ℝ) ^ (ε / 2000)
-          ≤ (16 * (A.card : ℝ) * (q:ℝ) ^ ε * ρ + 5) * (q:ℝ) ^ (ε / 2000) := by
+          ≤ (8 * C * (A.card : ℝ) * (q:ℝ) ^ ε * ρ + 5) * (q:ℝ) ^ (ε / 2000) := by
         linarith [hstep1, hJcard, hJ2]
       exact le_of_mul_le_mul_right h1 hW
-    have hstep3 : (q:ℝ) ^ (7 * ε / 8 - ε / 500) / 2 ≤ 16 * (A.card : ℝ) * (q:ℝ) ^ ε * ρ := by
+    have hstep3 : (q:ℝ) ^ (7 * ε / 8 - ε / 500) / 2
+        ≤ 8 * C * (A.card : ℝ) * (q:ℝ) ^ ε * ρ := by
       linarith [hEv4, hstep2]
     have hqeps : (0:ℝ) < (q:ℝ) ^ ε := by positivity
-    have hρge : (q:ℝ) ^ (7 * ε / 8 - ε / 500 - ε) ≤ 32 * (A.card : ℝ) * ρ := by
+    have hρge : (q:ℝ) ^ (7 * ε / 8 - ε / 500 - ε) ≤ 16 * C * (A.card : ℝ) * ρ := by
       have h1 : (q:ℝ) ^ (7 * ε / 8 - ε / 500)
           = (q:ℝ) ^ (7 * ε / 8 - ε / 500 - ε) * (q:ℝ) ^ ε := by
         rw [← Real.rpow_add hq0]; congr 1; ring
       rw [h1] at hstep3
       have h2 : (q:ℝ) ^ (7 * ε / 8 - ε / 500 - ε) * (q:ℝ) ^ ε
-          ≤ (32 * (A.card : ℝ) * ρ) * (q:ℝ) ^ ε := by nlinarith
+          ≤ (16 * C * (A.card : ℝ) * ρ) * (q:ℝ) ^ ε := by nlinarith
       exact le_of_mul_le_mul_right h2 hqeps
-    have hfinρ : (q:ℝ) ^ (-(ε/8) - ε/500) / (32 * (A.card : ℝ)) ≤ ρ := by
+    have hfinρ : (q:ℝ) ^ (-(ε/8) - ε/500) / (16 * C * (A.card : ℝ)) ≤ ρ := by
       have hexpeq : 7 * ε / 8 - ε / 500 - ε = -(ε/8) - ε/500 := by ring
       rw [hexpeq] at hρge
-      rw [div_le_iff₀ (by positivity)]
+      rw [div_le_iff₀ hden_pos]
       linarith [hρge]
-    have hpow : ((q:ℝ) ^ (-(ε/8) - ε/500) / (32 * (A.card : ℝ))) ^ A.card ≤ ρ ^ A.card :=
-      pow_le_pow_left₀ (by positivity) hfinρ _
+    have hpow : ((q:ℝ) ^ (-(ε/8) - ε/500) / (16 * C * (A.card : ℝ))) ^ A.card ≤ ρ ^ A.card :=
+      pow_le_pow_left₀ (div_nonneg (Real.rpow_nonneg hq0.le _) hden_pos.le) hfinρ _
     have hVeq : (V:ℝ) = (q:ℝ) * ρ ^ A.card := by rw [hρd]; field_simp
     have hqe2 : ((q:ℝ) ^ (-(ε/8) - ε/500)) ^ A.card
         = (q:ℝ) ^ ((-(ε/8) - ε/500) * (A.card : ℝ)) := by
       rw [Real.rpow_mul hq0.le, Real.rpow_natCast]
-    have hfinal : (q:ℝ) * (((q:ℝ) ^ (-(ε/8) - ε/500) / (32 * (A.card : ℝ))) ^ A.card)
+    have hfinal : (q:ℝ) * (((q:ℝ) ^ (-(ε/8) - ε/500) / (16 * C * (A.card : ℝ))) ^ A.card)
         = (q:ℝ) ^ (1 - (A.card : ℝ) * ε / 8 - (A.card : ℝ) * ε / 500)
-            / (32 * (A.card : ℝ)) ^ A.card := by
+            / (16 * C * (A.card : ℝ)) ^ A.card := by
       rw [div_pow, hqe2]
       rw [show (1:ℝ) - (A.card : ℝ) * ε / 8 - (A.card : ℝ) * ε / 500
             = 1 + (-(ε/8) - ε/500) * (A.card : ℝ) by ring]
