@@ -1,4 +1,5 @@
 import Erdos289.External
+import Erdos289.ExternalBridge
 import Erdos289.ErdosTuran
 
 set_option maxHeartbeats 1000000

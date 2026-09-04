@@ -1,4 +1,5 @@
 import Erdos289.Lemma3Basic
+import Erdos289.ExternalBridge
 
 /-!
 # Lemma 3: steps 4-5

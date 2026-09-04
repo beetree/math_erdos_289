@@ -299,4 +299,70 @@ theorem bridge_cfhmpsv_structure (β : ℝ) (hβ : 1 < β) (η : ℝ) (hη0 : 0 
 #print axioms bridge_bourgain_garaev
 #print axioms bridge_cfhmpsv_structure
 
+
+/-! ## The six input statements, now theorems derived from the audited axioms -/
+
+/-- **Liu–Sawhney**, *On further questions regarding unit fractions*, Theorem 1.3.
+
+For every fixed `0 < ζ < 1/2`, for all sufficiently large `N`, every subset `A` of
+`[1, N]` with density at least `1 - 1/e + ζ` contains a subset `D` whose reciprocals sum
+to exactly `1`.
+
+Derived from the audited axiom `Erdos289.External.Assumed.liu_sawhney` via the bridge above. -/
+alias liu_sawhney := bridge_liu_sawhney
+
+/-- **Conlon–Fox–He–Mubayi–Pham–Suk–Verstraëte**, *A question of Erdős and Graham on
+Egyptian fractions* (arXiv:2404.16016), Theorem 3, derived there from Conlon–Fox–Pham,
+*Homogeneous structures in subset sums and non-averaging sets*, Theorem 1.5.
+
+Fix `β > 1` and `0 < η < 1`. There are constants `c > 0` and `d₀ : ℕ` such that, for all
+sufficiently large `m`, for every `n ≤ m ^ β`, every `A ⊆ [1, n]` with `|A| = m`, and
+every integer `s` with `m ^ η ≤ s ≤ c m / log₂ m`, there are `J ⊆ A`, a proper GAP `P` of
+rank at most `d₀`, and `J' ⊆ J` such that `|J| ≥ m - s log₂ m / c`, `J ∪ {0} ⊆ P`,
+`|J'| ≤ s`, and the subset sums of `J'` contain a translate of the proper dilate `(c s) • P`.
+The dilate `(c s) • P` is itself asserted to be proper and nonempty (the paper's phrases
+"the proper dilate `csP`" and "the supplied proper GAP `csP` is nonempty"; both are needed
+for the face count in the proof of Lemma 3). The logarithm here is the source-native base-two
+`log₂ x = log x / log 2` (`Erdos289.External.logTwo`), matching the audited
+`CFHMPSVStructureStatement` in `ExternalAxioms.lean` on the nose, so that the bridge in
+`ExternalBridge.lean` can use the very same constant `c`.
+
+Derived from the audited axiom `Erdos289.External.Assumed.cfhmpsv_structure` via the bridge above. -/
+alias cfhmpsv_structure := bridge_cfhmpsv_structure
+
+/-- **Bourgain–Garaev**, *Kloosterman sums in residue rings*, Theorem 5.
+
+For every sufficiently small fixed `c > 0`, the short Kloosterman-type sum
+`∑_{n ≤ N, (n,m)=1} e_m(a n⁻¹)` is `o(N)` as the modulus `m → ∞`, uniformly in
+`m^c < N < m` and in coefficients `a` coprime to `m`.
+
+Derived from the audited axiom `Erdos289.External.Assumed.bourgain_garaev` via the bridge above. -/
+alias bourgain_garaev := bridge_bourgain_garaev
+
+/-- **Erdős–Turán discrepancy inequality**, discrete finite form modulo `U`.
+
+Let `x : Fin N → ZMod U` be a finite sequence of residues modulo `U`. For every `H ≥ 1` and
+every "genuine" (non-wrapping) residue interval `[α, α + ℓ)` with `α + ℓ ≤ U`, the number of
+indices `j` with `x j` in that interval deviates from the expected count `N * ℓ / U` by at most
+
+`C * (N / H + ∑_{h=1}^{H} (1/h) * |∑_j e_U(h * (x j).val)|)`
+
+for an absolute constant `C` (Montgomery, *Ten Lectures*, Ch. 1, Cor. 1.1). This is the form of
+the inequality applied, with `x j` the modular inverses `t⁻¹ mod U`, to derive the equidistribution
+statement `Erdos289.equidist_inverse`.
+
+Derived from the audited axiom `Erdos289.External.Assumed.erdos_turan` via the bridge above. -/
+alias erdos_turan := bridge_erdos_turan
+
+/-- **Mertens' second theorem**: `∑_{p ≤ x} 1/p = log log x + B₁ + o(1)` for a constant
+`B₁`. Mathlib does not currently contain this asymptotic (checked: no lemma involving
+`Mertens`, and `Nat.primeCounting`/Chebyshev files only give prime-counting bounds, not
+the reciprocal-prime sum). Taken as an unproved classical input. -/
+alias mertens_second := bridge_mertens_second
+
+/-- The uniform divisor bound `τ(n) = n^{o(1)}`. Mathlib does not currently contain this
+(checked: only the trivial bound `Nat.card_divisors_le_self : n.divisors.card ≤ n`, no
+`n^ε`-type divisor bound). Taken as an unproved classical input. -/
+alias divisor_bound := bridge_divisor_bound
+
 end Erdos289

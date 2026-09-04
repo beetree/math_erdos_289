@@ -1,4 +1,5 @@
 import Erdos289.Lemma1EvenCount
+import Erdos289.ExternalBridge
 import Erdos289.Lemma1OddCount
 import Erdos289.Defs
 import Erdos289.External

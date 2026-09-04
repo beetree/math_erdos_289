@@ -1,4 +1,5 @@
 import Erdos289.Lemma1Basic
+import Erdos289.ExternalBridge
 import Erdos289.Lemma1Equidist
 
 /-!

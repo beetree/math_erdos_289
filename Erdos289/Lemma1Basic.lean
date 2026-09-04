@@ -1,4 +1,5 @@
 import Erdos289.Defs
+import Erdos289.ExternalBridge
 import Erdos289.External
 import Erdos289.ErdosTuran
 import Erdos289.Lemma4

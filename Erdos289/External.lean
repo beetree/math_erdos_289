@@ -22,17 +22,7 @@ open scoped BigOperators
 
 /-! ## 1. Liu–Sawhney: dense subsets of `[1,N]` contain a unit-fraction sum to `1`. -/
 
-/-- **Liu–Sawhney**, *On further questions regarding unit fractions*, Theorem 1.3.
-
-For every fixed `0 < ζ < 1/2`, for all sufficiently large `N`, every subset `A` of
-`[1, N]` with density at least `1 - 1/e + ζ` contains a subset `D` whose reciprocals sum
-to exactly `1`.
-
-This is an unproved external input: it is taken as a black box from the published paper. -/
-axiom liu_sawhney (ζ : ℝ) (hζ0 : 0 < ζ) (hζ1 : ζ < 1 / 2) :
-    ∀ᶠ N : ℕ in atTop, ∀ A ⊆ Finset.Icc 1 N,
-      (1 - 1 / Real.exp 1 + ζ) * (N : ℝ) ≤ (A.card : ℝ) →
-      ∃ D ⊆ A, ∑ d ∈ D, (1 : ℚ) / d = 1
+-- `liu_sawhney` is now derived from the audited axiom module; see `ExternalBridge.lean`.
 
 /-! ## 2. Conlon–Fox–He–Mubayi–Pham–Suk–Verstraëte: structure in bounded subset sums.
 
@@ -92,54 +82,14 @@ integers: `{∑ x ∈ T, (x : ℤ) | T ⊆ J}`. -/
 def subsetSums (J : Finset ℕ) : Set ℤ :=
   {x | ∃ T ⊆ J, x = ∑ i ∈ T, (i : ℤ)}
 
-/-- **Conlon–Fox–He–Mubayi–Pham–Suk–Verstraëte**, *A question of Erdős and Graham on
-Egyptian fractions* (arXiv:2404.16016), Theorem 3, derived there from Conlon–Fox–Pham,
-*Homogeneous structures in subset sums and non-averaging sets*, Theorem 1.5.
-
-Fix `β > 1` and `0 < η < 1`. There are constants `c > 0` and `d₀ : ℕ` such that, for all
-sufficiently large `m`, for every `n ≤ m ^ β`, every `A ⊆ [1, n]` with `|A| = m`, and
-every integer `s` with `m ^ η ≤ s ≤ c m / log₂ m`, there are `J ⊆ A`, a proper GAP `P` of
-rank at most `d₀`, and `J' ⊆ J` such that `|J| ≥ m - s log₂ m / c`, `J ∪ {0} ⊆ P`,
-`|J'| ≤ s`, and the subset sums of `J'` contain a translate of the proper dilate `(c s) • P`.
-The dilate `(c s) • P` is itself asserted to be proper and nonempty (the paper's phrases
-"the proper dilate `csP`" and "the supplied proper GAP `csP` is nonempty"; both are needed
-for the face count in the proof of Lemma 3). The logarithm here is the source-native base-two
-`log₂ x = log x / log 2` (`Erdos289.External.logTwo`), matching the audited
-`CFHMPSVStructureStatement` in `ExternalAxioms.lean` on the nose, so that the bridge in
-`ExternalBridge.lean` can use the very same constant `c`.
-
-This is an unproved external input: it is taken as a black box from the published paper. -/
-axiom cfhmpsv_structure (β : ℝ) (hβ : 1 < β) (η : ℝ) (hη0 : 0 < η) (hη1 : η < 1) :
-    ∃ c : ℝ, 0 < c ∧ ∃ d₀ : ℕ,
-      ∀ᶠ m : ℕ in atTop, ∀ n : ℕ, (n : ℝ) ≤ (m : ℝ) ^ β →
-        ∀ A : Finset ℕ, A ⊆ Finset.Icc 1 n → A.card = m →
-        ∀ s : ℕ, (m : ℝ) ^ η ≤ (s : ℝ) → (s : ℝ) ≤ c * (m : ℝ) / External.logTwo m →
-          ∃ (J : Finset ℕ) (P : GAP) (J' : Finset ℕ),
-            J ⊆ A ∧ P.Proper ∧ (GAP.dilate (c * (s : ℝ)) P).Proper ∧
-            (GAP.dilate (c * (s : ℝ)) P).set.Nonempty ∧ P.D ≤ d₀ ∧ J' ⊆ J ∧
-            (m : ℝ) - c⁻¹ * s * External.logTwo m ≤ (J.card : ℝ) ∧
-            (∀ x ∈ J, (x : ℤ) ∈ P.set) ∧ (0 : ℤ) ∈ P.set ∧
-            J'.card ≤ s ∧
-            ∃ x : ℤ, ∀ y ∈ (GAP.dilate (c * (s : ℝ)) P).set, x + y ∈ subsetSums J'
+-- `cfhmpsv_structure` is now derived from the audited axiom module; see `ExternalBridge.lean`.
 
 /-! ## 3. Bourgain–Garaev: short sums of modular inverses. -/
 
 /-- The additive character `e_m(x) = exp(2πix/m)`. -/
 noncomputable def e (m : ℕ) (x : ℤ) : ℂ := Complex.exp (2 * Real.pi * Complex.I * x / m)
 
-/-- **Bourgain–Garaev**, *Kloosterman sums in residue rings*, Theorem 5.
-
-For every sufficiently small fixed `c > 0`, the short Kloosterman-type sum
-`∑_{n ≤ N, (n,m)=1} e_m(a n⁻¹)` is `o(N)` as the modulus `m → ∞`, uniformly in
-`m^c < N < m` and in coefficients `a` coprime to `m`.
-
-This is an unproved external input: it is taken as a black box from the published paper. -/
-axiom bourgain_garaev :
-    ∃ c₀ : ℝ, 0 < c₀ ∧ ∀ c : ℝ, 0 < c → c < c₀ → ∀ ε : ℝ, 0 < ε →
-      ∀ᶠ m : ℕ in atTop, ∀ N : ℕ, (m : ℝ) ^ c < (N : ℝ) → (N : ℝ) < (m : ℝ) →
-        ∀ a : ℕ, Nat.Coprime a m →
-          ‖∑ n ∈ (Finset.Icc 1 N).filter (fun n => Nat.Coprime n m),
-              e m (a * ((n : ZMod m)⁻¹).val)‖ ≤ ε * (N : ℝ)
+-- `bourgain_garaev` is now derived from the audited axiom module; see `ExternalBridge.lean`.
 
 /-! ## 4. Classical estimates.
 
@@ -191,20 +141,9 @@ theorem primeCounting_le :
   rw [add_mul, e1] at hh
   linarith
 
-/-- **Mertens' second theorem**: `∑_{p ≤ x} 1/p = log log x + B₁ + o(1)` for a constant
-`B₁`. Mathlib does not currently contain this asymptotic (checked: no lemma involving
-`Mertens`, and `Nat.primeCounting`/Chebyshev files only give prime-counting bounds, not
-the reciprocal-prime sum). Taken as an unproved classical input. -/
-axiom mertens_second :
-    ∃ B₁ : ℝ, Tendsto
-      (fun x : ℕ => (∑ p ∈ (Finset.range (x + 1)).filter Nat.Prime, (1 : ℝ) / p)
-        - Real.log (Real.log x)) atTop (nhds B₁)
+-- `mertens_second` is now derived from the audited axiom module; see `ExternalBridge.lean`.
 
-/-- The uniform divisor bound `τ(n) = n^{o(1)}`. Mathlib does not currently contain this
-(checked: only the trivial bound `Nat.card_divisors_le_self : n.divisors.card ≤ n`, no
-`n^ε`-type divisor bound). Taken as an unproved classical input. -/
-axiom divisor_bound (ε : ℝ) (hε : 0 < ε) :
-    ∀ᶠ n : ℕ in atTop, (n.divisors.card : ℝ) ≤ (n : ℝ) ^ ε
+-- `divisor_bound` is now derived from the audited axiom module; see `ExternalBridge.lean`.
 
 /-- The count of prime powers up to `Y` is `O(Y / log Y)`, uniformly in `Y`. This is a
 routine consequence of `primeCounting_le` (a prime power `p^k ≤ Y` has `p ≤ Y`, and for

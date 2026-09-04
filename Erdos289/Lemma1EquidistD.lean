@@ -1,6 +1,7 @@
 import Erdos289.Defs
 import Erdos289.External
 import Erdos289.ErdosTuran
+import Erdos289.ExternalBridge
 
 open Finset Filter Topology
 
@@ -476,6 +477,257 @@ theorem rpow_ge_eventually (ε : ℝ) (hε : 0 < ε) (c : ℝ) :
   have h := (tendsto_rpow_atTop hε).comp tendsto_natCast_atTop_atTop
   exact h.eventually_ge_atTop c
 
+/-! ### 6a. Prime support of the admissible moduli (blueprint Lemmas 1.1–1.2) -/
+
+/-- Every prime factor of `2 ^ k * p ^ m` is either `2` or `p`. -/
+lemma prime_dvd_two_pow_mul_pow {p k m r : ℕ} (hp : p.Prime) (hr : r.Prime)
+    (hdvd : r ∣ 2 ^ k * p ^ m) : r = 2 ∨ r = p := by
+  rcases (Nat.Prime.dvd_mul hr).1 hdvd with h1 | h1
+  · exact Or.inl ((Nat.prime_dvd_prime_iff_eq hr Nat.prime_two).1 (hr.dvd_of_dvd_pow h1))
+  · exact Or.inr ((Nat.prime_dvd_prime_iff_eq hr hp).1 (hr.dvd_of_dvd_pow h1))
+
+/-- Each admissible modulus `U ∈ {q, 2q, 4q, 4pq}` is a multiple of `q`. -/
+lemma q_dvd_admissible {p a q U : ℕ} (hq : q = p ^ a)
+    (hU : U = q ∨ U = 2 * q ∨ U = 4 * q ∨ U = 4 * p * q) : q ∣ U := by
+  rcases hU with rfl | rfl | rfl | rfl
+  · exact dvd_rfl
+  · exact ⟨2, by ring⟩
+  · exact ⟨4, by ring⟩
+  · exact ⟨4 * p, by ring⟩
+
+/-- **Blueprint Lemma 1.2 (prime support)**: every prime factor of an admissible modulus
+`U ∈ {q, 2q, 4q, 4pq}` with `q = p ^ a` is `2` or `p`. -/
+lemma prime_dvd_admissible {p a q U : ℕ} (hp : p.Prime) (hq : q = p ^ a)
+    (hU : U = q ∨ U = 2 * q ∨ U = 4 * q ∨ U = 4 * p * q)
+    {r : ℕ} (hr : r.Prime) (hdvd : r ∣ U) : r = 2 ∨ r = p := by
+  subst hq
+  rcases hU with rfl | rfl | rfl | rfl
+  · exact prime_dvd_two_pow_mul_pow (k := 0) hp hr (by simpa using hdvd)
+  · exact prime_dvd_two_pow_mul_pow (k := 1) hp hr (by simpa using hdvd)
+  · refine prime_dvd_two_pow_mul_pow (k := 2) (m := a) hp hr ?_
+    have hrw : (2 : ℕ) ^ 2 * p ^ a = 4 * p ^ a := by norm_num
+    rw [hrw]; exact hdvd
+  · refine prime_dvd_two_pow_mul_pow (k := 2) (m := a + 1) hp hr ?_
+    have hrw : (2 : ℕ) ^ 2 * p ^ (a + 1) = 4 * p * p ^ a := by ring
+    rw [hrw]; exact hdvd
+
+/-- Coprimality transfers back along a divisor carrying all the prime factors. -/
+lemma coprime_of_prime_support (t U U' : ℕ)
+    (hsub : ∀ r : ℕ, r.Prime → r ∣ U → r ∣ U') (hcop : Nat.Coprime t U') :
+    Nat.Coprime t U := by
+  by_contra hcon
+  obtain ⟨r, hr, hrt, hrU⟩ := Nat.Prime.not_coprime_iff_dvd.1 hcon
+  exact Nat.Prime.not_coprime_iff_dvd.2 ⟨r, hr, hrt, hsub r hr hrU⟩ hcop
+
+/-- **Blueprint Lemma 1.2, `p ∣ U'`**: if the frequency `k` satisfies `0 < k < q`, then the
+reduced modulus `U / gcd (k, U)` is still divisible by `p`. -/
+lemma p_dvd_reduced {p a q U k : ℕ} (hp : p.Prime) (_ha : 0 < a) (hq : q = p ^ a)
+    (hU : U = q ∨ U = 2 * q ∨ U = 4 * q ∨ U = 4 * p * q) (hk : 0 < k) (hkq : k < q) :
+    p ∣ U / Nat.gcd k U := by
+  have hdpos : 0 < Nat.gcd k U := Nat.gcd_pos_of_pos_left U hk
+  have hdU : Nat.gcd k U ∣ U := Nat.gcd_dvd_right k U
+  have hUeq : U = Nat.gcd k U * (U / Nat.gcd k U) := (Nat.mul_div_cancel' hdU).symm
+  by_contra hpU'
+  have hcopp : Nat.Coprime p (U / Nat.gcd k U) := (Nat.Prime.coprime_iff_not_dvd hp).2 hpU'
+  have hcopq : Nat.Coprime q (U / Nat.gcd k U) := by
+    rw [hq]; exact Nat.Coprime.pow_left a hcopp
+  have hqU : q ∣ U := q_dvd_admissible hq hU
+  have hqd : q ∣ Nat.gcd k U := hcopq.dvd_of_dvd_mul_right (by rw [← hUeq]; exact hqU)
+  have h1 : q ≤ Nat.gcd k U := Nat.le_of_dvd hdpos hqd
+  have h2 : Nat.gcd k U ≤ k := Nat.le_of_dvd hk (Nat.gcd_dvd_left k U)
+  omega
+
+/-- **Blueprint Lemma 1.2, cases 1–3**: the unit conditions modulo `U` and modulo the reduced
+modulus `U'` coincide as soon as `p ∣ U'` and (when `U` is even) `2 ∣ U'`. -/
+lemma coprime_reduced_iff {p a q U : ℕ} (hp : p.Prime) (hq : q = p ^ a)
+    (hU : U = q ∨ U = 2 * q ∨ U = 4 * q ∨ U = 4 * p * q)
+    {U' : ℕ} (hdvd : U' ∣ U) (hpU' : p ∣ U') (h2 : 2 ∣ U → 2 ∣ U') (t : ℕ) :
+    Nat.Coprime t U ↔ Nat.Coprime t U' := by
+  constructor
+  · intro hc; exact Nat.Coprime.coprime_dvd_right hdvd hc
+  · intro hc
+    refine coprime_of_prime_support t U U' ?_ hc
+    intro r hr hrU
+    rcases prime_dvd_admissible hp hq hU hr hrU with rfl | rfl
+    · exact h2 hrU
+    · exact hpU'
+
+/-- **Blueprint Lemma 1.2, case 4** (equation (1.3)): if `U` is even but the reduced modulus
+`U'` is odd, being a unit modulo `U` means being an odd unit modulo `U'`. -/
+lemma coprime_reduced_odd_iff {p a q U : ℕ} (hp : p.Prime) (hq : q = p ^ a)
+    (hU : U = q ∨ U = 2 * q ∨ U = 4 * q ∨ U = 4 * p * q)
+    {U' : ℕ} (hdvd : U' ∣ U) (hpU' : p ∣ U') (h2U : 2 ∣ U) (_h2U' : ¬ 2 ∣ U') (t : ℕ) :
+    Nat.Coprime t U ↔ (Nat.Coprime t U' ∧ ¬ 2 ∣ t) := by
+  constructor
+  · intro hc
+    refine ⟨Nat.Coprime.coprime_dvd_right hdvd hc, fun h2t => ?_⟩
+    exact Nat.Prime.not_coprime_iff_dvd.2 ⟨2, Nat.prime_two, h2t, h2U⟩ hc
+  · rintro ⟨hc, h2t⟩
+    by_contra hcon
+    obtain ⟨r, hr, hrt, hrU⟩ := Nat.Prime.not_coprime_iff_dvd.1 hcon
+    rcases prime_dvd_admissible hp hq hU hr hrU with rfl | rfl
+    · exact h2t hrt
+    · exact Nat.Prime.not_coprime_iff_dvd.2 ⟨_, hp, hrt, hpU'⟩ hc
+
+/-! ### 6b. Halving the coefficient modulo an odd modulus (blueprint Lemma 3.1) -/
+
+/-- Uniqueness of inverses in `ZMod n` for units. -/
+lemma zmod_inv_eq_of_mul_eq_one {n : ℕ} (x y : ZMod n) (hx : IsUnit x) (hxy : x * y = 1) :
+    x⁻¹ = y := by
+  have h1 : x⁻¹ * x = 1 := ZMod.inv_mul_of_unit x hx
+  calc x⁻¹ = x⁻¹ * (x * y) := by rw [hxy, mul_one]
+    _ = x⁻¹ * x * y := by ring
+    _ = y := by rw [h1, one_mul]
+
+lemma natCast_rOfB {U : ℕ} (hU : 0 < U) (t : ℕ) :
+    ((rOfB U t : ℕ) : ZMod U) = ((t : ZMod U))⁻¹ := by
+  have : NeZero U := ⟨hU.ne'⟩
+  rw [rOfB, ZMod.natCast_val, ZMod.cast_id]
+
+lemma isUnit_two_of_odd {U' : ℕ} (hU' : 0 < U') (h2 : ¬ 2 ∣ U') : IsUnit (2 : ZMod U') := by
+  have : NeZero U' := ⟨hU'.ne'⟩
+  have hcop : Nat.Coprime 2 U' := (Nat.prime_two.coprime_iff_not_dvd).2 h2
+  have hu := (ZMod.isUnit_iff_coprime 2 U').2 hcop
+  simpa using hu
+
+/-- The halved coefficient `b · 2⁻¹` modulo an odd modulus `U'` (the `b₂` of blueprint (3.1)). -/
+def halfCoeff (U' b : ℕ) : ℕ := (((b : ZMod U') * (2 : ZMod U')⁻¹)).val
+
+lemma natCast_halfCoeff {U' : ℕ} (hU' : 0 < U') (b : ℕ) :
+    ((halfCoeff U' b : ℕ) : ZMod U') = ((b : ℕ) : ZMod U') * (2 : ZMod U')⁻¹ := by
+  have : NeZero U' := ⟨hU'.ne'⟩
+  rw [halfCoeff, ZMod.natCast_val, ZMod.cast_id]
+
+lemma coprime_halfCoeff (U' b : ℕ) (hU' : 0 < U') (h2 : ¬ 2 ∣ U') (hb : Nat.Coprime b U') :
+    Nat.Coprime (halfCoeff U' b) U' := by
+  have : NeZero U' := ⟨hU'.ne'⟩
+  have hu2 : IsUnit (2 : ZMod U') := isUnit_two_of_odd hU' h2
+  have hu2inv : IsUnit ((2 : ZMod U')⁻¹) :=
+    IsUnit.of_mul_eq_one (2 : ZMod U') (ZMod.inv_mul_of_unit 2 hu2)
+  have hub : IsUnit ((b : ℕ) : ZMod U') := (ZMod.isUnit_iff_coprime b U').2 hb
+  rw [← ZMod.isUnit_iff_coprime, natCast_halfCoeff hU' b]
+  exact hub.mul hu2inv
+
+/-- **Blueprint Lemma 3.1, phase step**: for odd `U'` and `u` a unit, the phase at `2u` with
+coefficient `b` equals the phase at `u` with the halved coefficient `b · 2⁻¹`. -/
+lemma e_half_reduce (U' b u : ℕ) (hU' : 1 < U') (h2 : ¬ 2 ∣ U') (hu : Nat.Coprime u U') :
+    e U' (b * (rOfB U' (2 * u) : ℤ)) = e U' (halfCoeff U' b * (rOfB U' u : ℤ)) := by
+  have : NeZero U' := ⟨by omega⟩
+  have hU'pos : 0 < U' := by omega
+  have hu2 : IsUnit (2 : ZMod U') := isUnit_two_of_odd hU'pos h2
+  have huu : IsUnit ((u : ℕ) : ZMod U') := (ZMod.isUnit_iff_coprime u U').2 hu
+  have h2u : ((2 * u : ℕ) : ZMod U') = (2 : ZMod U') * (u : ZMod U') := by push_cast; ring
+  have hinv : (((2 * u : ℕ) : ZMod U'))⁻¹ = (2 : ZMod U')⁻¹ * ((u : ZMod U'))⁻¹ := by
+    rw [h2u]
+    refine zmod_inv_eq_of_mul_eq_one _ _ (hu2.mul huu) ?_
+    calc (2 : ZMod U') * (u : ZMod U') * ((2 : ZMod U')⁻¹ * ((u : ZMod U'))⁻¹)
+        = ((2 : ZMod U') * (2 : ZMod U')⁻¹) * ((u : ZMod U') * ((u : ZMod U'))⁻¹) := by ring
+      _ = 1 := by
+          rw [ZMod.mul_inv_of_unit _ hu2, ZMod.mul_inv_of_unit _ huu, mul_one]
+  refine e_periodic U' _ _ hU'pos ?_
+  rw [← ZMod.intCast_eq_intCast_iff]
+  push_cast
+  rw [natCast_rOfB hU'pos (2 * u), natCast_rOfB hU'pos u, natCast_halfCoeff hU'pos b]
+  push_cast at hinv ⊢
+  rw [hinv]
+  ring
+
+/-- **Blueprint Lemma 3.1, reindexing**: the even part of an interval sum over units modulo an
+odd `U'` is a unit-interval sum of half the length with the halved coefficient. -/
+lemma even_part_reindex (U' b T₁ T₂ : ℕ) (hU' : 1 < U') (h2 : ¬ 2 ∣ U') :
+    ∑ t ∈ ((Ioc T₁ T₂).filter (fun t => Nat.Coprime t U')).filter (fun t => 2 ∣ t),
+        e U' (b * (rOfB U' t : ℤ))
+      = ∑ u ∈ (Ioc (T₁ / 2) (T₂ / 2)).filter (fun u => Nat.Coprime u U'),
+          e U' (halfCoeff U' b * (rOfB U' u : ℤ)) := by
+  have hcop2 : Nat.Coprime 2 U' := (Nat.prime_two.coprime_iff_not_dvd).2 h2
+  refine (Finset.sum_nbij' (fun u => 2 * u) (fun t => t / 2) ?_ ?_ ?_ ?_ ?_).symm
+  · intro u hu
+    simp only [Finset.mem_filter, Finset.mem_Ioc] at hu ⊢
+    obtain ⟨⟨hu1, hu2⟩, hcu⟩ := hu
+    refine ⟨⟨⟨?_, ?_⟩, ?_⟩, ⟨u, rfl⟩⟩
+    · omega
+    · omega
+    · exact Nat.coprime_mul_iff_left.2 ⟨hcop2, hcu⟩
+  · intro t ht
+    simp only [Finset.mem_filter, Finset.mem_Ioc] at ht ⊢
+    obtain ⟨⟨⟨ht1, ht2⟩, hct⟩, hdvd⟩ := ht
+    refine ⟨⟨?_, ?_⟩, ?_⟩
+    · omega
+    · omega
+    · have hsplit : t = 2 * (t / 2) := by omega
+      rw [hsplit] at hct
+      exact (Nat.coprime_mul_iff_left.1 hct).2
+  · intro u _; omega
+  · intro t ht
+    simp only [Finset.mem_filter] at ht
+    obtain ⟨-, hdvd⟩ := ht
+    omega
+  · intro u hu
+    simp only [Finset.mem_filter] at hu
+    exact (e_half_reduce U' b u hU' h2 hu.2).symm
+
+/-! ### 6c. Scale conditions (blueprint Lemma 3.2) -/
+
+/-- **Blueprint (3.3), fourth condition**: `(U')^c ≤ δ' q^ε` once `4^c ≤ δ' q^(ε/2)`,
+using `U' ≤ 4 q²` and `c ≤ ε/4`. -/
+lemma reduced_rpow_bound (ε c δ' : ℝ) (hc0 : 0 < c) (hcε : c ≤ ε / 4)
+    (q W : ℕ) (hq1 : 1 ≤ q) (hWle : (W : ℝ) ≤ 4 * (q : ℝ) ^ 2)
+    (hthr : (4 : ℝ) ^ c ≤ δ' * (q : ℝ) ^ (ε / 2)) :
+    (W : ℝ) ^ c ≤ δ' * (q : ℝ) ^ ε := by
+  have hqR : (1 : ℝ) ≤ (q : ℝ) := by exact_mod_cast hq1
+  have hqpos : (0 : ℝ) < (q : ℝ) := by linarith
+  have h1 : (W : ℝ) ^ c ≤ (4 * (q : ℝ) ^ 2) ^ c :=
+    Real.rpow_le_rpow (by positivity) hWle hc0.le
+  have h2 : (4 * (q : ℝ) ^ 2) ^ c = (4 : ℝ) ^ c * (q : ℝ) ^ (2 * c) := by
+    rw [Real.mul_rpow (by norm_num) (by positivity)]
+    congr 1
+    rw [← Real.rpow_natCast (q : ℝ) 2, ← Real.rpow_mul hqpos.le]
+    norm_num
+  have h6 : (0 : ℝ) < (q : ℝ) ^ (2 * c) := Real.rpow_pos_of_pos hqpos _
+  have h3 : (q : ℝ) ^ (2 * c) ≤ (q : ℝ) ^ (ε / 2) :=
+    Real.rpow_le_rpow_of_exponent_le hqR (by linarith)
+  have h4 : (q : ℝ) ^ (ε / 2) * (q : ℝ) ^ (ε / 2) = (q : ℝ) ^ ε := by
+    rw [← Real.rpow_add hqpos]; congr 1; ring
+  have hδ'nonneg : 0 ≤ δ' := by
+    by_contra hneg
+    rw [not_le] at hneg
+    have hp5 : (0 : ℝ) < (q : ℝ) ^ (ε / 2) := Real.rpow_pos_of_pos hqpos _
+    have : δ' * (q : ℝ) ^ (ε / 2) < 0 := mul_neg_of_neg_of_pos hneg hp5
+    have h4c : (0 : ℝ) < (4 : ℝ) ^ c := Real.rpow_pos_of_pos (by norm_num) _
+    linarith
+  have s1 : (4 : ℝ) ^ c * (q : ℝ) ^ (2 * c) ≤ (δ' * (q : ℝ) ^ (ε / 2)) * (q : ℝ) ^ (2 * c) :=
+    mul_le_mul_of_nonneg_right hthr h6.le
+  have s2 : (δ' * (q : ℝ) ^ (ε / 2)) * (q : ℝ) ^ (2 * c)
+      ≤ (δ' * (q : ℝ) ^ (ε / 2)) * (q : ℝ) ^ (ε / 2) :=
+    mul_le_mul_of_nonneg_left h3 (by positivity)
+  have s3 : (δ' * (q : ℝ) ^ (ε / 2)) * (q : ℝ) ^ (ε / 2) = δ' * (q : ℝ) ^ ε := by
+    rw [mul_assoc, h4]
+  rw [h2] at h1
+  linarith
+
+/-! ### 6d. The reduction of the summand and the Bourgain–Garaev input -/
+
+/-- `bg_interval_bound` restated with `rOfB`. -/
+lemma bg_interval_bound' (c : ℝ) (hc0 : 0 < c) (hcc0 : c < Classical.choose bourgain_garaev)
+    (ε : ℝ) (hε : 0 < ε) :
+    ∀ᶠ m : ℕ in atTop, ∀ T₁ T₂ : ℕ, T₁ ≤ T₂ → (T₂ : ℝ) < (m : ℝ) →
+      ∀ a : ℕ, Nat.Coprime a m →
+        ‖∑ n ∈ (Finset.Ioc T₁ T₂).filter (fun n => Nat.Coprime n m),
+            e m (a * (rOfB m n : ℤ))‖ ≤ 2 * (m : ℝ) ^ c + 2 * ε * (T₂ : ℝ) :=
+  bg_interval_bound c hc0 hcc0 ε hε
+
+/-- **Blueprint Lemma 1.3, applied to the interval sum**: replace the modulus `U` and the
+frequency `h` by the reduced pair `U / gcd (h, U)`, `h / gcd (h, U)`. -/
+lemma reduced_sum_eq (U k T₁ T₂ : ℕ) (hk : 0 < k) (hU' : 1 < U / Nat.gcd k U) :
+    ∑ t ∈ (Ioc T₁ T₂).filter (fun t => Nat.Coprime t U), e U (k * (rOfB U t : ℤ))
+      = ∑ t ∈ (Ioc T₁ T₂).filter (fun t => Nat.Coprime t U),
+          e (U / Nat.gcd k U)
+            (((k / Nat.gcd k U : ℕ) : ℤ) * (rOfB (U / Nat.gcd k U) t : ℤ)) := by
+  refine Finset.sum_congr rfl fun t ht => ?_
+  rw [Finset.mem_filter] at ht
+  exact e_rOfB_reduce U k t hk ht.2 hU'
+
+
 /-- **Exponential sum bound** (Bourgain–Garaev reduction, paper §2, lines 135–148):
 For fixed Fourier frequency `h ≥ 1` and tolerance `δ > 0`, the short inverse sum
 `∑_{t ∈ (T₁, T₂], (t, U)=1} e_U(h · t⁻¹)` is bounded by `δ · q^ε` for all sufficiently large `q`.
@@ -495,7 +747,138 @@ theorem exp_sum_bound (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (h : ℕ) (hh :
         ∀ T₁ T₂ : ℕ, T₁ ≤ T₂ → (T₂ : ℝ) ≤ 5 * (q : ℝ) ^ ε →
           ‖∑ t ∈ (Finset.Ioc T₁ T₂).filter (fun t => Nat.Coprime t U),
               e U (h * (rOfB U t : ℤ))‖ ≤ δ * (q : ℝ) ^ ε := by
-  sorry
+  -- Blueprint (0.1): the Bourgain–Garaev exponent `c = min (c₀/2) (ε/4)` and `δ' = δ/40`.
+  have hc₀pos : 0 < Classical.choose bourgain_garaev := (Classical.choose_spec bourgain_garaev).1
+  obtain ⟨c, hc0, hcc₀, hcε⟩ :
+      ∃ c : ℝ, 0 < c ∧ c < Classical.choose bourgain_garaev ∧ c ≤ ε / 4 :=
+    ⟨min (Classical.choose bourgain_garaev / 2) (ε / 4),
+      lt_min (by linarith) (by linarith),
+      lt_of_le_of_lt (min_le_left _ _) (by linarith),
+      min_le_right _ _⟩
+  obtain ⟨δ', hδ'pos, hδ'24⟩ : ∃ δ' : ℝ, 0 < δ' ∧ 24 * δ' ≤ δ :=
+    ⟨δ / 40, by positivity, by linarith⟩
+  obtain ⟨m₀, hm₀⟩ := Filter.eventually_atTop.1 (bg_interval_bound' c hc0 hcc₀ δ' hδ'pos)
+  -- Blueprint (3.2): the four thresholds.
+  filter_upwards [eventually_ge_atTop (h * (m₀ + 2)), eventually_ge_atTop 1,
+    rpow_ge_eventually (1 - ε) (by linarith) (5 * (h : ℝ) + 1),
+    rpow_ge_eventually (ε / 2) (by linarith) ((4 : ℝ) ^ c / δ')] with q hqm₀ hq1 hqE2 hqE3
+  intro p a hp ha hqeq U hU T₁ T₂ hT hT₂
+  have hqpos : 0 < q := by omega
+  have hqR1 : (1 : ℝ) ≤ (q : ℝ) := by exact_mod_cast hq1
+  have hqRpos : (0 : ℝ) < (q : ℝ) := by linarith
+  have hqEpos : (0 : ℝ) < (q : ℝ) ^ ε := Real.rpow_pos_of_pos hqRpos ε
+  have hδq : (0 : ℝ) ≤ δ' * (q : ℝ) ^ ε := by positivity
+  have hple : p ≤ q := by rw [hqeq]; exact Nat.le_self_pow ha.ne' p
+  have hUpos : 0 < U := by
+    rcases hU with rfl | rfl | rfl | rfl
+    · omega
+    · omega
+    · omega
+    · exact Nat.mul_pos (Nat.mul_pos (by omega) hp.pos) hqpos
+  have hUle : U ≤ 4 * q * q := by
+    rcases hU with rfl | rfl | rfl | rfl <;> nlinarith [hq1, hple]
+  -- Blueprint Lemma 1.1: the gcd reduction.
+  have hqU : q ∣ U := q_dvd_admissible hqeq hU
+  have hqUle : q ≤ U := Nat.le_of_dvd hUpos hqU
+  have hdpos : 0 < Nat.gcd h U := Nat.gcd_pos_of_pos_left U hh
+  have hdU : Nat.gcd h U ∣ U := Nat.gcd_dvd_right h U
+  have hdh : Nat.gcd h U ≤ h := Nat.le_of_dvd hh (Nat.gcd_dvd_left h U)
+  have hUeq : U = Nat.gcd h U * (U / Nat.gcd h U) := (Nat.mul_div_cancel' hdU).symm
+  have hkey : q ≤ h * (U / Nat.gcd h U) := by
+    calc q ≤ U := hqUle
+      _ = Nat.gcd h U * (U / Nat.gcd h U) := hUeq
+      _ ≤ h * (U / Nat.gcd h U) := Nat.mul_le_mul hdh (Nat.le_refl _)
+  have hU'big : m₀ + 2 ≤ U / Nat.gcd h U :=
+    Nat.le_of_mul_le_mul_left (le_trans hqm₀ hkey) hh
+  have hU'gt1 : 1 < U / Nat.gcd h U := by omega
+  have hhq : h < q := by
+    have h2 : h * 2 ≤ h * (m₀ + 2) := Nat.mul_le_mul (Nat.le_refl h) (by omega)
+    omega
+  have hpU'0 : p ∣ U / Nat.gcd h U := p_dvd_reduced hp ha hqeq hU hh hhq
+  -- Blueprint Lemma 1.3: reduce the summand to the modulus `U'`.
+  rw [reduced_sum_eq U h T₁ T₂ hh hU'gt1]
+  set U' := U / Nat.gcd h U with hU'def
+  set h' := h / Nat.gcd h U with hh'def
+  have hU'dvd : U' ∣ U := Nat.div_dvd_of_dvd hdU
+  have hcoph' : Nat.Coprime h' U' := Nat.coprime_div_gcd_div_gcd hdpos
+  have hU'pos : 0 < U' := by omega
+  have hU'leU : U' ≤ U := Nat.le_of_dvd hUpos hU'dvd
+  -- Blueprint (3.3): `5 q^ε < U'` and `(U')^c ≤ δ' q^ε`.
+  have hT₂U' : (T₂ : ℝ) < (U' : ℝ) := by
+    have hhR : (0 : ℝ) < (h : ℝ) := by exact_mod_cast hh
+    have hk1 : (q : ℝ) ≤ (h : ℝ) * (U' : ℝ) := by exact_mod_cast hkey
+    have hsplit : (q : ℝ) ^ (1 - ε) * (q : ℝ) ^ ε = (q : ℝ) := by
+      rw [← Real.rpow_add hqRpos, show (1 : ℝ) - ε + ε = 1 by ring, Real.rpow_one]
+    have hmul := mul_le_mul_of_nonneg_right hqE2 hqEpos.le
+    rw [hsplit] at hmul
+    have h3 : (h : ℝ) * (5 * (q : ℝ) ^ ε) < (h : ℝ) * (U' : ℝ) := by nlinarith
+    have h4 := lt_of_mul_lt_mul_left h3 hhR.le
+    linarith
+  have hU'c : (U' : ℝ) ^ c ≤ δ' * (q : ℝ) ^ ε := by
+    refine reduced_rpow_bound ε c δ' hc0 hcε q U' hq1 ?_ ?_
+    · have hle : ((U' : ℕ) : ℝ) ≤ ((4 * q * q : ℕ) : ℝ) := by
+        exact_mod_cast le_trans hU'leU hUle
+      push_cast at hle
+      nlinarith [hle]
+    · rw [div_le_iff₀ hδ'pos] at hqE3
+      linarith
+  have hbdA := hm₀ U' (by omega) T₁ T₂ hT hT₂U' h' hcoph'
+  have hB1 : 2 * δ' * (T₂ : ℝ) ≤ 2 * δ' * (5 * (q : ℝ) ^ ε) :=
+    mul_le_mul_of_nonneg_left hT₂ (by positivity)
+  have hC : 24 * δ' * (q : ℝ) ^ ε ≤ δ * (q : ℝ) ^ ε :=
+    mul_le_mul_of_nonneg_right hδ'24 hqEpos.le
+  -- Blueprint Lemma 3.3, cases 1–3: the unit conditions modulo `U` and `U'` coincide.
+  have caseA : (∀ t : ℕ, Nat.Coprime t U ↔ Nat.Coprime t U') →
+      ‖∑ t ∈ (Ioc T₁ T₂).filter (fun t => Nat.Coprime t U),
+          e U' (h' * (rOfB U' t : ℤ))‖ ≤ δ * (q : ℝ) ^ ε := by
+    intro hiff
+    have hfe : (Ioc T₁ T₂).filter (fun t => Nat.Coprime t U)
+        = (Ioc T₁ T₂).filter (fun t => Nat.Coprime t U') := by
+      ext t
+      simp only [Finset.mem_filter]
+      exact and_congr_right (fun _ => hiff t)
+    rw [hfe]
+    linarith
+  by_cases h2U : 2 ∣ U
+  · by_cases h2U' : 2 ∣ U'
+    · exact caseA (coprime_reduced_iff hp hqeq hU hU'dvd hpU'0 (fun _ => h2U'))
+    · -- Blueprint Lemma 3.3, case 4: parity subtraction (blueprint (3.1)).
+      have hiff2 := coprime_reduced_odd_iff hp hqeq hU hU'dvd hpU'0 h2U h2U'
+      have hfe : (Ioc T₁ T₂).filter (fun t => Nat.Coprime t U)
+          = ((Ioc T₁ T₂).filter (fun t => Nat.Coprime t U')).filter (fun t => ¬ 2 ∣ t) := by
+        ext t
+        simp only [Finset.mem_filter]
+        constructor
+        · rintro ⟨ht, hc⟩
+          exact ⟨⟨ht, ((hiff2 t).1 hc).1⟩, ((hiff2 t).1 hc).2⟩
+        · rintro ⟨⟨ht, hc⟩, h2t⟩
+          exact ⟨ht, (hiff2 t).2 ⟨hc, h2t⟩⟩
+      rw [hfe]
+      have hAB : ∑ t ∈ ((Ioc T₁ T₂).filter (fun t => Nat.Coprime t U')).filter (fun t => ¬ 2 ∣ t),
+            e U' (h' * (rOfB U' t : ℤ))
+          = (∑ t ∈ (Ioc T₁ T₂).filter (fun t => Nat.Coprime t U'), e U' (h' * (rOfB U' t : ℤ)))
+            - (∑ u ∈ (Ioc (T₁ / 2) (T₂ / 2)).filter (fun u => Nat.Coprime u U'),
+                e U' (halfCoeff U' h' * (rOfB U' u : ℤ))) := by
+        rw [← even_part_reindex U' h' T₁ T₂ hU'gt1 h2U',
+          ← Finset.sum_filter_add_sum_filter_not
+              ((Ioc T₁ T₂).filter (fun t => Nat.Coprime t U')) (fun t => 2 ∣ t)
+              (fun t => e U' (h' * (rOfB U' t : ℤ)))]
+        ring
+      rw [hAB]
+      have hcophalf : Nat.Coprime (halfCoeff U' h') U' :=
+        coprime_halfCoeff U' h' hU'pos h2U' hcoph'
+      have hhalfle : ((T₂ / 2 : ℕ) : ℝ) ≤ (T₂ : ℝ) := by
+        exact_mod_cast Nat.div_le_self T₂ 2
+      have hbdB := hm₀ U' (by omega) (T₁ / 2) (T₂ / 2) (Nat.div_le_div_right hT)
+        (by linarith) (halfCoeff U' h') hcophalf
+      have htri := norm_sub_le
+        (∑ t ∈ (Ioc T₁ T₂).filter (fun t => Nat.Coprime t U'), e U' (h' * (rOfB U' t : ℤ)))
+        (∑ u ∈ (Ioc (T₁ / 2) (T₂ / 2)).filter (fun u => Nat.Coprime u U'),
+            e U' (halfCoeff U' h' * (rOfB U' u : ℤ)))
+      have hB2 : 2 * δ' * ((T₂ / 2 : ℕ) : ℝ) ≤ 2 * δ' * (5 * (q : ℝ) ^ ε) :=
+        mul_le_mul_of_nonneg_left (le_trans hhalfle hT₂) (by positivity)
+      linarith
+  · exact caseA (coprime_reduced_iff hp hqeq hU hU'dvd hpU'0 (fun hc => absurd hc h2U))
 
 /-! ## 7. Erdős–Turán Application and Master Theorem (Lemma vi) -/
 

@@ -1,4 +1,5 @@
 import Erdos289.Lemma1EquidistStmt
+import Erdos289.ExternalBridge
 
 /-!
 # Lemma 1: the even-case count (open)
