@@ -1,6 +1,7 @@
 import Erdos289.External
 import Erdos289.ErdosTuran
 import Erdos289.ExternalAxioms
+import Erdos289.Ported
 
 /-!
 # Bridging the author's audited external axioms to our statements
@@ -358,11 +359,11 @@ alias erdos_turan := bridge_erdos_turan
 `B₁`. Mathlib does not currently contain this asymptotic (checked: no lemma involving
 `Mertens`, and `Nat.primeCounting`/Chebyshev files only give prime-counting bounds, not
 the reciprocal-prime sum). Taken as an unproved classical input. -/
-alias mertens_second := bridge_mertens_second
+alias mertens_second := Ported.mertens_second
 
 /-- The uniform divisor bound `τ(n) = n^{o(1)}`. Mathlib does not currently contain this
 (checked: only the trivial bound `Nat.card_divisors_le_self : n.divisors.card ≤ n`, no
 `n^ε`-type divisor bound). Taken as an unproved classical input. -/
-alias divisor_bound := bridge_divisor_bound
+alias divisor_bound := Ported.divisor_bound
 
 end Erdos289

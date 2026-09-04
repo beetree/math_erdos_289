@@ -13,3 +13,8 @@ rev = "v4.34.0-rc2"
 
 [[lean_lib]]
 name = "Erdos289"
+
+# Verbatim ports of axiom-clean proofs of classical inputs (see Erdos289/Ported.lean and
+# expert_input/ported/*/PROVENANCE.md for provenance).
+[[lean_lib]]
+name = "SolveMath"

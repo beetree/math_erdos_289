@@ -4,11 +4,13 @@ Last updated: 2026-09-03 23:20 PDT. Live view: `scripts/status.sh`.
 
 ## One-line status
 
-**The conditional certificate is achieved.** `Erdos289.candidateStatement : CandidateStatement`
-builds with no `sorry` anywhere in its dependency chain, and `scripts/Axioms.lean` reports
-exactly `propext`, `Classical.choice`, `Quot.sound`, and the six audited axioms
-`Erdos289.External.Assumed.*`. Removing the six axioms gives the **unconditional
-certificate**; that is the remaining work.
+**The conditional certificate is achieved, and two of the six axioms are already
+discharged.** `Erdos289.candidateStatement : CandidateStatement` builds with no `sorry`
+anywhere in its dependency chain, and `scripts/Axioms.lean` reports exactly `propext`,
+`Classical.choice`, `Quot.sound`, and **four** audited axioms: `liu_sawhney`,
+`cfhmpsv_structure`, `bourgain_garaev`, `erdos_turan`. The divisor bound and Mertens' second
+theorem are proved via verbatim ports from the `plby/lean-proofs` corpus (`SolveMath/`,
+`Erdos289/Ported.lean`). Removing the remaining four gives the **unconditional certificate**.
 
 ## What has to be removed
 
@@ -36,12 +38,12 @@ the axiom report names exactly `Erdos289.External.Assumed.*`.
 
 | # | Axiom | Source | Used by | Prospects for removal |
 |---|---|---|---|---|
-| A1 | `liu_sawhney` | Liu–Sawhney, Thm 1.3 | Lemma 6 → core | Hard. Bloom–Mehta formalized Bloom's underlying theorem in Lean 3; porting gives infrastructure, not this finite statement. |
+| A1 | `liu_sawhney` | Liu–Sawhney, Thm 1.3 | Lemma 6 → core | A port from the same corpus is in progress in `expert_input/ported/LiuSawhney/` (run `port_ls`, launched outside this session). |
 | A2 | `cfhmpsv_structure` | Conlon–Fox–Pham Thm 1.5 via CFHMPSV Thm 3 | Lemma 3 | Hard. No known formalization. |
 | A3 | `bourgain_garaev` | Bourgain–Garaev, Thm 5 | Lemma 1 (S1) | Hard. No known formalization. |
 | A4 | `erdos_turan` | discrete Erdős–Turán inequality | Lemma 1 (S1) | Moderate. Classical; a self-contained Fourier-analytic proof is feasible. |
-| A5 | `mertens_second` | Mertens' second theorem | Lemma 1 (sieve), Lemma 4 | Moderate. Not in Mathlib; Chebyshev bounds are. |
-| A6 | `divisor_bound` | Hardy–Wright Thm 315 | Lemma 1, Lemma 3 | Easy–moderate. Elementary. |
+| ~~A5~~ | `mertens_second` | Mertens' second theorem | Lemma 1 (sieve), Lemma 4 | **DISCHARGED**: ported proof (4 modules, 1,591 lines) from `plby/lean-proofs`; axiom-clean. |
+| ~~A6~~ | `divisor_bound` | Hardy–Wright Thm 315 | Lemma 1, Lemma 3 | **DISCHARGED**: ported proof (342 lines) from `plby/lean-proofs`; axiom-clean. |
 
 ### C. Final refactor (after A is closed)
 
@@ -84,3 +86,4 @@ Basic (setup, pigeonhole, face count, endgame), core assembly.
 5. Large files split; Opus and Gemini competitors added on the two hard cores.
 6. Author's Lemma 1 equidistribution blueprint arrived (20 explicit lemmas with constants); fed to the agents on S1.
 7. S1 (Opus), S2 (Sonnet), S3 (Opus and Gemini independently) closed; competitor files removed; axioms routed through the bridge. Conditional certificate achieved at commit `38b270a`.
+8. Ported axiom-clean proofs of the divisor bound and Mertens (from `plby/lean-proofs` via `solve-math`) integrated; four audited axioms remain.
