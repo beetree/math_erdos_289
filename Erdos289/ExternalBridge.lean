@@ -361,4 +361,29 @@ alias mertens_second := Ported.mertens_second
 `n^ε`-type divisor bound). Taken as an unproved classical input. -/
 alias divisor_bound := Ported.divisor_bound
 
+
+/-- **Erdős–Turán, weak (`N / √H`) form.** This is the only form used downstream
+(`Erdos289.Equidist.equidist_inverse'`, which takes a fixed cutoff). It follows from the audited
+statement since `N / H ≤ N / √H`; it is also provable directly from the ported finite
+Erdős–Turán inequality `QuantitativeErdosTuran.erdosTuran_fract_count`, which is how the
+audited axiom is removed from the dependency chain. -/
+theorem erdos_turan_weak :
+    ∃ C : ℝ, 0 < C ∧ ∀ (U : ℕ), 0 < U → ∀ (N : ℕ) (x : Fin N → ZMod U) (H : ℕ), 0 < H →
+      ∀ α ℓ : ℕ, α + ℓ ≤ U →
+        |((Finset.univ.filter (fun j => (x j).val ∈ Finset.Ico α (α + ℓ))).card : ℝ)
+              - (N : ℝ) * (ℓ : ℝ) / (U : ℝ)|
+          ≤ C * ((N : ℝ) / Real.sqrt (H : ℝ)
+              + ∑ h ∈ Finset.Icc 1 H, (1 : ℝ) / (h : ℝ) *
+                  ‖∑ j, e U (h * ((x j).val : ℤ))‖) := by
+  obtain ⟨C, hC, h⟩ := erdos_turan
+  refine ⟨C, hC, fun U hU N x H hH α ℓ hαℓ => ?_⟩
+  refine (h U hU N x H hH α ℓ hαℓ).trans ?_
+  gcongr
+  have hH' : (1 : ℝ) ≤ H := by exact_mod_cast hH
+  have hs : Real.sqrt (H : ℝ) ≤ H := by
+    calc Real.sqrt (H : ℝ) ≤ Real.sqrt ((H : ℝ) * H) := by
+          apply Real.sqrt_le_sqrt; nlinarith
+      _ = H := by rw [Real.sqrt_mul_self (by positivity)]
+  exact hs
+
 end Erdos289
