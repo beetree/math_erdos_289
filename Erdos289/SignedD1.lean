@@ -869,6 +869,4 @@ theorem lemmaD1 (ε : ℝ) (hε0 : 0 < ε) (hε1 : ε < 1) (L : ℕ) :
       ((PstarSigned ε L ∩ Set.Icc 1 X).ncard : ℝ) ≤ κ * X :=
   SignedD1G.lemmaD1G ε hε0 hε1 L
 
-#print axioms lemmaD1
-
 end Erdos289
