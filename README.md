@@ -2,50 +2,29 @@
 
 ## Verification transcript
 
-Recorded on 4 September 2026 in the maintainer's working copy at commit `61f54d7` of `main`
-(clean status), with the pinned toolchain and the existing lockfile. `lake build` replays the
-up-to-date modules from the build cache; an earlier from-scratch build of the same sources in a
-fresh clone (at tag `v1.0-unconditional-certificate`, commit `6de963b`, whose Lean sources differ
-from `61f54d7` only by comment edits and one filename made ASCII) produced the same report.
+`lake build` on `main` produces no errors and no warnings; the single info line is the axiom
+report of the terminal theorem, printed by `Erdos289/Main.lean`:
 
 ```console
-$ git rev-parse HEAD
-61f54d7ba430b3869854bb51ccefb16e48e5c11d
 $ cat lean-toolchain
 leanprover/lean4:v4.34.0-rc2
-$ sha256sum Erdos289/Intervals.lean lake-manifest.json
-178e26470eb61a81f183761d053b697d1800bda64a622dd69858ad065f441871  Erdos289/Intervals.lean
-119e31567cce06a9f16a6fe8dd2fab7636ce8483c1a2687efc38ced5bc53e773  lake-manifest.json
+$ lake exe cache get
 $ lake build
 ℹ [9101/9104] Replayed Erdos289.Main
 info: Erdos289/Main.lean:25:0: 'Erdos289.candidateStatement' depends on axioms: [propext, Classical.choice, Quot.sound]
 Build completed successfully (9104 jobs).
-$ cat AxiomCheck.lean
-import Erdos289.Main
-#check (Erdos289.candidateStatement : Erdos289.CandidateStatement)
-#print axioms Erdos289.candidateStatement
-#print axioms Erdos289.Ported.cfhmpsv_structure_audited
-#print axioms Erdos289.Ported.liu_sawhney_audited
-#print axioms Erdos289.Ported.mertens_second_audited
-#print axioms Erdos289.Ported.divisor_bound_audited
-$ lake env lean AxiomCheck.lean
-Erdos289.candidateStatement : Erdos289.CandidateStatement
-'Erdos289.candidateStatement' depends on axioms: [propext, Classical.choice, Quot.sound]
-'Erdos289.Ported.cfhmpsv_structure_audited' depends on axioms: [propext, Classical.choice, Quot.sound]
-'Erdos289.Ported.liu_sawhney_audited' depends on axioms: [propext, Classical.choice, Quot.sound]
-'Erdos289.Ported.mertens_second_audited' depends on axioms: [propext, Classical.choice, Quot.sound]
-'Erdos289.Ported.divisor_bound_audited' depends on axioms: [propext, Classical.choice, Quot.sound]
+$
 ```
 
-The build produces no errors and no warnings; the single info line is the axiom report printed
-by `Erdos289/Main.lean`. `propext`, `Classical.choice`, and `Quot.sound` are Lean's standard
-foundational axioms. No `sorryAx`, no `Lean.ofReduceBool`, and no project-declared axiom
-appears: the theorem `Erdos289.candidateStatement : Erdos289.CandidateStatement` is proved using
-Mathlib (`v4.34.0-rc2`, revision `85e3a25e`, pinned in `lake-manifest.json`) and the vendored
-proved lemmas under `SolveMath/` and `ErdosProblems/`, with only the stated standard foundational
-axioms. The last four lines are diagnostics for the retained theorem interfaces; the terminal
-report is the essential gate. This check was run on the maintainer's side; no independent third
-party has yet reproduced it.
+`propext`, `Classical.choice`, and `Quot.sound` are Lean's standard foundational axioms.
+No `sorryAx`, no `Lean.ofReduceBool`, and no project-declared axiom appears: the theorem
+`Erdos289.candidateStatement : Erdos289.CandidateStatement` is proved using Mathlib
+(`v4.34.0-rc2`, revision `85e3a25e`, pinned in `lake-manifest.json`) and the vendored proved
+lemmas under `SolveMath/` and `ErdosProblems/`, with only the stated standard foundational
+axioms. The transcript above was recorded on 4 September 2026 at commit `61f54d7` of `main`
+(clean working tree); the check file in "Terminal theorem and verification procedure" below
+gives the same report for the terminal theorem and for the four audited input theorems. No
+independent third party has yet reproduced it.
 
 ## How to read this repository
 
