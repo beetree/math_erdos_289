@@ -9,6 +9,14 @@ authors:
   - family-names: Tang
     given-names: Yuren
 repository-code: "https://github.com/beetree/math_erdos_289"
+doi: 10.5281/zenodo.22731916
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.22731916
+    description: "Version DOI of release v2.0-clt-certificate"
+  - type: doi
+    value: 10.5281/zenodo.22731915
+    description: "Concept DOI (latest release)"
 license: Apache-2.0
 version: "2.0"
 date-released: "2026-09-13"

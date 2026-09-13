@@ -22,6 +22,12 @@ This repository holds two Lean 4 formalizations:
 
 ## Verification of `Erdos289CLT` (the current paper)
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22731916.svg)](https://doi.org/10.5281/zenodo.22731916)
+
+Archived on Zenodo as release `v2.0-clt-certificate`: version DOI
+[10.5281/zenodo.22731916](https://doi.org/10.5281/zenodo.22731916) (this release), concept DOI
+[10.5281/zenodo.22731915](https://doi.org/10.5281/zenodo.22731915) (always the latest release).
+
 `scripts/check_clt.sh` builds the library, greps its sources for `sorry`, and prints the axioms of
 the terminal theorems:
 
