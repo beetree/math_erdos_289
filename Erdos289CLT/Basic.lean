@@ -4,7 +4,7 @@ import Erdos289.Defs
 /-!
 # Separated intervals with reciprocal sum one: basic definitions
 
-Formalization of the Cambie–Land–Tang proof (`separated_intervals_reciprocal_sum_one.tex`).
+Formalization of the Cambie–Land–Tang proof (`erdos_289_CLT_proof.tex`).
 This file fixes the shared vocabulary: configurations, the groups `G_n`,
 the quota `s(q) = ⌈q^{3/4}⌉`, the largest prime-power divisor, and the
 elementary separation facts used by every later file.
@@ -430,7 +430,7 @@ theorem lpp_eq {q n : ℕ} (hq : IsPrimePow q) (hqn : q ∣ n) (hn : 0 < n)
 
 /-- The prime powers `q ≤ n` all divide `D n`; conversely every prime power dividing
 `q * m` with `m < q` and `p ∤ m` is at most `q`. -/
-theorem powersmooth_mul_of_lt {p α m : ℕ} (hp : p.Prime) (hα : 0 < α)
+theorem powersmooth_mul_of_lt {p α m : ℕ} (hp : p.Prime) (_hα : 0 < α)
     (hm : m < p ^ α) (hpm : ¬ p ∣ m) (hm0 : 0 < m) : Powersmooth (p ^ α) (p ^ α * m) := by
   intro ℓ e hℓ he0 hdvd
   by_cases hℓp : ℓ = p

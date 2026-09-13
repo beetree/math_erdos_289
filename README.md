@@ -1,7 +1,7 @@
 # Erdős Problem 289: Lean 4 formalization
 
-**Paper:** [*Separated intervals with reciprocal sum one*](separated_intervals_reciprocal_sum_one.pdf)
-(Stijn Cambie, Johan Land, Yuren Tang, September 2026; [LaTeX source](separated_intervals_reciprocal_sum_one.tex)).
+**Paper:** [*Separated intervals with reciprocal sum one*](erdos_289_CLT_proof.pdf)
+(Stijn Cambie, Johan Land, Yuren Tang, September 2026; [LaTeX source](erdos_289_CLT_proof.tex)).
 It proves that for every sufficiently large $k$ there are $k$ pairwise nonadjacent intervals of
 integers $\ge 2$, each of length two, three or four, whose reciprocals sum to $1$, with all
 intervals longer than two taken from a fixed finite set independent of $k$.

@@ -1,6 +1,6 @@
 # `Erdos289CLT`: formalization of *Separated intervals with reciprocal sum one*
 
-This library formalizes the proof in `separated_intervals_reciprocal_sum_one.tex` (S. Cambie, J. Land, Y. Tang).
+This library formalizes the proof in `erdos_289_CLT_proof.tex` (S. Cambie, J. Land, Y. Tang).
 The target is `Erdos289.CLT.MainStatement` (`Basic.lean`): for every sufficiently large `k`
 there is a configuration of `k` pairwise separated integer intervals in `{2, 3, …}`, each of
 length `2`, `3` or `4`, with reciprocal sum `1`, all intervals longer than two belonging to a
