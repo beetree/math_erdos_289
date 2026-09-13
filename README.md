@@ -103,10 +103,32 @@ statement of faithfulness:
 It compiles as is on the pinned toolchain (Lean `v4.34.0-rc2`, Mathlib `v4.34.0-rc2`).
 Do not edit it. Any change to it invalidates the audit.
 
-## Statement of faithfulness
+## Statement of faithfulness (`Erdos289CLT/`, the current paper)
 
-The following statement was supplied by the author of the proof at the time of the audit,
-before the formalization existed. It is reproduced with its title demoted to a subheading and
+The target of the current formalization is the proposition `Erdos289.CLT.MainStatement` in
+`Erdos289CLT/Basic.lean`. It states Theorem 1 of the paper verbatim: a `Config` is a finite
+set of integer intervals inside {2, 3, …}, each containing at least two integers, pairwise
+separated by at least one unused integer (`Iv.Sep`); the statement asks for a fixed finite set
+`S` and a threshold `k₀` such that every `k ≥ k₀` admits a configuration with exactly `k`
+intervals, reciprocal sum exactly `1` (as a rational number), every interval of length at most
+four, and every interval longer than two belonging to `S`. `Erdos289CLT/Main.lean` derives the
+ordered form `Statement234` (`Fin k`-indexed `NatInterval`s with consecutive separation), and
+`Erdos289CLT/Compare.lean` proves that both this statement and the earlier `CandidateStatement`
+imply the bare nonadjacent form of Problem 289 with no strengthening (`BareStatement`).
+
+All lemma statements of the library were written before any proof was attempted and were not
+changed during proving. They were audited against the paper by an independent read-only review
+(`.agents/glm_review.log` in the working tree of the author's session; not part of the
+repository), which found no statement that is false, weaker than later files require, or
+stronger than the paper proves, and confirmed that the natural-number subtraction and division
+in the pair definitions (`companion`, `ctr`, `mOf`, `loOf`, `TOf`) are only used under
+hypotheses that make them exact.
+
+## Statement of faithfulness (earlier development, `Erdos289/`)
+
+The following statement concerns the earlier development in `Erdos289/` and its target
+`Erdos289.CandidateStatement` (intervals of length two or three inside `[1, 20k]`). It was
+supplied by the author of that proof at the time of the audit, before the formalization existed. It is reproduced with its title demoted to a subheading and
 its status remarks, toolchain, and certificate data updated to the completed state; the audit's
 substance, the correspondence between the formal proposition and the problem, is unchanged, and
 so is the audited file.
