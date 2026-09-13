@@ -3,7 +3,7 @@ import Mathlib
 /-!
 # Erdős Problem 289: shared definitions
 
-Definitions used throughout the formalization of `erdos_289_land_2026-09-04.pdf`.
+Definitions used throughout the formalization of `erdos_289_full_proof.pdf`.
 -/
 
 namespace Erdos289

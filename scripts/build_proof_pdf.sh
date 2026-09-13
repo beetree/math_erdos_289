@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Compile a paper source at the repo root into its PDF. Usage: scripts/build_proof_pdf.sh [basename]
 # Default basename: separated_intervals_reciprocal_sum_one (the current paper); the earlier manuscript is
-# erdos_289_land_2026-09-04. Requires pdflatex + latexmk (texlive-latex-extra, texlive-fonts-recommended, latexmk).
+# erdos_289_full_proof. Requires pdflatex + latexmk (texlive-latex-extra, texlive-fonts-recommended, latexmk).
 set -euo pipefail
 repo="$(cd "$(dirname "$0")/.." && pwd)"
 base="${1:-separated_intervals_reciprocal_sum_one}"

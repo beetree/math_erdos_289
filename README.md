@@ -14,8 +14,8 @@ This repository holds two Lean 4 formalizations:
   for the map from paper sections to Lean files and the verification procedure
   (`scripts/check_clt.sh`).
 - **`Erdos289/`** formalizes the earlier single-author manuscript [*A solution of Erdős Problem 289
-  with intervals of length two and three*](erdos_289_land_2026-09-04.pdf) (J. Land, 4 September 2026,
-  [LaTeX source](erdos_289_land_2026-09-04.tex); cited as [Land] in the paper),
+  with intervals of length two and three*](erdos_289_full_proof.pdf) (J. Land, 4 September 2026,
+  [LaTeX source](erdos_289_full_proof.tex); cited as [Land] in the paper),
   whose theorem has intervals of length two or three inside $[1, 20k]$. That development, its
   vendored inputs (`SolveMath/`, `ErdosProblems/`) and its certificate are unchanged; the rest of
   this README describes it.
@@ -239,7 +239,7 @@ record; none of its axioms is in the terminal theorem's dependency chain.
 ## Current status
 
 Complete, according to the certificate recorded above. The formalization and the accompanying
-manuscript (`erdos_289_land_2026-09-04.pdf`) use signed correction fibers and finite orientation
+manuscript (`erdos_289_full_proof.pdf`) use signed correction fibers and finite orientation
 selection. Sparse inverse covering retains the Conlon–Fox–Pham structure theorem, supplied by a
 vendored formal proof. Bourgain–Garaev and Erdős–Turán are not used by the terminal theorem. The
 paper and the Lean development differ in some intermediate estimates, as described in the paper's
@@ -286,7 +286,7 @@ itself is not included. No dependency on the `solve-math` repository exists.
 
 ## Layout
 
-- `erdos_289_land_2026-09-04.pdf`, `erdos_289_land_2026-09-04.tex`: the manuscript accompanying the
+- `erdos_289_full_proof.pdf`, `erdos_289_full_proof.tex`: the manuscript accompanying the
   formalization (`scripts/build_proof_pdf.sh` rebuilds the PDF).
 - `docs/elementary_replacements.md`: the author's replacement proposal (historical); its
   Sections 2–4 (signed fibers) were formalized, its Section 1 (weighted-Fourier covering) was not.

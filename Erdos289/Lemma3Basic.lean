@@ -15,7 +15,7 @@ case `C = 2`. This is what the elementary replacement argument of
 `docs/elementary_replacements.md` (Corollary C4) requires, its correction multipliers ranging
 over `[R(q), 8 q^ε]`.
 
-The proof follows Section 4 of `erdos_289_land_2026-09-04.pdf` ("Sparse modular inverse subsets
+The proof follows Section 4 of `erdos_289_full_proof.pdf` ("Sparse modular inverse subsets
 cover all residues"), a sparse extension of Conlon–Fox–He–Mubayi–Pham–Suk–Verstraëte,
 Theorem 2. It is organized as a chain of lemmas mirroring the paper's argument:
 
