@@ -6,6 +6,7 @@
 \hypersetup{pdftitle={Separated intervals with reciprocal sum one}}
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
 \newcommand{\Z}{\mathbb Z}
 \newcommand{\Q}{\mathbb Q}
 \DeclareMathOperator{\lcm}{lcm}
@@ -47,6 +48,12 @@ with \(\nu(F)=k\) and \(w(F)=1\).
 All intervals have length two, three or four; those longer than two
 belong to a fixed finite set independent of \(k\).
 \end{theorem}
+
+\begin{remark}\label{stronger}
+The second author's earlier solution \cite{Land} gives a stronger conclusion
+at the price of a longer argument: intervals of length two and three only,
+all inside $[1,20k]$.
+\end{remark}
 
 Put \(D_n=\lcm(1,\ldots,n)\) and
 \(G_n=D_n^{-1}\Z/\Z\subset\Q/\Z\).
@@ -288,9 +295,28 @@ Choose residue zero: its weight is a positive integer below \(2\),
 hence \(1\). All intervals longer than two belong to the fixed initial family.
 This proves Theorem~\ref{main}.
 
-\section*{AI-declaration}
 
-This version is based on a simplication by GPT6 of~\cite{Land,Tang}.
+
+\section{Formal verification}\label{sec:formal}
+
+Theorem~\ref{main} has been verified in Lean~4 with Mathlib, following the
+proof above lemma by lemma. The terminal declaration
+\texttt{Erdos289.CLT.main\_theorem}, in the directory \texttt{Erdos289CLT} of
+the repository \cite{Repo}, proves a proposition stating Theorem~\ref{main}
+verbatim; its axiom report lists only \texttt{propext},
+\texttt{Classical.choice} and \texttt{Quot.sound}, and no result from the
+literature is assumed. The same repository contains the earlier formalization
+\cite{Land} of the stronger statement with intervals of length two or three
+inside $[1,20k]$.
+
+
+
+\section*{AI declaration}
+
+The proof in Sections~2--4 is a simplification, obtained with the help of GPT~6, of the
+arguments in \cite{Land,Tang}. The Lean formalization was written with Claude
+and GLM models from a human-written skeleton of definitions and lemma
+statements.
 
 \begin{thebibliography}{9}
 \bibitem{EP289}
@@ -305,7 +331,12 @@ Monographies de L'Enseignement Math\'ematique 28, 1980.
 Oxford University Press, 2008.
 \bibitem{Land} J.~Land,
 \emph{A solution of Erd\H{o}s Problem 289 with intervals of length two and three},
-supplied manuscript, 4 September 2026.
+manuscript, 4 September 2026,
+\url{https://github.com/beetree/math_erdos_289/blob/main/erdos_289_full_proof.pdf}.
+\bibitem{Repo} S.~Cambie, J.~Land and Y.~Tang,
+\emph{Erd\H{o}s Problem 289: Lean formalizations},
+Zenodo, 2026, \url{https://doi.org/10.5281/zenodo.22731916}
+(\url{https://github.com/beetree/math_erdos_289}, release \texttt{v2.0-clt-certificate}).
 \bibitem{Tang} Y.~Tang,
 \emph{Reciprocal Sums over Separated Integer Intervals},
 supplied manuscript, September 2026.
