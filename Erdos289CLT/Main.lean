@@ -281,6 +281,5 @@ theorem statement234 : Statement234 := statement234_of_main main_theorem
 
 end Erdos289.CLT
 
--- The axiom reports of the terminal theorems are printed on every build.
+-- The axiom report of the terminal theorem is printed on every build.
 #print axioms Erdos289.CLT.main_theorem
-#print axioms Erdos289.CLT.statement234
