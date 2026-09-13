@@ -14,3 +14,4 @@ import Erdos289CLT.StagePool
 import Erdos289CLT.Stages
 import Erdos289CLT.Pools
 import Erdos289CLT.Main
+import Erdos289CLT.Compare

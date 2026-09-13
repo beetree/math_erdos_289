@@ -27,6 +27,7 @@ symmetric separation `Iv.Sep`; membership in `G_n = D_n⁻¹ℤ/ℤ` is the pred
 | §4 iteration over stages | `Stages.lean`, `Counts.lean` | `iterate_transfer`, `Ucount`, `width_invariant`, `exists_cutoff` |
 | §4 uniform bounds | `Asymptotics.lean` | `tail_small`, `cand_enough`, `pool_pair_mass_le` |
 | assembly | `Pools.lean`, `Main.lean` | `seed_pool_exists`, `stage_pools_exist`, `main_theorem`, `statement234` |
+| comparison with `Erdos289/` | `Compare.lean` | `BareStatement` (Problem 289 with no strengthening), implied by both `CandidateStatement` and `Statement234` |
 
 Deviations from the paper's text (all strengthen or make explicit what the paper leaves implicit):
 the exclusions of chain terms are bounded crudely by the number of chain terms at most `q²`
