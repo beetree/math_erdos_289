@@ -22,7 +22,7 @@ theorem Ucount_succ_of_isPrimePow {B X : ℕ} (hBX : B ≤ X) (h : IsPrimePow (X
     simp [Finset.mem_filter]
   have heq : (Finset.Ioc B (X + 1)).filter IsPrimePow =
       insert (X + 1) ((Finset.Ioc B X).filter IsPrimePow) := by
-    rw [← Finset.insert_Ioc_right_eq_Ioc_add_one hBX, Finset.filter_insert, if_pos h]
+    rw [← Finset.insert_Ioc_right_eq_Ioc_add_one hBX, Finset.filter_insert, ite_eq_left h]
   rw [Ucount, Ucount, heq, Finset.sum_insert hmem]
   ring
 
@@ -30,7 +30,7 @@ theorem Ucount_succ_of_not_isPrimePow {B X : ℕ} (hBX : B ≤ X) (h : ¬ IsPrim
     Ucount B (X + 1) = Ucount B X := by
   have heq : (Finset.Ioc B (X + 1)).filter IsPrimePow =
       (Finset.Ioc B X).filter IsPrimePow := by
-    rw [← Finset.insert_Ioc_right_eq_Ioc_add_one hBX, Finset.filter_insert, if_neg h]
+    rw [← Finset.insert_Ioc_right_eq_Ioc_add_one hBX, Finset.filter_insert, ite_eq_right h]
   rw [Ucount, Ucount, heq]
 
 private theorem log_two_sub_one_of_pred_eq_two_pow {n k : ℕ} (hk : 1 ≤ k) (h : n + 1 = 2 ^ k) :
@@ -192,7 +192,7 @@ theorem exists_cutoff {B X₀ u₀ : ℕ} (hB : 1 ≤ B) (hBpow : B = 2 ^ Nat.lo
   · simpa using hk
   · have hmlt : m < Nat.find hex := by omega
     have hfmin := Nat.find_min hex hmlt
-    push_neg at hfmin
+    push Not at hfmin
     have hBXm : B ≤ X₀ + m := by omega
     have hstep : s (X₀ + m + 1) ≤ 2 * s B + Ucount B (X₀ + m) :=
       s_succ_le_width hB hBpow hBXm

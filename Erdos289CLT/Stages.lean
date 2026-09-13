@@ -56,17 +56,17 @@ theorem choose_pools (B X : ℕ) (cand : ℕ → Finset ℕ)
   refine ⟨fun q => if q ∈ stages then chosen' q else ∅, ?_, ?_⟩
   · intro q hpp hBq hqX
     have hqs : q ∈ stages := (hmem_stages q).mpr ⟨hpp, hBq, hqX⟩
-    simp only [hqs, if_true]
+    simp only [hqs, ite_true]
     exact hchosen'_sub q hqs
   · intro q q' hqq'
     by_cases hqs : q ∈ stages <;> by_cases hqs' : q' ∈ stages <;>
-      simp only [hqs, hqs', if_true, if_false]
+      simp only [hqs, hqs', ite_true, ite_false]
     · exact hchosen'_disj q hqs q' hqs' hqq'
     · simp
     · simp
     · simp
 
-private theorem iterate_transfer_aux (B X : ℕ) (hBX : B ≤ X) (hB : 1 ≤ B)
+private theorem iterate_transfer_aux (B X : ℕ) (_hBX : B ≤ X) (hB : 1 ≤ B)
     (hBpow : B = 2 ^ Nat.log 2 B)
     (Fm₀ : Fam) (h₀n : Fm₀.n = B) (h₀w : Fm₀.u + 2 * s B ≤ Fm₀.v)
     (pool : ℕ → Finset Iv)
@@ -152,14 +152,14 @@ private theorem iterate_transfer_aux (B X : ℕ) (hBX : B ≤ X) (hB : 1 ≤ B)
           simp [Finset.mem_filter]
         have hfset : (Finset.Ioc B (n + 1)).filter IsPrimePow =
             insert (n + 1) ((Finset.Ioc B n).filter IsPrimePow) := by
-          rw [← Finset.insert_Ioc_right_eq_Ioc_add_one hBn, Finset.filter_insert, if_pos hpp]
+          rw [← Finset.insert_Ioc_right_eq_Ioc_add_one hBn, Finset.filter_insert, ite_eq_left hpp]
         rw [hFm'bound, hFmbound, hfset, Finset.sum_insert hmem, hunion]
         ring
       · have hmem : (n + 1) ∉ (Finset.Ioc B n).filter IsPrimePow := by
           simp [Finset.mem_filter]
         have hfset : (Finset.Ioc B (n + 1)).filter IsPrimePow =
             insert (n + 1) ((Finset.Ioc B n).filter IsPrimePow) := by
-          rw [← Finset.insert_Ioc_right_eq_Ioc_add_one hBn, Finset.filter_insert, if_pos hpp]
+          rw [← Finset.insert_Ioc_right_eq_Ioc_add_one hBn, Finset.filter_insert, ite_eq_left hpp]
         rw [hFm'supp, hFmsupp, hfset, Finset.biUnion_insert, hunion]
         ext I
         simp only [Finset.mem_union]
@@ -181,7 +181,7 @@ private theorem iterate_transfer_aux (B X : ℕ) (hBX : B ≤ X) (hB : 1 ≤ B)
           (by simp) (by simp) (by simp) (by simp) (by simp) hcover' hwidth'
       have hfset : (Finset.Ioc B (n + 1)).filter IsPrimePow =
           (Finset.Ioc B n).filter IsPrimePow := by
-        rw [← Finset.insert_Ioc_right_eq_Ioc_add_one hBn, Finset.filter_insert, if_neg hpp]
+        rw [← Finset.insert_Ioc_right_eq_Ioc_add_one hBn, Finset.filter_insert, ite_eq_right hpp]
       refine ⟨Fm', ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
       · rw [hFm'β, hFmβ]
       · rw [hFm'n]

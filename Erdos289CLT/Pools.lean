@@ -75,12 +75,12 @@ theorem seed_pool_exists (c₀ : ℝ) (hc : 0 < c₀) (B : ℕ) (hB : 9 ≤ B) (
         ↑(M.filter (fun m => ctr B (lo m) m ∈ chainLabels B))
         ↑((chainLabels B).filter (fun lab => lab ≤ B ^ 2)) := by
       intro m hm
-      simp only [Finset.coe_filter, Set.mem_setOf_eq] at hm ⊢
+      simp only [Finset.coe_filter, Set.mem_ofPred_eq] at hm ⊢
       exact ⟨hm.2, hctr_le_sq m hm.1⟩
     have hinj : Set.InjOn (fun m => ctr B (lo m) m)
         ↑(M.filter (fun m => ctr B (lo m) m ∈ chainLabels B)) := by
       intro x hx y hy hxy
-      simp only [Finset.coe_filter, Set.mem_setOf_eq] at hx hy
+      simp only [Finset.coe_filter, Set.mem_ofPred_eq] at hx hy
       by_contra hne
       exact hCtrInjM x hx.1 y hy.1 hne hxy
     calc (M.filter (fun m => ctr B (lo m) m ∈ chainLabels B)).card
@@ -273,8 +273,8 @@ theorem stage_pools_exist (c₀ : ℝ) (hc : 0 < c₀) (B X : ℕ) (hB : 9 ≤ B
           ↑((M q).filter (fun m => ctr q (lo q m) m ∈ chainLabels B ∨ ctr q (lo q m) m ∈ PBc))
           ↑(((chainLabels B).filter (fun lab => lab ≤ q ^ 2)) ∪ PBc) := by
         intro m hm
-        simp only [Finset.coe_filter, Set.mem_setOf_eq] at hm
-        simp only [Finset.coe_union, Set.mem_union, Finset.coe_filter, Set.mem_setOf_eq]
+        simp only [Finset.coe_filter, Set.mem_ofPred_eq] at hm
+        simp only [Finset.coe_union, Set.mem_union, Finset.coe_filter, Set.mem_ofPred_eq]
         rcases hm.2 with h | h
         · exact Or.inl ⟨h, hctr_le_sq m hm.1⟩
         · exact Or.inr h
@@ -282,7 +282,7 @@ theorem stage_pools_exist (c₀ : ℝ) (hc : 0 < c₀) (B X : ℕ) (hB : 9 ≤ B
           ↑((M q).filter (fun m => ctr q (lo q m) m ∈ chainLabels B ∨
             ctr q (lo q m) m ∈ PBc)) := by
         intro x hx y hy hxy
-        simp only [Finset.coe_filter, Set.mem_setOf_eq] at hx hy
+        simp only [Finset.coe_filter, Set.mem_ofPred_eq] at hx hy
         by_contra hne
         exact hCtrInjMq x hx.1 y hy.1 hne hxy
       calc ((M q).filter (fun m => ctr q (lo q m) m ∈ chainLabels B ∨
@@ -370,11 +370,11 @@ theorem stage_pools_exist (c₀ : ℝ) (hc : 0 < c₀) (B X : ℕ) (hB : 9 ≤ B
       pool q = ((cand q).filter (fun m => ctr q (lo q m) m ∈ chosen q)).image (poolIv (lo q)) := by
     intro q hpp hBq hqX
     simp only [hpooldef]
-    rw [if_pos ⟨hpp, hBq, hqX⟩]
+    rw [ite_eq_left ⟨hpp, hBq, hqX⟩]
   have hpool_empty : ∀ q, ¬ (IsPrimePow q ∧ B < q ∧ q ≤ X) → pool q = ∅ := by
     intro q hq
     simp only [hpooldef]
-    rw [if_neg hq]
+    rw [ite_eq_right hq]
   refine ⟨pool, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
   · -- card
     intro q hpp hBq hqX

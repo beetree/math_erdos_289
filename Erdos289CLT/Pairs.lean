@@ -245,7 +245,7 @@ theorem pairs_lemma : ∃ c₀ : ℝ, 0 < c₀ ∧ ∃ q₀ : ℕ, ∀ p α : �
       rw [hQdef]; exact mul_div_assoc c₀ (q:ℝ) (Real.log (q:ℝ))
     have hex_m := hex m hm
     obtain ⟨hbgood, hbeq⟩ := hex_m.choose_spec
-    have hlo_eq : lo m = loOf p q hex_m.choose := dif_pos hex_m
+    have hlo_eq : lo m = loOf p q hex_m.choose := dite_eq_left hex_m
     set b : ℕ := hex_m.choose with hbdef
     have hbcar : b ∈ carriers := by
       rw [hgooddef, Finset.mem_filter] at hbgood

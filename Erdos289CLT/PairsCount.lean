@@ -134,7 +134,7 @@ theorem card_bad_b_le {p α Dc : ℕ} (hp : p.Prime) (hα : 0 < α) (hD : 16 < D
     _ ≤ 8 * Dc := by omega
 
 theorem card_bad_two_le {p α Dc : ℕ} (hp : p.Prime) (hα : 0 < α) (hD : 16 < Dc)
-    (hq : Dc ^ 3 < p ^ α) (hp2 : p ≠ 2) (carriers : Finset ℕ)
+    (hq : Dc ^ 3 < p ^ α) (_hp2 : p ≠ 2) (carriers : Finset ℕ)
     (hcar : ∀ b ∈ carriers, b.Prime ∧ b ≠ p ∧ p ^ α / Dc < b ∧ b < p ^ α / 16) :
     (carriers.filter (fun b => 2 ^ (Nat.log 2 (p ^ α) - 2) ∣ TOf p (p ^ α) b)).card ≤ 16 := by
   set q := p ^ α with hqdef
@@ -163,7 +163,7 @@ theorem card_bad_two_le {p α Dc : ℕ} (hp : p.Prime) (hα : 0 < α) (hD : 16 <
     (TOf p q b / P, if dOf p * b * TOf p q b ≡ 1 [MOD q] then (0 : ℕ) else 1) with hφdef
   have hmapsto : Set.MapsTo φ (carriers.filter (fun b => P ∣ TOf p q b) : Set ℕ) target := by
     intro b hb
-    simp only [Finset.coe_filter, Set.mem_setOf_eq] at hb
+    simp only [Finset.coe_filter, Set.mem_ofPred_eq] at hb
     obtain ⟨hbc, hPT⟩ := hb
     obtain ⟨hbp, hbne, hb1, hb2⟩ := hcar b hbc
     obtain ⟨hm1, hm2, hm3, hm4, hm5, hT1, hT2, hT3, h8, hcong⟩ :=
@@ -180,7 +180,7 @@ theorem card_bad_two_le {p α Dc : ℕ} (hp : p.Prime) (hα : 0 < α) (hD : 16 <
     exact Finset.mk_mem_product (Finset.mem_Icc.mpr ⟨hj1, hj7⟩) (by split_ifs <;> simp)
   have hinjOn : Set.InjOn φ (carriers.filter (fun b => P ∣ TOf p q b) : Set ℕ) := by
     intro b hb b' hb' heq
-    simp only [Finset.coe_filter, Set.mem_setOf_eq] at hb hb'
+    simp only [Finset.coe_filter, Set.mem_ofPred_eq] at hb hb'
     obtain ⟨hbc, hPT⟩ := hb
     obtain ⟨hbc', hPT'⟩ := hb'
     obtain ⟨hbp, hbne, hb1, hb2⟩ := hcar b hbc
@@ -242,7 +242,7 @@ private lemma card_primes_gt_div_dvd_le_two {Dc q N : ℕ} (hDc0 : 0 < Dc) (hq :
     (hN0 : 0 < N) (hN2 : N < q ^ 2) (S : Finset ℕ)
     (hS : ∀ b ∈ S, b.Prime ∧ q / Dc < b ∧ b ∣ N) : S.card ≤ 2 := by
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   obtain ⟨a, ha, b, hb, c, hc, hab, hac, hbc⟩ := Finset.two_lt_card.mp hcon
   obtain ⟨hap, haq, had⟩ := hS a ha
   obtain ⟨hbp, hbq, hbd⟩ := hS b hb

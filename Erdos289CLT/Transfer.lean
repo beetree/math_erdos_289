@@ -64,7 +64,7 @@ private def unionConfig (C₀ : Config) (B pool : Finset Iv)
     · exact hsep I (hB I hIB) J (hB J hJB) hIJ
 
 /-- The transfer step (paper §4). -/
-theorem transfer (Fm : Fam) {n' : ℕ} (hn : Fm.n ≤ n') (cover further : Finset Iv)
+theorem transfer (Fm : Fam) {n' : ℕ} (_hn : Fm.n ≤ n') (cover further : Finset Iv)
     (hdisj : Disjoint cover further)
     (hpair : ∀ I ∈ cover ∪ further, 2 ≤ I.lo ∧ I.hi = I.lo + 1)
     (hsep : ∀ I ∈ cover ∪ further, ∀ J ∈ cover ∪ further, I ≠ J → Iv.Sep I J)

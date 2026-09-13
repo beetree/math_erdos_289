@@ -55,7 +55,7 @@ theorem norm_one_add_exp_mul_I (θ : ℝ) : ‖(1 : ℂ) + Complex.exp (θ * I)�
 
 /-- The key per-element bound: if `r/n` is at distance `≥ y` from `0` and `1`, then
 `|1 + ζ^r| ≤ 2 exp(-2y²)`, where `ζ = exp(2πI/n)`. -/
-theorem norm_one_add_zeta_pow (n r : ℕ) (hn : 0 < n) (hr : r < n) (y : ℝ) (hy0 : 0 ≤ y) (hy1 : y ≤ 1/2)
+theorem norm_one_add_zeta_pow (n r : ℕ) (hn : 0 < n) (hr : r < n) (y : ℝ) (hy0 : 0 ≤ y) (_hy1 : y ≤ 1/2)
     (hlo : y * n ≤ r) (hhi : (r:ℝ) ≤ n - y * n) :
     ‖(1:ℂ) + Complex.exp ((2*π*I/n)) ^ r‖ ≤ 2 * Real.exp (-2 * y^2) := by
   have hnpos : (0:ℝ) < (n:ℝ) := by exact_mod_cast hn
@@ -197,7 +197,7 @@ theorem card_pos_multiples_near (n g X : ℕ) (hg : 0 < g) (hgn : g ∣ n) (hXn 
       apply Nat.lt_of_mul_lt_mul_left (a := g)
       rw [← hk, ← hm]; exact hrn
     show n - r ∈ ↑((range n).filter (fun r => 0 < r ∧ g ∣ r ∧ 4 * r < X))
-    simp only [Finset.mem_coe, mem_filter, mem_range]
+    simp only [mem_filter, mem_range]
     refine ⟨by omega, by omega, ?_, ?_⟩
     · refine ⟨m - k, ?_⟩
       rw [hm, hk, Nat.mul_sub]
@@ -305,7 +305,7 @@ theorem badA_card_le (n t : ℕ) (hn : 0 < n) (ht0 : 0 < t) (htn : t < n)
         apply mul_le_mul_of_nonneg_right hreal2 hgR.le
     _ = (N:ℝ)/2 := by field_simp; ring
 
-theorem norm_one_add_zeta_pow_le_two (n r : ℕ) (hn : 0 < n) :
+theorem norm_one_add_zeta_pow_le_two (n r : ℕ) (_hn : 0 < n) :
     ‖(1:ℂ) + Complex.exp ((2*π*I/n)) ^ r‖ ≤ 2 := by
   have hz : ‖Complex.exp ((2*π*I/n)) ^ r‖ = 1 := by
     rw [norm_pow]
@@ -318,10 +318,10 @@ theorem norm_one_add_zeta_pow_le_two (n r : ℕ) (hn : 0 < n) :
 /-- Splitting the product over `A` into a "bad" part (bounded by `2` per factor) and a "good"
 part (bounded by `2 exp(-2y²)` per factor, given `hgoodbound`) gives an overall bound
 `2^|A| exp(-2y²|good|)`. -/
-theorem prod_bound (n t : ℕ) (hn : 0 < n) (ht0 : 0 < t) (htn : t < n)
-    (A : Finset ℕ) (hA : ∀ a ∈ A, a < n)
+theorem prod_bound (n t : ℕ) (hn : 0 < n) (_ht0 : 0 < t) (_htn : t < n)
+    (A : Finset ℕ) (_hA : ∀ a ∈ A, a < n)
     (badA good : Finset ℕ) (hpart : ∀ a ∈ A, a ∈ badA ↔ ¬ (a ∈ good))
-    (hbadA : badA ⊆ A) (hgood : good ⊆ A) (hunion : badA ∪ good = A)
+    (_hbadA : badA ⊆ A) (hgood : good ⊆ A) (hunion : badA ∪ good = A)
     (y : ℝ) (hy0 : 0 ≤ y) (hy1 : y ≤ 1/2)
     (hgoodbound : ∀ a ∈ good, y * n ≤ (t * a % n : ℕ) ∧ ((t * a % n : ℕ):ℝ) ≤ n - y * n) :
     ‖∏ a ∈ A, ((1:ℂ) + Complex.exp ((2*π*I/n)) ^ (t * a % n))‖ ≤
@@ -423,15 +423,15 @@ theorem full_prod_bound (n t : ℕ) (hn : 0 < n) (ht0 : 0 < t) (htn : t < n)
     nlinarith [hprod, hyy]
   linarith [key]
 
-theorem geom_orthogonality (n : ℕ) (hn : 0 < n) (z : ℂ) (hzn : z^n = 1) :
+theorem geom_orthogonality (n : ℕ) (_hn : 0 < n) (z : ℂ) (hzn : z^n = 1) :
     ∑ t ∈ range n, z^t = if z = 1 then (n:ℂ) else 0 := by
   by_cases hz1 : z = 1
   · simp [hz1]
-  · rw [if_neg hz1]
+  · rw [ite_eq_right hz1]
     rw [geom_sum_eq hz1 n, hzn]
     simp
 
-theorem exp_pow_eq_iff_modEq_le (n s b : ℕ) (hn : 0 < n) (hprim : IsPrimitiveRoot (Complex.exp (2*π*I/n)) n)
+theorem exp_pow_eq_iff_modEq_le (n s b : ℕ) (_hn : 0 < n) (hprim : IsPrimitiveRoot (Complex.exp (2*π*I/n)) n)
     (hne : Complex.exp (2*π*I/n) ≠ 0) (hsb : b ≤ s) :
     (Complex.exp (2*π*I/n))^s = (Complex.exp (2*π*I/n))^b ↔ s ≡ b [MOD n] := by
   obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le hsb
@@ -503,7 +503,7 @@ theorem sum_eq_card_R (n : ℕ) (hn : 0 < n) (A : Finset ℕ) (b : ℕ) :
   rw [Finset.sum_const, nsmul_eq_mul]
   ring
 
-theorem sum_split_bound (n : ℕ) (hn : 1 ≤ n) (g : ℕ → ℂ) (B : ℝ) (hBnn : 0 ≤ B)
+theorem sum_split_bound (n : ℕ) (hn : 1 ≤ n) (g : ℕ → ℂ) (B : ℝ) (_hBnn : 0 ≤ B)
     (hB : ∀ t, 1 ≤ t → t < n → ‖g t‖ ≤ B) :
     ‖(∑ t ∈ range n, g t) - g 0‖ ≤ (n-1) * B := by
   have hsplit : ∑ t ∈ range n, g t = g 0 + ∑ t ∈ Ico 1 n, g t := by
@@ -548,7 +548,7 @@ theorem exists_n0 : ∃ n0 : ℕ, ∀ n : ℕ, n0 ≤ n → (n:ℝ) - 1 < Real.e
   linarith [key, hbound]
 
 /-- `N ≥ n^{3/4}` implies `N³/(16n²) ≥ n^{1/4}/16`. -/
-theorem rpow_bound (n : ℕ) (hn : 0 < n) (N : ℝ) (hN0 : 0 ≤ N) (hN : (n:ℝ)^((3:ℝ)/4) ≤ N) :
+theorem rpow_bound (n : ℕ) (hn : 0 < n) (N : ℝ) (_hN0 : 0 ≤ N) (hN : (n:ℝ)^((3:ℝ)/4) ≤ N) :
     (n:ℝ)^((1:ℝ)/4) / 16 ≤ N^3 / (16 * n^2) := by
   have hnpos : (0:ℝ) < (n:ℝ) := by exact_mod_cast hn
   have h1 : ((n:ℝ)^((3:ℝ)/4))^(3:ℕ) ≤ N^3 := by
@@ -638,7 +638,7 @@ theorem subsets_lemma : ∃ n₀ : ℕ, ∀ n : ℕ, n₀ ≤ n → ∀ A : Fins
       exact hsplit
     linarith [hBlt, this]
   obtain ⟨P, hP⟩ := Finset.card_pos.mp (Nat.pos_of_ne_zero hRne)
-  simp only [hR, mem_filter, mem_powerset] at hP
+  simp only [mem_filter, mem_powerset] at hP
   exact ⟨P, hP.1, hP.2⟩
 
 end Erdos289.CLT

@@ -260,7 +260,7 @@ theorem e_le_N (B : ℕ) : e B ≤ Nn B := Nat.le_max_left _ _
 theorem log_Modd_lt_N (B : ℕ) : Nat.log 2 (Modd B) + 4 ≤ Nn B := Nat.le_max_right _ _
 
 /-- `Modd B ≤ 2^(Nn B - 3)` for `B ≥ 8`. -/
-theorem Modd_le_pow_N {B : ℕ} (hB : 8 ≤ B) : Modd B ≤ 2 ^ (Nn B - 3) := by
+theorem Modd_le_pow_N {B : ℕ} (_hB : 8 ≤ B) : Modd B ≤ 2 ^ (Nn B - 3) := by
   have hlt : Modd B < 2 ^ (Nat.log 2 (Modd B) + 1) :=
     Nat.lt_pow_succ_log_self (by norm_num) _
   have hle : Nat.log 2 (Modd B) + 1 ≤ Nn B - 3 := by
@@ -363,7 +363,7 @@ theorem label_ne {B : ℕ} (hB8 : 8 ≤ B) (i j : ℕ) : (2 : ℕ) ^ i ≠ Modd 
 /-- A chain interval at label `lab` lies in the block `[lab, lab+2]`. -/
 theorem chainIv_block (lab : ℕ) (ext : Bool) :
     lab ≤ (chainIv lab ext).lo + 1 ∧ (chainIv lab ext).hi ≤ lab + 2 := by
-  cases ext <;> simp [chainIv, Iv.triple, Iv.pair] <;> omega
+  cases ext <;> simp [chainIv, Iv.triple, Iv.pair]; omega
 
 /-- A chain interval at label `lab` has `lo ≥ lab`. -/
 theorem chainIv_lo_ge (lab : ℕ) (ext : Bool) : lab ≤ (chainIv lab ext).lo := by
@@ -428,7 +428,7 @@ theorem mem_chainLabels2 (B : ℕ) {i : ℕ} (hi : i ∈ Icc 3 (Nn B)) :
     Modd B * 2 ^ i ∈ chainLabels B := Finset.mem_union_right _ (Finset.mem_image_of_mem _ hi)
 
 theorem seedF_isConfig (B h : ℕ) (hB8 : 8 ≤ B) (hh : h ∈ hSet) (U V : Finset ℕ)
-    (hU : U ⊆ Icc 3 (Nn B)) (hV : V ⊆ Icc 3 (Nn B))
+    (_hU : U ⊆ Icc 3 (Nn B)) (_hV : V ⊆ Icc 3 (Nn B))
     (PB pool : Finset Iv) (hpool : pool ⊆ PB)
     (hPBpair : ∀ I ∈ PB, 8 ≤ I.lo ∧ I.hi = I.lo + 1)
     (hPBsep : ∀ I ∈ PB, ∀ J ∈ PB, I ≠ J → Iv.Sep I J)
@@ -535,7 +535,7 @@ theorem chainIv_mass (lab : ℕ) (ext : Bool) :
     (chainIv lab ext).mass = (Iv.pair (lab + 1)).mass + (if ext then (1 : ℚ) / lab else 0) := by
   cases ext
   · simp [chainIv]
-  · simp only [chainIv, if_true]
+  · simp only [chainIv, ite_true]
     rw [triple_mass, pair_mass]
     push_cast
     ring
@@ -937,16 +937,16 @@ theorem seed_family (B : ℕ) (hB8 : 8 ≤ B)
         obtain ⟨h, hh, hrem0, hrem1⟩ : ∃ h ∈ hSet, (h : ℚ) / 60 ≤ x ∧ x - (h : ℚ) / 60 < 1 / 4 := by
           by_cases c1 : x < 15 / 60
           · exact ⟨0, by decide, by norm_num; linarith, by norm_num; linarith⟩
-          push_neg at c1
+          push Not at c1
           by_cases c2 : x < 28 / 60
           · exact ⟨15, by decide, by norm_num; linarith, by norm_num; linarith⟩
-          push_neg at c2
+          push Not at c2
           by_cases c3 : x < 43 / 60
           · exact ⟨28, by decide, by norm_num; linarith, by norm_num; linarith⟩
-          push_neg at c3
+          push Not at c3
           by_cases c4 : x < 55 / 60
           · exact ⟨43, by decide, by norm_num; linarith, by norm_num; linarith⟩
-          push_neg at c4
+          push Not at c4
           exact ⟨55, by decide, by norm_num; linarith, by norm_num; linarith⟩
         set rem : ℚ := x - (h : ℚ) / 60 with hremdef
         have hKpos : (0 : ℚ) < (K B : ℚ) := by exact_mod_cast K_pos B
@@ -980,14 +980,14 @@ theorem seed_family (B : ℕ) (hB8 : 8 ≤ B)
         have hbl : b' < Modd B := Nat.mod_lt y (Modd_pos B)
         have hal : a < 2 ^ (Nn B - 2) := by
           by_contra hcon
-          push_neg at hcon
+          push Not at hcon
           have hmul : Modd B * 2 ^ (Nn B - 2) ≤ Modd B * a := Nat.mul_le_mul_left _ hcon
           omega
         have hblt3 : b' < 2 ^ (Nn B - 3) := lt_of_lt_of_le hbl (Modd_le_pow_N hB8)
         have hNa : ∀ j ∈ a.bitIndices, j ≤ Nn B - 3 := by
           intro j hj
           by_contra hcon
-          push_neg at hcon
+          push Not at hcon
           have hjge : Nn B - 2 ≤ j := by omega
           have hpow : (2 : ℕ) ^ (Nn B - 2) ≤ 2 ^ j := pow_le_pow_right' (by norm_num) hjge
           have halt : a < 2 ^ j := lt_of_lt_of_le hal hpow
@@ -997,7 +997,7 @@ theorem seed_family (B : ℕ) (hB8 : 8 ≤ B)
         have hNb : ∀ j ∈ b'.bitIndices, j ≤ Nn B - 4 := by
           intro j hj
           by_contra hcon
-          push_neg at hcon
+          push Not at hcon
           have hjge : Nn B - 3 ≤ j := by omega
           have hpow : (2 : ℕ) ^ (Nn B - 3) ≤ 2 ^ j := pow_le_pow_right' (by norm_num) hjge
           have hblt : b' < 2 ^ j := lt_of_lt_of_le hblt3 hpow

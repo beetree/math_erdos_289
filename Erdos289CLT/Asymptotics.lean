@@ -248,7 +248,7 @@ theorem pool_pair_mass_le (c₀ : ℝ) (hc : 0 < c₀) {q m lo : ℕ} (hq : 2 �
         nlinarith [hcq]
 
 /-- `s(n+1) ≤ 2 s(2^{⌊log₂ n⌋})`. -/
-theorem s_succ_le {n : ℕ} (hn : 1 ≤ n) : s (n + 1) ≤ 2 * s (2 ^ Nat.log 2 n) := by
+theorem s_succ_le {n : ℕ} (_hn : 1 ≤ n) : s (n + 1) ≤ 2 * s (2 ^ Nat.log 2 n) := by
   have h : n + 1 ≤ 2 ^ (Nat.log 2 n + 1) := by
     have h' := Nat.lt_pow_succ_log_self (b := 2) (by norm_num) n
     exact Nat.succ_le_of_lt h'
