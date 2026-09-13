@@ -1,0 +1,313 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,microtype}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,allcolors=blue!45!black]{hyperref}
+\hypersetup{pdftitle={Separated intervals with reciprocal sum one}}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\Q}{\mathbb Q}
+\DeclareMathOperator{\lcm}{lcm}
+\setlength{\emergencystretch}{2em}
+\allowdisplaybreaks
+\title{Separated intervals with reciprocal sum one}
+\author{Stijn Cambie \and Johan Land \and Yuren Tang}\date{}
+\makeatletter
+\renewcommand{\maketitle}{%
+ \begin{center}{\LARGE\@title\par}\end{center}\vspace{.35\baselineskip}}
+\makeatother
+\begin{document}
+\maketitle
+\begin{abstract}
+For every sufficiently large \(k\), we construct \(k\) nonadjacent
+integer intervals, each of length at least two, whose reciprocal sum
+is \(1\). The proof uses elementary prime estimates, the marriage
+theorem, and a short roots-of-unity argument. 
+% Its main observation is
+% that residues and the number of intervals can be controlled together.
+\end{abstract}
+
+
+\section{Introduction}
+
+
+\textcolor{red}{real intro to be written}
+
+Call a finite family of integer intervals in \(\{2,3,\ldots\}\)
+a \emph{configuration} if each interval has length at least two
+and successive intervals have at least one unused integer between them.
+Write \(w(F)\) for its reciprocal sum and \(\nu(F)\) for its number of
+intervals. We prove the following form of Erd\H{o}s Problem~289
+\cite{EG}.
+
+\begin{theorem}\label{main}
+Every sufficiently large integer \(k\) admits a configuration \(F\)
+with \(\nu(F)=k\) and \(w(F)=1\).
+All intervals have length two, three or four; those longer than two
+belong to a fixed finite set independent of \(k\).
+\end{theorem}
+
+Put \(D_n=\lcm(1,\ldots,n)\) and
+\(G_n=D_n^{-1}\Z/\Z\subset\Q/\Z\).
+Thus \(1/a\in G_n\) precisely when every prime power dividing \(a\)
+is at most \(n\). The group changes only at prime powers:
+if \(q=p^\alpha\), then \(G_q/G_{q-1}\) has order \(p\).
+We use this organization, also present in \cite{Land,Tang}, to
+realize whole sets \((\beta+G_n)\times I_n\) of attainable
+\emph{residues and counts}: every residue in \(\beta+G_n\)
+occurs at every integer count in \(I_n\).
+All weights will be positive and below \(2\).
+Once the fixed rational translate \(\beta\) lies in \(G_n\),
+residue zero therefore gives weight exactly \(1\).
+
+\section{Pairs supplying the successive quotients}
+
+\begin{lemma}\label{pairs}
+For every sufficiently large prime power \(q=p^\alpha\), there are
+\(\gg q/\log q\) pairs \(\{qm,qm+\varepsilon\}\), with
+\(\varepsilon=\pm1\), distinct \(1\le m<q\), \(p\nmid m\), and every
+prime power dividing \(qm+\varepsilon\) smaller than \(q\).
+Each pair lies in \([a-1,a+1]\), with distinct centers
+\[
+              a\equiv0\pmod8,\qquad cq^2/\log q\le a\le q^2
+\]
+for an absolute \(c>0\). Each center occurs at at most three stages \(q\).
+\end{lemma}
+
+\begin{proof}
+For a sufficiently large fixed \(D\), Chebyshev's estimates
+\(\pi(x)\asymp x/\log x\) \cite{HW} supply \(\gg q/\log q\) primes
+\(b\in(q/D,q/16)\), excluding \(p\). Set \(d=8\) for odd \(p\)
+and \(d=1\) for \(p=2\).
+For \(r=db\), let \(t\in[1,q-1]\) be its inverse modulo \(q\).
+Then
+\[
+ m_+=\frac{rt-1}{q},\qquad
+ m_-=\frac{r(q-t)+1}{q},\qquad m_++m_-=r.
+\]
+Both coefficients lie in \((0,r)\), and at least one is coprime to
+\(p\). Choose it. Its companion is \(dbT=qm+\varepsilon\), with
+\(T=t\) or \(q-t\).
+
+Only \(O(1)\) carrier primes \(b\) can fail the required
+prime-power condition. Primes other than \(2,b\) contribute only
+through \(T<q\). A power of \(b\) at least \(q\) requires
+\(T=jb\), \(1\le j<D\), and hence
+\(djb^2\equiv\varepsilon\pmod q\).
+Each of these finitely many congruences has at most four roots:
+if a solution exists, division by it reduces the question to
+\(z^2\equiv1\pmod{p^\alpha}\), and one factors \((z-1)(z+1)\).
+For \(d=8\), a bad power of two forces \(T\) to be a multiple
+of the least power of two at least \(q/8\). There are at most
+eight such \(T<q\), each determining at most one \(b<q\) per
+sign through \(8bT\equiv\varepsilon\pmod q\).
+For \(p=2\), both \(b,T\) are odd. Discard these exceptions.
+
+Each \(m\) comes from at most four carriers: a carrier divides
+\(qm-1\) or \(qm+1\), and each of these numbers, being below \(q^2\),
+has at most two distinct prime factors greater than \(q/D\)
+when \(q>D^3\).
+After removing repetitions, retain the larger half of the
+coefficients. There remain \(\gg q/\log q\), all
+\(\gg q/\log q\).
+Use \(a=qm+\varepsilon\) for odd \(p\), and \(a=qm\) for \(p=2\).
+These are distinct multiples of \(8\) with the stated bounds.
+Finally \(q\) is the largest prime-power divisor of \(qm\);
+thus a center can occur only at the largest prime-power stages
+of \(a-1,a,a+1\).
+\end{proof}
+
+\begin{lemma}\label{subsets}
+For sufficiently large \(n\), the subset sums of any \(N\ge n^{3/4}\)
+distinct units modulo \(n\) cover \(\Z/n\Z\).
+\end{lemma}
+
+\begin{proof}
+For a unit set \(A\) and \(\zeta=e^{2\pi i/n}\), the number \(R(b)\)
+of subsets summing to \(b\) satisfies
+\[
+ nR(b)=\sum_{t=0}^{n-1}\zeta^{-bt}\prod_{a\in A}(1+\zeta^{ta}).
+\]
+For \(0<t<n\), put \(g=\gcd(t,n)\). The residues \(ta\) are
+nonzero multiples of \(g\), each with at most \(g\) preimages.
+The two open end intervals of length \(N/4\) contain at most
+\(N/(2g)\) such multiples altogether.
+Hence at least \(N/2\) members satisfy
+\(\|ta/n\|\ge N/(4n)\), where \(\|x\|\) is distance to the nearest integer.
+Using \(|\cos\pi x|\le e^{-2\|x\|^2}\), we obtain
+\[
+ \left|\prod_{a\in A}(1+\zeta^{ta})\right|
+       \le2^N e^{-N^3/(16n^2)}.
+\]
+The \(t=0\) term is \(2^N\), so
+\(nR(b)\ge2^N(1-(n-1)e^{-n^{1/4}/16})>0\) for large \(n\).
+\end{proof}
+
+Every pair in Lemma~\ref{pairs} has weight in \(G_q\).
+Modulo \(G_{q-1}\), its weight equals \(u/q\), where
+\(u=m^{-1}\pmod q\): the companion lies in \(G_{q-1}\), and
+\[
+                 \frac uq-\frac1{qm}=\frac{um-1}{qm}
+\]
+has denominator dividing \(m\), hence dividing \(D_{q-1}\).
+Consequently any \(s(q)=\lceil q^{3/4}\rceil\) of these pairs
+have subset sums covering \(G_q/G_{q-1}\), by Lemma~\ref{subsets}.
+
+\section{A finite starting family}
+
+Let \(B\) be a sufficiently large power of two. All conditions
+on its size below will be uniform in the later choices.
+Write \(D_B=2^eM\), \(M\) odd, and choose \(N\ge e\) with
+\(2^{N-3}\ge M\). Put \(K=M2^N\).
+Reserve the following \(t=2(N-2)\) pairs:
+\begin{equation}\label{chains}
+ [2^i+1,2^i+2],\qquad[M2^i+1,M2^i+2],
+                            \qquad 3\le i\le N.
+\end{equation}
+Their possible left extensions are \([h,h+2]\), with distinct
+starts \(h\equiv0\pmod8\). Thus all are separated, and their
+baseline weight \(\sigma\) is less than \(\frac12(1+1/M)\).
+An extension adds \(1/h\). Multiplying by \(K\), the two chains
+offer the increments \(M2^j\) and \(2^j\), \(0\le j\le N-3\).
+They represent every integer \(0\le z<K/4\):
+write \(z=Mu+v\), where \(u<2^{N-2}\) and
+\(0\le v<M\le2^{N-3}\), and use the binary digits of \(u,v\).
+
+Five single intervals provide the remaining coarse adjustment:
+\[
+\begin{array}{c|ccccc}
+ h&0&15&28&43&55\\ \hline
+ J_h &[5,6]&[4,6]&[2,3]&[2,4]&[2,5]\\
+ w(J_h)&\multicolumn{5}{c}{11/30+h/60}.
+\end{array}
+\]
+The successive gaps in \(\{0,15,28,43,55,60\}/60\) are at most
+\(1/4\). Given \(x\in G_B\), represented in \([0,1)\), choose
+the greatest \(h/60\le x\). The remainder belongs to
+\([0,1/4)\cap K^{-1}\Z\), since \(60\mid D_B\mid K\).
+The chains supply it. Each resulting configuration therefore has
+\[
+                  w=c_0+x,\qquad \nu=t+1,
+       \qquad c_0=11/30+\sigma<9/10.
+\]
+The small interval ends at most at \(6\), while every possible
+chain extension starts at least at \(8\), so separation is preserved.
+
+Now take \(2s(B)\) pairs from Lemma~\ref{pairs} at stage \(B\),
+avoiding all possible seed supports.
+There are \(\gg B/\log B\) candidates. Only \(O(\log\log B)\)
+can conflict with the two chains: in the stage band, whose endpoint
+ratio is \(O(\log B)\), each geometric chain has that many terms,
+uniformly in \(M,N\). Each term forbids \(O(1)\) centers.
+The small intervals add \(O(1)\) exclusions.
+Thus enough pairs remain, and their total weight is
+\(O(\log B/B^{5/4})<1/20\).
+Their weights lie in \(G_B\), so adding any fixed \(r\)-element
+subset merely permutes the residues supplied by the seed.
+For \(0\le r\le2s(B)\), this gives a finite family realizing
+\begin{equation}\label{initial}
+      (\beta+G_B)\times[u_B,u_B+2s(B)],
+      \qquad \beta=c_0\pmod1,\quad u_B=t+1.
+\end{equation}
+All its weights are below \(19/10+1/20=39/20\).
+Its supports and the rational translate \(\beta\) are now fixed.
+
+\section{Enlarging the residue group and the count range}
+
+We use one elementary observation. Suppose a family realizes
+\((\beta+G)\times[u,v]\), and a new pool is separated internally
+and from every old configuration. Its pair weights lie in
+\(G'\supset G\); \(s\) pairs have subset sums covering \(G'/G\),
+and there are \(m\) further pairs.
+If \(v-u\ge s\), the unions realize
+\begin{equation}\label{transfer}
+                    (\beta+G')\times[u+s,v+m].
+\end{equation}
+Indeed, for a target count \(k\in[u+s,v+m]\), set
+\(r=\max\{0,k-v\}\). Then \(0\le r\le m\) and
+\(u+s\le k-r\le v\).
+Choose any \(r\) further pairs \(A\).
+For a target residue \(z\in\beta+G'\), choose a subset \(C\)
+of the first \(s\) pairs with \(z-\beta-w(A)-w(C)\in G\).
+The old family supplies residue \(z-w(A)-w(C)\) and count
+\(k-r-|C|\in[u,v]\); adjoining \(A,C\) proves \eqref{transfer}.
+
+At each prime-power stage \(q>B\), discard the centers from
+Lemma~\ref{pairs} conflicting with the initial family.
+Its two chains exclude \(O(\log\log q)\) centers in the stage
+band; its remaining supports exclude \(O(B^{3/4})\).
+These bounds are uniform in their positions and the chain lengths.
+Thus every stage still has at least \(9s(q)\) centers when
+\(B\) is sufficiently large, since
+\[
+             B^{3/4}+\log\log q+s(q)=o(q/\log q)
+                 \quad\text{uniformly for }q>B.
+\]
+For any finite cutoff \(X>B\), Hall's theorem assigns \(3s(q)\)
+distinct centers to each stage \(B<q\le X\), without sharing centers.
+Indeed, a center belongs to at most three stages, so for any
+set \(S\) of stages,
+\[
+             |N(S)|\ge\frac13\sum_{q\in S}\deg(q)
+                       \ge\sum_{q\in S}3s(q).
+\]
+Apply the marriage theorem to \(3s(q)\) copies of each stage.
+Distinct centers on the \(8\Z\) grid give separated pairs.
+Use \(s(q)\) pairs for the quotient cover and \(2s(q)\) as
+the further pairs in \eqref{transfer}.
+
+Starting from \eqref{initial}, the count interval is updated by
+\[
+                   [u,v]\longmapsto[u+s(q),v+2s(q)].
+\]
+These updates are always permitted. The next prime power after
+\(x\) is at most \(2x\), because a power of two lies in that range;
+its \(s\)-value is at most \(2s(x)\).
+The initial width \(2s(B)\) therefore suffices for the first stage.
+If the old width \(W\) is at least \(s(q)\), the new width is
+\(W+s(q)\ge2s(q)\), enough for the next stage.
+Successive count intervals overlap and their right endpoints
+tend to infinity. Every tail of the sequence consequently covers
+all sufficiently large integers. The intervals depend only on
+the quotas, although the chosen pools may depend on \(X\).
+
+Each stage-\(q\) pool has total weight \(O(\log q/q^{5/4})\).
+Choose \(B\) so large that the sum of these bounds over all
+integers \(q>B\) is below \(1/20\), and all preceding uniform
+requirements hold. This choice precedes the initial construction:
+none of the bounds depends on its later chain lengths or positions.
+Every resulting configuration has weight below \(2\).
+
+Finally choose \(X_0>B\) with \(\beta\in G_{X_0}\), possible
+because \(\bigcup_nG_n=\Q/\Z\).
+For every sufficiently large \(k\), some cutoff \(X\ge X_0\)
+has \(k\) in its count interval. The construction at that cutoff
+realizes \(G_X\) at count \(k\).
+Choose residue zero: its weight is a positive integer below \(2\),
+hence \(1\). All intervals longer than two belong to the fixed initial family.
+This proves Theorem~\ref{main}.
+
+\section*{AI-declaration}
+
+This version is based on a simplication by GPT6 of~\cite{Land,Tang}.
+
+\begin{thebibliography}{9}
+\bibitem{EP289}
+T.~F.~Bloom,
+\emph{Erd\H{o}s Problem \#289},
+\url{https://www.erdosproblems.com/289}.
+\bibitem{EG} P.~Erd\H{o}s and R.~L.~Graham,
+\emph{Old and New Problems and Results in Combinatorial Number Theory},
+Monographies de L'Enseignement Math\'ematique 28, 1980.
+\bibitem{HW} G.~H.~Hardy and E.~M.~Wright,
+\emph{An Introduction to the Theory of Numbers}, 6th ed.,
+Oxford University Press, 2008.
+\bibitem{Land} J.~Land,
+\emph{A solution of Erd\H{o}s Problem 289 with intervals of length two and three},
+supplied manuscript, 4 September 2026.
+\bibitem{Tang} Y.~Tang,
+\emph{Reciprocal Sums over Separated Integer Intervals},
+supplied manuscript, September 2026.
+\end{thebibliography}
+\end{document}
