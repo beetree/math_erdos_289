@@ -1,11 +1,42 @@
 # Erdős Problem 289: Lean 4 formalization
 
-**Paper:** [*A solution of Erdős Problem 289 with intervals of length two and three*](erdos_289_full_proof.pdf)
-(Johan Land, 4 September 2026; [LaTeX source](erdos_289_full_proof.tex)). It proves that for every
-sufficiently large $k$ there are $k$ pairwise nonadjacent intervals of positive integers, each of
-length two or three and contained in $[1,20k]$, whose reciprocals sum to $1$. This repository holds
-the Lean 4 formalization of that theorem; the paper's Appendix A gives the certificate metadata
-and the correspondence between the paper and the Lean development.
+**Paper:** [*Separated intervals with reciprocal sum one*](erdos_289_full_proof.pdf)
+(Stijn Cambie, Johan Land, Yuren Tang, September 2026; [LaTeX source](erdos_289_full_proof.tex)).
+It proves that for every sufficiently large $k$ there are $k$ pairwise nonadjacent intervals of
+integers $\ge 2$, each of length two, three or four, whose reciprocals sum to $1$, with all
+intervals longer than two taken from a fixed finite set independent of $k$.
+
+This repository holds two Lean 4 formalizations:
+
+- **`Erdos289CLT/`** formalizes the paper above (Cambie–Land–Tang). Its terminal theorems are
+  `Erdos289.CLT.main_theorem : MainStatement` and the ordered form
+  `Erdos289.CLT.statement234 : Statement234`; see [`Erdos289CLT/README.md`](Erdos289CLT/README.md)
+  for the map from paper sections to Lean files and the verification procedure
+  (`scripts/check_clt.sh`).
+- **`Erdos289/`** formalizes the earlier single-author manuscript *A solution of Erdős Problem 289
+  with intervals of length two and three* (J. Land, 4 September 2026, cited as [Land] in the paper),
+  whose theorem has intervals of length two or three inside $[1, 20k]$. That development, its
+  vendored inputs (`SolveMath/`, `ErdosProblems/`) and its certificate are unchanged; the rest of
+  this README describes it.
+
+## Verification of `Erdos289CLT` (the current paper)
+
+`scripts/check_clt.sh` builds the library, greps its sources for `sorry`, and prints the axioms of
+the terminal theorems:
+
+```console
+$ scripts/check_clt.sh
+Build completed successfully (8784 jobs).
+--- sorry occurrences per file (source grep) ---
+none
+--- axioms ---
+'Erdos289.CLT.main_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos289.CLT.statement234' depends on axioms: [propext, Classical.choice, Quot.sound]
+```
+
+The library uses no vendored inputs and no project-declared axiom; Chebyshev's lower bound,
+the roots-of-unity covering lemma and Hall's theorem are proved in the library or taken from
+Mathlib. The remainder of this README concerns the earlier development in `Erdos289/`.
 
 ## Verification transcript
 

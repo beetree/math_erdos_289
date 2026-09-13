@@ -1,6 +1,6 @@
 name = "Erdos289"
 version = "0.1.0"
-defaultTargets = ["Erdos289"]
+defaultTargets = ["Erdos289", "Erdos289CLT"]
 
 [leanOptions]
 pp.unicode.fun = true
@@ -17,6 +17,10 @@ rev = "v4.34.0-rc2"
 
 [[lean_lib]]
 name = "Erdos289"
+
+# Formalization of the Cambie–Land–Tang proof (the current paper); see Erdos289CLT/README.md.
+[[lean_lib]]
+name = "Erdos289CLT"
 
 # Ports of axiom-clean proofs of classical inputs (Liu–Sawhney, Mertens, divisor bound); see
 # SolveMath/PROVENANCE.md and docs/provenance/ for provenance and the documented edits.
