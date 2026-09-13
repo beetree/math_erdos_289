@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite it as below."
+title: "Erdős Problem 289: Lean formalizations"
+authors:
+  - family-names: Cambie
+    given-names: Stijn
+  - family-names: Land
+    given-names: Johan
+  - family-names: Tang
+    given-names: Yuren
+repository-code: "https://github.com/beetree/math_erdos_289"
+license: Apache-2.0
+version: "2.0"
+date-released: "2026-09-13"
+abstract: >-
+  Lean 4 / Mathlib formalizations of two solutions of Erdős Problem 289:
+  Erdos289CLT/ verifies the theorem of "Separated intervals with reciprocal sum one"
+  (Cambie, Land, Tang), and Erdos289/ verifies the earlier stronger statement with
+  intervals of length two or three inside [1, 20k] (Land). Both terminal theorems
+  depend only on the axioms propext, Classical.choice and Quot.sound.
+keywords:
+  - Erdős problems
+  - Egyptian fractions
+  - Lean 4
+  - Mathlib
+  - formal verification
