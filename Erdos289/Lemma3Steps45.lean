@@ -5,7 +5,7 @@ import Erdos289.ExternalBridge
 # Lemma 3: steps 4-5
 
 The simultaneous-approximation / divisor-bound step of the wide covering argument
-(`erdos_289_full_proof.pdf`, Section 4: Proposition 2 and the lower bound for `V_GAP`, displays
+(`erdos_289_land_2026-09-04.pdf`, Section 4: Proposition 2 and the lower bound for `V_GAP`, displays
 (4.5)-(4.6)). Both lemmas here are proved in full; there is no `sorry` in this file.
 
 * `box_prod_lt`: the pigeonhole box count of the paper (Section 4.1, Proposition 2).

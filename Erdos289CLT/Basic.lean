@@ -4,7 +4,7 @@ import Erdos289.Defs
 /-!
 # Separated intervals with reciprocal sum one: basic definitions
 
-Formalization of the Cambie–Land–Tang proof (`erdos_289_full_proof.tex`).
+Formalization of the Cambie–Land–Tang proof (`separated_intervals_reciprocal_sum_one.tex`).
 This file fixes the shared vocabulary: configurations, the groups `G_n`,
 the quota `s(q) = ⌈q^{3/4}⌉`, the largest prime-power divisor, and the
 elementary separation facts used by every later file.
